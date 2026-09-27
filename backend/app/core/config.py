@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     CHROMA_DB_PATH: str = "./chroma_db"
     USE_OFFLINE_CACHE: bool = True
 
+    # Relational Database URL (PostgreSQL in production/cloud, SQLite fallback for local dev)
+    DATABASE_URL: str = ""
+
     class Config:
         case_sensitive = True
         extra = "allow"
