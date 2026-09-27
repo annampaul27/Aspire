@@ -1,7 +1,7 @@
 import datetime
 from sqlalchemy.orm import Session
 from app.db.session import engine, SessionLocal
-from app.models.entities import Organization, User, Skill, Job, Subscription
+from app.models.entities import Base, Organization, User, Skill, Job, Subscription
 from app.core.security import get_password_hash
 
 DEFAULT_HASHED_PASSWORD = get_password_hash("SkillSetu@2026")
@@ -11,6 +11,23 @@ def seed_database_defaults(db: Session = None):
     Seeds initial enterprise multi-tenant organizations, users, and subscriptions
     into the relational database if not already seeded.
     """
+    # Ensure all relational tables exist before querying or seeding
+    Base.metadata.create_all(bind=engine)
+
+    # Ensure password_hash and org_id exist on users table for existing SQLite databases
+    with engine.begin() as conn:
+        try:
+            from sqlalchemy import inspect, text
+            inspector = inspect(conn)
+            if "users" in inspector.get_table_names():
+                cols = [c["name"] for c in inspector.get_columns("users")]
+                if "password_hash" not in cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN password_hash VARCHAR(255)"))
+                if "org_id" not in cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN org_id VARCHAR(64)"))
+        except Exception:
+            pass
+
     close_at_end = False
     if db is None:
         db = SessionLocal()
