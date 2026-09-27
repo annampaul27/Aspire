@@ -23,8 +23,10 @@ import {
   Building,
   User,
   Calendar,
+  AlertTriangle,
 } from "lucide-react";
 import GithubIcon from "@/components/icons/GithubIcon";
+import { setAuthToken } from "@/lib/api/client";
 
 function LoginPageContent() {
   const router = useRouter();
@@ -81,6 +83,8 @@ function LoginPageContent() {
   const [empHiringRole, setEmpHiringRole] = useState("Senior Backend Engineer");
 
   const [backendOnline, setBackendOnline] = useState<boolean>(true);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [showOfflineFallback, setShowOfflineFallback] = useState<boolean>(false);
 
   useEffect(() => {
     fetch("http://localhost:8000/health")
@@ -92,6 +96,8 @@ function LoginPageContent() {
 
   const handleRoleTabChange = (newRole: RoleType) => {
     setSelectedRole(newRole);
+    setAuthError(null);
+    setShowOfflineFallback(false);
     if (newRole === "employer") {
       setEmail("priya.sharma@acme.com");
       setPassword("••••••••••••");
@@ -107,12 +113,24 @@ function LoginPageContent() {
   const handleQuickLogin = (demoRole: RoleType, demoEmail: string, orgId?: string) => {
     setSelectedRole(demoRole);
     setEmail(demoEmail);
+    setAuthError(null);
+    setShowOfflineFallback(false);
     if (orgId) setSelectedOrgId(orgId);
     triggerLogin(demoRole, demoEmail, orgId);
   };
 
+  const handleOfflineSimulationLogin = (r: RoleType, em: string, orgId?: string) => {
+    const targetOrg = orgId || selectedOrgId;
+    login(r, em, targetOrg);
+    if (r === "employer") router.push("/employer");
+    else if (r === "student") router.push("/student");
+    else if (r === "admin") router.push("/admin");
+  };
+
   const triggerLogin = async (r: RoleType, em: string, orgId?: string) => {
     setIsLoading(true);
+    setAuthError(null);
+    setShowOfflineFallback(false);
     const targetOrg = orgId || selectedOrgId;
 
     try {
@@ -129,18 +147,27 @@ function LoginPageContent() {
 
       if (response.ok) {
         const data = await response.json();
-        if (typeof window !== "undefined") {
-          localStorage.setItem("skillsetu_jwt_token", data.access_token);
+        if (data.access_token) {
+          setAuthToken(data.access_token);
         }
+        login(r, em, targetOrg);
+        if (r === "employer") router.push("/employer");
+        else if (r === "student") router.push("/student");
+        else if (r === "admin") router.push("/admin");
+      } else {
+        const errData = await response.json().catch(() => ({}));
+        setAuthError(
+          errData.detail || `Authentication rejected (${response.status}). Please verify credentials and role.`
+        );
       }
     } catch (err) {
-      console.warn("Backend offline or local demo mode:", err);
+      console.warn("Backend authentication connection failed:", err);
+      setAuthError(
+        "Authentication service unreachable on http://localhost:8000. Start the backend or proceed in simulated mode."
+      );
+      setShowOfflineFallback(true);
     } finally {
-      login(r, em, targetOrg);
       setIsLoading(false);
-      if (r === "employer") router.push("/employer");
-      else if (r === "student") router.push("/student");
-      else if (r === "admin") router.push("/admin");
     }
   };
 
@@ -362,6 +389,27 @@ function LoginPageContent() {
                 </button>
               </div>
             </div>
+
+            {/* Authentication Notice Banner */}
+            {authError && (
+              <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs space-y-2">
+                <div className="flex items-center gap-2 font-bold text-rose-200">
+                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                  <span>Authentication Notice</span>
+                </div>
+                <p className="text-slate-300 text-[11px] leading-relaxed">{authError}</p>
+                {showOfflineFallback && (
+                  <button
+                    type="button"
+                    onClick={() => handleOfflineSimulationLogin(selectedRole, email)}
+                    className="w-full mt-2 py-2 px-3 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                  >
+                    <Zap className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Proceed in Simulated Offline Demo Mode</span>
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Form */}
             <form

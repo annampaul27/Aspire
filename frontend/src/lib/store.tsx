@@ -19,6 +19,7 @@ import {
 } from "./mockData";
 import { CAMPUS_25_CANDIDATES } from "./campusCandidatesSeed";
 import { computeSHA256, canonicalizeJSON } from "./crypto";
+import { clearAuthToken } from "./api/client";
 
 export interface ToastNotification {
   id: string;
@@ -309,6 +310,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const logout = () => {
     setIsAuthenticated(false);
     setCurrentUser(null);
+    clearAuthToken();
     try {
       localStorage.removeItem("skillsetu_auth_session");
     } catch {}
