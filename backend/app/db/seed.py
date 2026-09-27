@@ -1,0 +1,160 @@
+import datetime
+from sqlalchemy.orm import Session
+from app.db.session import engine, SessionLocal
+from app.models.entities import Organization, User, Skill, Job, Subscription
+from app.core.security import get_password_hash
+
+DEFAULT_HASHED_PASSWORD = get_password_hash("SkillSetu@2026")
+
+def seed_database_defaults(db: Session = None):
+    """
+    Seeds initial enterprise multi-tenant organizations, users, and subscriptions
+    into the relational database if not already seeded.
+    """
+    close_at_end = False
+    if db is None:
+        db = SessionLocal()
+        close_at_end = True
+
+    try:
+        # 1. Seed Organizations
+        if db.query(Organization).count() == 0:
+            orgs = [
+                Organization(
+                    id="org-acme",
+                    name="Acme HyperScale Systems",
+                    type="corporate",
+                    logo="⚡",
+                    plan="Enterprise",
+                    seats_used=14,
+                    seats_total=25,
+                    status="active",
+                ),
+                Organization(
+                    id="org-apex-univ",
+                    name="Apex National Institute of Technology",
+                    type="university",
+                    logo="🎓",
+                    plan="Academic Pass",
+                    seats_used=8,
+                    seats_total=10,
+                    status="active",
+                ),
+                Organization(
+                    id="org-talentbridge",
+                    name="TalentBridge Staffing Partners",
+                    type="staffing",
+                    logo="🌐",
+                    plan="Growth",
+                    seats_used=6,
+                    seats_total=10,
+                    status="active",
+                ),
+            ]
+            db.add_all(orgs)
+            db.commit()
+
+        # 2. Seed Subscriptions
+        if db.query(Subscription).count() == 0:
+            subs = [
+                Subscription(
+                    id="sub-acme-ent",
+                    org_id="org-acme",
+                    plan_id="enterprise",
+                    status="active",
+                    seats_purchased=25,
+                    billing_cycle="annual",
+                ),
+                Subscription(
+                    id="sub-apex-acad",
+                    org_id="org-apex-univ",
+                    plan_id="academic",
+                    status="active",
+                    seats_purchased=10,
+                    billing_cycle="annual",
+                ),
+                Subscription(
+                    id="sub-talentbridge-growth",
+                    org_id="org-talentbridge",
+                    plan_id="growth",
+                    status="active",
+                    seats_purchased=10,
+                    billing_cycle="monthly",
+                ),
+            ]
+            db.add_all(subs)
+            db.commit()
+
+        # 3. Seed Users with password hashes and roles
+        users_to_seed = [
+            {
+                "id": "usr-recruiter-01",
+                "email": "priya.sharma@acme.com",
+                "full_name": "Priya Sharma",
+                "role": "employer",
+                "org_id": "org-acme",
+                "user_class": "Recruiter",
+                "password_hash": DEFAULT_HASHED_PASSWORD,
+                "avatar_url": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+            },
+            {
+                "id": "cand-1",
+                "email": "aditya.verma@example.com",
+                "full_name": "Aditya Verma",
+                "role": "student",
+                "org_id": None,
+                "user_class": "Experienced",
+                "college": "Indian Institute of Information Technology (IIIT)",
+                "experience_years": 2.5,
+                "readiness_score": 78,
+                "current_tier": "bridgeable",
+                "password_hash": DEFAULT_HASHED_PASSWORD,
+                "avatar_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+                "verified_skills_json": '["Python", "SQL", "AWS", "Docker"]',
+            },
+            {
+                "id": "cand-2",
+                "email": "pooja.s@example.com",
+                "full_name": "Pooja Sundaram",
+                "role": "student",
+                "org_id": None,
+                "user_class": "Fresher",
+                "college": "National Institute of Technology (NIT) Trichy",
+                "experience_years": 0.0,
+                "readiness_score": 91,
+                "current_tier": "job_ready",
+                "password_hash": DEFAULT_HASHED_PASSWORD,
+                "avatar_url": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+                "verified_skills_json": '["React", "TypeScript", "Next.js"]',
+            },
+            {
+                "id": "usr-superuser-root",
+                "email": "root@skillsetu.ai",
+                "full_name": "Platform Superuser",
+                "role": "admin",
+                "org_id": None,
+                "user_class": "Administrator",
+                "password_hash": DEFAULT_HASHED_PASSWORD,
+                "avatar_url": None,
+            },
+        ]
+
+        for u_data in users_to_seed:
+            existing = db.query(User).filter(User.email == u_data["email"]).first()
+            if not existing:
+                db.add(User(**u_data))
+            else:
+                # Ensure password_hash is updated if previously null
+                if not existing.password_hash:
+                    existing.password_hash = u_data["password_hash"]
+                if u_data.get("org_id") and not existing.org_id:
+                    existing.org_id = u_data["org_id"]
+        db.commit()
+
+    finally:
+        if close_at_end:
+            db.close()
+
+if __name__ == "__main__":
+    seed_database_defaults()
+    print("Database seeding completed.")

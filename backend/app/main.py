@@ -32,6 +32,7 @@ from app.api.v1.courses import router as courses_router
 from app.api.v1.github import router as github_router
 from app.workers.notification_worker import run_deadline_notifications_job
 from app.db.database import init_db
+from app.db.seed import seed_database_defaults
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 # Mount API V1 Routers
@@ -61,6 +62,7 @@ scheduler = AsyncIOScheduler()
 @app.on_event("startup")
 async def on_startup():
     init_db()
+    seed_database_defaults()
     # Schedule automated daily worker for 3-week deadline notifications (FR-04)
     scheduler.add_job(run_deadline_notifications_job, "cron", hour=0, minute=0, id="daily_deadline_worker")
     if not scheduler.running:
