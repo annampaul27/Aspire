@@ -15,6 +15,7 @@ from app.models.sprints import (
 )
 from app.db.session import get_db
 from app.models.entities import DispatchedSprint, VerifiedCredential, User
+from app.api.deps import require_role
 
 router = APIRouter(prefix="/sprints", tags=["Gap Sprint Dispatch & Real-Time Pipeline Liquidity"])
 
@@ -27,8 +28,11 @@ def compute_sha256(canonical_payload: str) -> str:
     return hashlib.sha256(canonical_payload.encode("utf-8")).hexdigest()
 
 @router.get("/active", response_model=List[Dict[str, Any]])
-async def get_active_sprints(db: Session = Depends(get_db)):
-    """Retrieve all dispatched gap-sprints awaiting candidate completion from relational DB (Audit §4.5)."""
+async def get_active_sprints(
+    db: Session = Depends(get_db),
+    current_user: Dict[str, Any] = Depends(require_role(["employer", "admin", "student"])),
+):
+    """Retrieve all dispatched gap-sprints awaiting candidate completion from relational DB (Audit §4.5 & §4.6)."""
     sprints = (
         db.query(DispatchedSprint)
         .filter(DispatchedSprint.status.in_(["dispatched", "pending"]))
@@ -57,11 +61,12 @@ async def get_active_sprints(db: Session = Depends(get_db)):
 async def dispatch_gap_sprint(
     req: SprintDispatchRequest,
     db: Session = Depends(get_db),
+    current_user: Dict[str, Any] = Depends(require_role(["employer", "admin"])),
 ):
     """
     1-Click Gap Sprint Dispatch (E6):
     Triggers an automated targeted challenge invitation for missing competencies.
-    Persisted in relational DB across worker lifecycles (Audit §4.5).
+    Persisted in relational DB across worker lifecycles with RBAC enforcement (Audit §4.5 & §4.6).
     """
     dispatch_id = f"disp-{uuid.uuid4().hex[:8]}"
     now_dt = datetime.now(timezone.utc)
@@ -100,6 +105,7 @@ async def dispatch_gap_sprint(
 async def complete_gap_sprint(
     req: SprintCompleteRequest,
     db: Session = Depends(get_db),
+    current_user: Dict[str, Any] = Depends(require_role(["student", "employer", "admin"])),
 ):
     """
     Real-Time Talent Liquidity & Rank Elevation (E9, S10, S12):
