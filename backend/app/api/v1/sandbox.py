@@ -52,8 +52,8 @@ class RunTestsResponse(BaseModel):
 
     is_solved: bool = Field(description="True if all production test assertions pass")
     test_cases: List[TestCaseResult] = Field(description="Test case execution details")
-    crypto_hash: str = Field(alias="cryptographic_hash", description="SHA-256 tamper-proof token")
-    cryptographic_hash: str = Field(description="SHA-256 tamper-proof token")
+    crypto_hash: str = Field(default="", description="SHA-256 tamper-proof token")
+    cryptographic_hash: str = Field(default="", description="SHA-256 tamper-proof token")
     execution_time_ms: float = Field(default=0.0, description="Total execution time in milliseconds")
     query_plan: Optional[str] = Field(default=None, description="Authentic EXPLAIN QUERY PLAN output")
     error_message: Optional[str] = Field(default=None, description="Security violation or syntax error details")
