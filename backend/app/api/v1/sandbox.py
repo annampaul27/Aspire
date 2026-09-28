@@ -2,46 +2,76 @@ import hashlib
 import os
 import re
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Any
 from dotenv import load_dotenv
 from app.core.config import settings
+
+from app.services.sandbox import (
+    SandboxRunnerFactory,
+    ExecutionRequest,
+    ExecutionResult,
+)
 
 load_dotenv()
 
 router = APIRouter(tags=["Dynamic Code Bug-Fixer Engine"])
 
-# Pydantic Schemas matching code-bug-fixer-engine
+
+# Pydantic Schemas matching code-bug-fixer-engine & frontend DynamicSandboxModal
 class BugFixRequest(BaseModel):
     challenge_id: str = Field(description="Unique identifier for the bug challenge")
     candidate_code: str = Field(description="The code snippet submitted by the developer")
 
+
 class TestCaseResult(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     test_name: Optional[str] = Field(default="Test Case", alias="name", description="Name of the test case")
     status: str = Field(default="PASS", description="Must be 'PASS' or 'FAIL' or 'pass'")
     latency_metric: Optional[Any] = Field(default="N/A", description="Performance metric output")
     details: Optional[str] = Field(default="Passed successfully", description="Explanation of test result")
 
-    class Config:
-        populate_by_name = True
 
 class BugFixResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     is_solved: bool = Field(description="True if all production criteria and tests pass successfully")
     test_cases: List[TestCaseResult] = Field(description="Detailed test case execution suite")
     cryptographic_hash: str = Field(description="SHA-256 proof-of-work security hash token")
+
+
+class RunTestsRequest(BaseModel):
+    challenge_id: str = Field(description="Unique challenge key, e.g. db-perf-01")
+    code_submission: str = Field(description="Candidate submitted code or DDL")
+    user_id: Optional[str] = Field(default=None, description="Current student user ID")
+
+
+class RunTestsResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    is_solved: bool = Field(description="True if all production test assertions pass")
+    test_cases: List[TestCaseResult] = Field(description="Test case execution details")
+    crypto_hash: str = Field(alias="cryptographic_hash", description="SHA-256 tamper-proof token")
+    cryptographic_hash: str = Field(description="SHA-256 tamper-proof token")
+    execution_time_ms: float = Field(default=0.0, description="Total execution time in milliseconds")
+    query_plan: Optional[str] = Field(default=None, description="Authentic EXPLAIN QUERY PLAN output")
+    error_message: Optional[str] = Field(default=None, description="Security violation or syntax error details")
+
 
 class ChallengeRequest(BaseModel):
     skill_gap: str = Field(description="The specific missing skill to test, e.g., 'PostgreSQL indexing' or 'Python Asyncio'")
     role: str = Field(default="Backend Engineer", description="The target job role, e.g., 'Backend Engineer'")
 
+
 class ChallengeResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     challenge_id: Optional[str] = Field(default="db-perf-01", description="Unique identifier")
     title: Optional[str] = Field(default="Production PostgreSQL Slow Query Fix", description="Catchy title of the challenge")
     description: Optional[str] = Field(default="Fix the unindexed sequential scan in the given snippet.", description="Detailed scenario description")
     starter_code: Optional[str] = Field(default="# Broken code\nSELECT * FROM users WHERE email = 'test@example.com';", description="The broken starter code snippet")
 
-    class Config:
-        populate_by_name = True
 
 # Deterministic challenge templates for high-speed fallback / NF2 compliance
 CURATED_CHALLENGES = {
@@ -49,7 +79,7 @@ CURATED_CHALLENGES = {
         "challenge_id": "db-perf-01",
         "title": "PostgreSQL Slow Query Optimization & Indexing",
         "description": "Production alert: The user lookup query `SELECT * FROM users WHERE email = $1;` is causing a Sequential Scan across 1.4 million rows with 1,420ms P99 latency. Write an optimized DDL index statement to achieve an Index Scan under 15ms.",
-        "starter_code": "-- Current Slow Table Schema without Index\n-- Write an optimized CREATE INDEX statement to eliminate Seq Scan:\n-- CREATE INDEX ...",
+        "starter_code": "-- Current Slow Table Schema without Index\n-- Write an optimized CREATE INDEX statement to eliminate Seq Scan:\nCREATE INDEX idx_users_email ON users(email);",
         "solution_keywords": ["create index", "idx_", "on users", "email"],
     },
     "fastapi": {
@@ -67,6 +97,7 @@ CURATED_CHALLENGES = {
         "solution_keywords": ["user ", "alpine", "from python"],
     }
 }
+
 
 @router.post("/sandbox/generate-challenge", response_model=ChallengeResponse)
 @router.post("/generate-challenge", response_model=ChallengeResponse)
@@ -130,105 +161,87 @@ async def generate_dynamic_challenge(data: ChallengeRequest):
         starter_code=match["starter_code"]
     )
 
+
+async def _execute_sandbox_candidate(
+    challenge_id: str,
+    candidate_code: str,
+    user_id: Optional[str] = None
+) -> ExecutionResult:
+    """
+    Executes candidate submission in authentic isolated execution environment
+    (ephemeral 50k-row database or isolated Python subprocess with AST sanitizer).
+    """
+    runner = SandboxRunnerFactory.get_runner(challenge_id)
+    language = "sql" if ("db-" in challenge_id.lower() or "sql" in challenge_id.lower()) else "python"
+    
+    exec_req = ExecutionRequest(
+        challenge_id=challenge_id,
+        candidate_code=candidate_code,
+        language=language,
+        user_id=user_id,
+    )
+    return await runner.run(exec_req)
+
+
 @router.post("/sandbox/evaluate-bug", response_model=BugFixResponse)
 @router.post("/evaluate-bug", response_model=BugFixResponse)
 async def evaluate_bug_fix(data: BugFixRequest):
     """
-    Receives candidate code, evaluates performance and bug-fix criteria via Groq LLM,
-    runs test runner validation, and generates a tamper-proof SHA-256 proof-of-work hash.
+    Receives candidate code, evaluates under authentic isolated execution engines
+    (AST security filter + ephemeral 50k-row DB / isolated subprocess runner),
+    and generates a tamper-proof SHA-256 proof-of-work hash.
     """
-    groq_api_key = os.environ.get("GROQ_API_KEY")
-    if groq_api_key:
-        try:
-            from groq import Groq
-            import instructor
+    exec_res = await _execute_sandbox_candidate(
+        challenge_id=data.challenge_id,
+        candidate_code=data.candidate_code
+    )
 
-            client = instructor.from_groq(
-                Groq(api_key=groq_api_key),
-                mode=instructor.Mode.JSON,
-            )
-
-            prompt = f"""
-            You are a strict, automated senior engineering test runner. Evaluate this candidate code submission for challenge '{data.challenge_id}'.
-            
-            Candidate Code:
-            {data.candidate_code}
-            
-            Instructions:
-            1. Determine if the bug is successfully fixed (e.g., syntax errors resolved, async loops corrected, missing database indexes added).
-            2. Generate 3 rigorous test cases (e.g., Port exposure/container check, query latency optimization, concurrency/memory leak validation).
-            3. Assign realistic performance metrics (e.g., '1420ms -> 12ms via B-Tree index' or '0.12s').
-            4. Set 'is_solved' to true only if the code successfully resolves the problem.
-            """
-
-            result = client.chat.completions.create(
-                model=settings.GROQ_MODEL,
-                response_model=BugFixResponse,
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=2048,
-            )
-
-            code_lower = data.candidate_code.lower()
-            if "create index" in code_lower or "asyncio.sleep" in code_lower or "await " in code_lower:
-                result.is_solved = True
-                for tc in result.test_cases:
-                    tc.status = "PASS"
-
-            if result.is_solved:
-                raw_seed = f"{data.challenge_id}:{data.candidate_code}:VERIFIED:2026"
-                result.cryptographic_hash = hashlib.sha256(raw_seed.encode()).hexdigest()
-            else:
-                result.cryptographic_hash = "INVALID_HASH_FIX_FAILED"
-
-            return result
-        except Exception:
-            pass
-
-    # Deterministic Evaluation Fallback (NF1/NF2 compliant)
-    code_clean = data.candidate_code.strip()
-    code_lower = code_clean.lower()
-
-    # Evaluation heuristics
-    is_solved = False
-    tests: List[TestCaseResult] = []
-
-    if "create index" in code_lower and ("on " in code_lower or "users" in code_lower):
-        is_solved = True
-        tests = [
-            TestCaseResult(name="Index Syntax & DDL Correctness", status="PASS", latency_metric="1.2ms", details="Valid B-Tree index definition recognized by PostgreSQL query planner."),
-            TestCaseResult(name="Execution Plan EXPLAIN (ANALYZE)", status="PASS", latency_metric="1,420ms -> 11ms (-99.2%)", details="Sequential table scan successfully converted to Index Scan on users(email)."),
-            TestCaseResult(name="High-Concurrency Concurrency Stress Test", status="PASS", latency_metric="P99: 14ms (10,000 req/s)", details="Zero deadlocks or lock contention under concurrent simulation.")
-        ]
-    elif "asyncio.sleep" in code_lower or ("await " in code_lower and "time.sleep" not in code_lower):
-        is_solved = True
-        tests = [
-            TestCaseResult(name="Asynchronous Event Loop Non-Blocking Check", status="PASS", latency_metric="0.08ms", details="Event loop remained active; zero synchronous blocking thread sleeps detected."),
-            TestCaseResult(name="Concurrency Throughput", status="PASS", latency_metric="2,400 req/sec", details="Asynchronous coroutines successfully scheduled on uvloop without starvation."),
-            TestCaseResult(name="Resource Contention", status="PASS", latency_metric="P99: 18ms", details="Clean coroutine garbage collection with no leaked futures.")
-        ]
-    elif len(code_clean) > 25 and not any(k in code_clean for k in ["TODO", "pass", "raise NotImplementedError"]):
-        is_solved = True
-        tests = [
-            TestCaseResult(name="Syntax & Execution Sanity", status="PASS", latency_metric="2.4ms", details="Code parsed and compiled with zero runtime exceptions."),
-            TestCaseResult(name="Unit Test Boundary Verification", status="PASS", latency_metric="4.1ms", details="All 12 edge cases evaluated and passed within latency tolerances."),
-            TestCaseResult(name="Memory & CPU Performance Profile", status="PASS", latency_metric="6.8MB RSS", details="Optimal memory footprint achieved.")
-        ]
-    else:
-        is_solved = False
-        tests = [
-            TestCaseResult(name="Syntax & Implementation Validation", status="FAIL", latency_metric="N/A", details="Solution incomplete. The code either contains unhandled TODOs or does not address the root bottleneck."),
-            TestCaseResult(name="Execution Plan EXPLAIN (ANALYZE)", status="FAIL", latency_metric="Timeout > 3,000ms", details="Query still executes sequential table scans without optimized index."),
-            TestCaseResult(name="Automated Test Suite", status="FAIL", latency_metric="Failed", details="Verification criteria not satisfied. Revisit the starter scenario description.")
-        ]
-
-    if is_solved:
-        raw_seed = f"{data.challenge_id}:{data.candidate_code}:VERIFIED:2026"
-        crypto_hash = hashlib.sha256(raw_seed.encode()).hexdigest()
-    else:
-        crypto_hash = "INVALID_HASH_FIX_FAILED"
+    test_cases = [
+        TestCaseResult(
+            name=tc.name,
+            status=tc.status,
+            latency_metric=tc.latency_metric,
+            details=tc.details
+        )
+        for tc in exec_res.test_cases
+    ]
 
     return BugFixResponse(
-        is_solved=is_solved,
-        test_cases=tests,
-        cryptographic_hash=crypto_hash
+        is_solved=exec_res.is_solved,
+        test_cases=test_cases,
+        cryptographic_hash=exec_res.cryptographic_hash
+    )
+
+
+@router.post("/sandbox/run-tests", response_model=RunTestsResponse)
+async def run_sandbox_tests(data: RunTestsRequest):
+    """
+    Direct endpoint for frontend DynamicSandboxModal test execution.
+    Executes candidate code in isolated sandbox and returns real query plans,
+    microsecond latency metrics, and AST security feedback.
+    """
+    exec_res = await _execute_sandbox_candidate(
+        challenge_id=data.challenge_id,
+        candidate_code=data.code_submission,
+        user_id=data.user_id
+    )
+
+    test_cases = [
+        TestCaseResult(
+            name=tc.name,
+            status=tc.status,
+            latency_metric=tc.latency_metric,
+            details=tc.details
+        )
+        for tc in exec_res.test_cases
+    ]
+
+    return RunTestsResponse(
+        is_solved=exec_res.is_solved,
+        test_cases=test_cases,
+        crypto_hash=exec_res.cryptographic_hash,
+        cryptographic_hash=exec_res.cryptographic_hash,
+        execution_time_ms=exec_res.execution_time_ms,
+        query_plan=exec_res.query_plan,
+        error_message=exec_res.error_message
     )
