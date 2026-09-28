@@ -5,6 +5,7 @@ from app.services.sandbox.schemas import (
     ExecutionResult,
 )
 from app.services.sandbox.base import BaseSandboxRunner
+from app.services.sandbox.security import AstSecurityAnalyzer, SecurityViolationError
 
 __all__ = [
     "ExecutionStatus",
@@ -12,4 +13,6 @@ __all__ = [
     "ExecutionRequest",
     "ExecutionResult",
     "BaseSandboxRunner",
+    "AstSecurityAnalyzer",
+    "SecurityViolationError",
 ]
