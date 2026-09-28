@@ -60,6 +60,8 @@ export default function DynamicSandboxModal({
   const [testResults, setTestResults] = useState<TestCaseResult[] | null>(null);
   const [isSolved, setIsSolved] = useState<boolean | null>(null);
   const [cryptoHash, setCryptoHash] = useState<string | null>(null);
+  const [queryPlan, setQueryPlan] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [mintedSuccess, setMintedSuccess] = useState(false);
 
   if (!isOpen) return null;
@@ -80,6 +82,8 @@ export default function DynamicSandboxModal({
     setTestResults(null);
     setIsSolved(null);
     setCryptoHash(null);
+    setQueryPlan(null);
+    setErrorMessage(null);
     setMintedSuccess(false);
 
     try {
@@ -121,6 +125,7 @@ export default function DynamicSandboxModal({
 
   const handleRunTests = async () => {
     setIsRunningTests(true);
+    setErrorMessage(null);
     try {
       const apiUrl = "http://localhost:8000/api/v1/sandbox/run-tests";
       const res = await fetch(apiUrl, {
@@ -140,7 +145,9 @@ export default function DynamicSandboxModal({
       const result = await res.json();
       setTestResults(result.test_cases || []);
       setIsSolved(result.is_solved);
-      setCryptoHash(result.crypto_hash);
+      setCryptoHash(result.crypto_hash || result.cryptographic_hash || null);
+      setQueryPlan(result.query_plan || null);
+      setErrorMessage(result.error_message || null);
 
       if (result.is_solved) {
         addToast({
@@ -151,7 +158,7 @@ export default function DynamicSandboxModal({
       } else {
         addToast({
           title: "Test Cases Failed",
-          message: "One or more assertions did not pass. Check the runner logs.",
+          message: result.error_message ? `Execution error: ${result.error_message}` : "One or more assertions did not pass. Check the runner logs.",
           type: "warning",
         });
       }
@@ -436,6 +443,30 @@ export default function DynamicSandboxModal({
                   </div>
                 ))}
               </div>
+
+              {/* Real Database Execution Plan Telemetry */}
+              {queryPlan && (
+                <div className="p-2.5 rounded-lg bg-gray-900 border border-blue-900/40 space-y-1.5">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-blue-400">
+                    <Terminal className="w-3.5 h-3.5" />
+                    <span>Query Planner Telemetry (EXPLAIN QUERY PLAN)</span>
+                  </div>
+                  <div className="font-mono text-[11px] text-gray-300 bg-gray-950 p-2 rounded border border-gray-800 break-all select-all">
+                    {queryPlan}
+                  </div>
+                </div>
+              )}
+
+              {/* Execution Diagnostic or Security Warning */}
+              {errorMessage && (
+                <div className="p-2.5 rounded-lg bg-rose-950/60 border border-rose-800 text-rose-300 text-xs flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-semibold block">Execution Diagnostic:</span>
+                    <span>{errorMessage}</span>
+                  </div>
+                </div>
+              )}
 
               {/* Card 5: Cryptographic Audit Seal */}
               {cryptoHash && (

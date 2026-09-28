@@ -211,6 +211,10 @@ def init_db():
     user_cols = [c[1] for c in cursor.fetchall()]
     if "verified_skills_json" not in user_cols:
         cursor.execute("ALTER TABLE users ADD COLUMN verified_skills_json TEXT DEFAULT '[]'")
+    if "password_hash" not in user_cols:
+        cursor.execute("ALTER TABLE users ADD COLUMN password_hash TEXT")
+    if "org_id" not in user_cols:
+        cursor.execute("ALTER TABLE users ADD COLUMN org_id TEXT")
 
     cursor.execute("PRAGMA table_info(jobs)")
     job_cols = [c[1] for c in cursor.fetchall()]
