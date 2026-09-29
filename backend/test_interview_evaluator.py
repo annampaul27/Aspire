@@ -51,3 +51,57 @@ def test_evaluator_scores_dynamically_based_on_answer_quality():
     # 3. Dynamic differential test: Strong answer MUST score higher than weak answer
     assert eval_strong.overall_score > eval_weak.overall_score + 15.0
     assert eval_strong.technical_accuracy > eval_weak.technical_accuracy + 20.0
+
+def test_api_interview_question_endpoint():
+    from fastapi.testclient import TestClient
+    from app.main import app
+    client = TestClient(app)
+
+    res = client.post(
+        "/api/v1/career-compass/interview/question",
+        json={
+            "role": "Cloud DevOps Engineer",
+            "topic": "Kubernetes High-Availability & RBAC"
+        }
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert "generated_question" in data
+    gq = data["generated_question"]
+    assert "kubernetes" in gq["question_text"].lower() or "canary" in gq["question_text"].lower() or "devops" in gq["question_text"].lower()
+    assert len(gq["hints"]) == 2
+
+def test_api_interview_evaluate_endpoint_dynamic():
+    from fastapi.testclient import TestClient
+    from app.main import app
+    client = TestClient(app)
+
+    # 1. Evaluate weak response
+    res_weak = client.post(
+        "/api/v1/career-compass/interview/evaluate",
+        json={
+            "question_text": "How do you optimize vector search latency?",
+            "candidate_answer": "I might maybe just increase RAM or reboot.",
+            "role": "AI Engineer"
+        }
+    )
+    assert res_weak.status_code == 200
+    eval_weak = res_weak.json()["evaluation"]
+
+    # 2. Evaluate strong response
+    res_strong = client.post(
+        "/api/v1/career-compass/interview/evaluate",
+        json={
+            "question_text": "How do you optimize vector search latency?",
+            "candidate_answer": "I tune HNSW index parameters (M and efConstruction) and implement two-stage retrieval using BM25 hybrid search followed by cross-encoder re-ranking. To avoid memory leaks and reduce p99 latency, we partition embeddings across sharded clusters.",
+            "role": "AI Engineer"
+        }
+    )
+    assert res_strong.status_code == 200
+    eval_strong = res_strong.json()["evaluation"]
+
+    # Confirm dynamic scoring differential
+    assert eval_strong["overall_score"] > eval_weak["overall_score"] + 15.0
+    assert eval_strong["metrics"]["technical_accuracy"] > eval_weak["metrics"]["technical_accuracy"] + 20.0
+    assert len(eval_strong["what_went_well"]) > 0
+    assert len(eval_weak["what_to_improve"]) > 0

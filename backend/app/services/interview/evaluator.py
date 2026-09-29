@@ -216,20 +216,26 @@ class InterviewCoachEvaluator:
             "linearizability", "eventual consistency", "idempotency", "backpressure",
             "circuit breaker", "retry", "dead-letter", "index", "b-tree", "gin",
             "explain analyze", "mvcc", "acid", "replication", "sharding", "partition",
-            "cache", "redis", "latency", "throughput", "p99", "profiling", "concurrency",
-            "async", "goroutine", "docker", "kubernetes", "pod", "mtls", "ingress",
-            "canary", "zero-downtime", "vector", "hnsw", "embedding", "chunking",
-            "server components", "suspense", "hydration", "streaming", "memory leak"
+            "connection pool", "connection pooling", "tcp", "overhead", "handshake", "socket",
+            "database connection", "cache", "redis", "latency", "throughput", "p99",
+            "profiling", "concurrency", "async", "goroutine", "docker", "kubernetes",
+            "pod", "mtls", "ingress", "canary", "zero-downtime", "vector", "hnsw",
+            "embedding", "chunking", "server components", "suspense", "hydration",
+            "streaming", "memory leak"
         ]
         
         matches = [kw for kw in TECHNICAL_KEYWORDS if kw in answer_lower]
         keyword_density = len(matches)
 
         if word_count < 15:
-            # Answer is excessively shallow or truncated
-            tech_acc = min(55.0, 30.0 + (keyword_density * 8.0))
+            if keyword_density >= 2:
+                # Concise, highly technical and accurate answer
+                tech_acc = min(92.0, 75.0 + (keyword_density * 5.0))
+            else:
+                # Answer is excessively shallow or lacks technical terms
+                tech_acc = min(55.0, 30.0 + (keyword_density * 8.0))
         elif word_count < 40:
-            tech_acc = min(78.0, 50.0 + (keyword_density * 7.0))
+            tech_acc = min(88.0, 56.0 + (keyword_density * 7.0))
         else:
             tech_acc = min(96.0, 68.0 + (keyword_density * 5.0))
 
@@ -239,7 +245,7 @@ class InterviewCoachEvaluator:
         avg_sentence_len = word_count / max(1, len(sentences))
         
         if word_count < 15:
-            clarity = 50.0
+            clarity = 86.0 if keyword_density >= 2 else 50.0
         elif 8 <= avg_sentence_len <= 25:
             # Well-balanced sentence length
             clarity = min(95.0, 75.0 + min(20.0, len(sentences) * 5.0))
