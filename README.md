@@ -7,7 +7,7 @@
 [![Alembic](https://img.shields.io/badge/Alembic-Migrations-orange.svg)](https://alembic.sqlalchemy.org)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-FF6B6B.svg)](https://trychroma.com)
 [![Groq](https://img.shields.io/badge/Groq-Llama3_Extraction-F55036.svg)](https://groq.com)
-[![Pytest](https://img.shields.io/badge/Pytest-81%20Passed-brightgreen.svg?logo=pytest&logoColor=white)](https://pytest.org)
+[![Pytest](https://img.shields.io/badge/Pytest-92%20Passed-brightgreen.svg?logo=pytest&logoColor=white)](https://pytest.org)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 SkillSetu AI bridges the gap between talent supply (students) and employer demand (corporates, universities, staffing agencies). It combines an AI-powered Applicant Tracking System (ATS), cryptographic proof-of-work credentialing (SHA-256), a dual-tier isolated execution sandbox with AST security filtering, and deterministic deficit-resistance skill matching.
@@ -21,7 +21,7 @@ SkillSetu AI bridges the gap between talent supply (students) and employer deman
 | **Nandana** | [@mnandana520](https://github.com/mnandana520) | **Feature Architect — Skill Verification & ATS Resume Studio**<br>• Designed & implemented the Skill Verification Engine (**FR-01**)<br>• 20-question, 12-minute timed assessment with automatic grading & multi-tier badge issuance (Bronze, Silver, Gold, Platinum)<br>• ATS-Friendly Tailored Resume Studio (**FR-02**) with AI spatial parsing and real-time schema editing<br>• SQLite persistence layer (`backend/app/db/database.py`) and FastAPI endpoints (`/api/v1/assessments`, `/api/v1/resume`) |
 | **Jayasree A B** | [@jayasreeab2004](https://github.com/jayasreeab2004) | **Feature Architect — CareerCompass AI Modules & Course Curriculum**<br>• Designed & implemented the 8 CareerCompass feature modules (`backend/features/`)<br>• Dynamic Personalized Roadmap Generator mapping skill gaps to curriculum phases (`personalized_roadmap.py`)<br>• Designed & authored the 13 modular CareerCompass course curricula, structured lessons, and 20-question timed mock exams (`courses/`) across Python, SQL, AWS, LLM, Trees, Arrays, Django, Flask, Pandas, Javascript, HTML, CSS, Excel<br>• Fast dynamic course catalog and interactive mock testing engine (`backend/app/api/v1/courses.py`)<br>• Personalized 90-Day Career Roadmap generator (`career_roadmap.py`)<br>• AI GitHub repository project analyzer & complexity assessor (`github_analysis.py`)<br>• Dynamic mock interview coach & answer evaluation scoring (`interview_coach.py`)<br>• Real-time job market demand classifier (`job_market_analysis.py`)<br>• Automated personal developer portfolio website builder (`portfolio_builder.py`)<br>• Deep resume highlights, strengths & weakness extractor (`resume_analysis.py`)<br>• Multidimensional competency & skill gap analyzer (`skill_gap_analysis.py`) |
 | **Anna M Paul** | [@annampaul27](https://github.com/annampaul27) | **Core Feature Architect — ATS & Dynamic Sandbox Engine**<br>• Designed & implemented the ATS FastAPI microservices (`/api/v1/ats/*`)<br>• Structured LLM parsing pipeline via Groq + Instructor (`ResumeSchema`, `JDSchema`)<br>• ChromaDB persistent vector repository & semantic applicant retrieval<br>• Deterministic skill gap comparison & tier segmentation (**E1, E2, E3, E4, E10**)<br>• Dynamic Code Bug-Fixer Engine & Challenge Generator (`code-bug-fixer-engine/`, `/api/v1/sandbox/*`)<br>• Real-time sandbox test runner with latency metrics & SHA-256 cryptographic proof-of-work minting |
-| **Nikhil Krishna R D** | [@rdnk2004](https://github.com/rdnk2004) | **Lead Full-Stack & SaaS Platform Architect**<br>• Architected the role-separated multi-tenant infrastructure across Student, Employer, Academic Admin, and Public verification personas<br>• Built the complete Next.js 15 App Router frontend tier (17 production routes, dark-mode design system, and reactive global store)<br>• Engineered the Employer Talent Radar, Weighted Deficit Resistance Model, Blind DEI Screening engine, and 5-stage recruitment pipeline Kanban<br>• Designed the immutable SHA-256 cryptographic proof-of-work credential ledger and public zero-auth verification portal (`/verify/[hash]`)<br>• **Sprint 1 Lead (Database Persistence & Hardened RBAC):** Spearheaded migration from in-memory hackathon state to SQLAlchemy 2.0 dual-engine persistence (managed cloud PostgreSQL + SQLite), authored Alembic versioned migrations for multi-tenant organizations & subscriptions, and implemented server-side RBAC dependencies (`require_role`) with automatic Bearer token handling in `client.ts`<br>• **Sprint 2 Lead (Isolated Execution Sandbox):** Eliminated mock regex heuristics in `sandbox.py`; built the static AST security analyzer (`AstSecurityAnalyzer`), the ephemeral in-memory 50,000-row relational database benchmark with authentic `EXPLAIN QUERY PLAN` telemetry, the process-isolated Python runner with 3.0s timeout protection, and the live query plan telemetry UI |
+| **Nikhil Krishna R D** | [@rdnk2004](https://github.com/rdnk2004) | **Lead Full-Stack & SaaS Platform Architect**<br>• Architected the role-separated multi-tenant infrastructure across Student, Employer, Academic Admin, and Public verification personas<br>• Built the complete Next.js 15 App Router frontend tier (17 production routes, dark-mode design system, and reactive global store)<br>• Engineered the Employer Talent Radar, Weighted Deficit Resistance Model, Blind DEI Screening engine, and 5-stage recruitment pipeline Kanban<br>• Designed the immutable SHA-256 cryptographic proof-of-work credential ledger and public zero-auth verification portal (`/verify/[hash]`)<br>• **Sprint 1 Lead (Database Persistence & Hardened RBAC):** Spearheaded migration from in-memory hackathon state to SQLAlchemy 2.0 dual-engine persistence (managed cloud PostgreSQL + SQLite), authored Alembic versioned migrations for multi-tenant organizations & subscriptions, and implemented server-side RBAC dependencies (`require_role`) with automatic Bearer token handling in `client.ts`<br>• **Sprint 2 Lead (Isolated Execution Sandbox):** Eliminated mock regex heuristics in `sandbox.py`; built the static AST security analyzer (`AstSecurityAnalyzer`), the ephemeral in-memory 50,000-row relational database benchmark with authentic `EXPLAIN QUERY PLAN` telemetry, the process-isolated Python runner with 3.0s timeout protection, and the live query plan telemetry UI<br>• **Sprint 3 Lead (Real LLM Orchestration, Unified ATS Parser & Dynamic Career Roadmaps):** Deprecated hardcoded mock PDF parsing heuristics in `/resume/parse` and connected unified `pdfplumber` + Groq/instructor ATS parsing pipeline with automatic schema normalizer; implemented dynamic LLM + semantic rubric evaluation for AI mock interviews scoring clarity, technical depth, and confidence with context-aware feedback; connected CareerCompass roadmaps to genuine 13-course catalog with dynamic 90-day phase generator; enhanced frontend with live rubric scorecards, 1-click curriculum generation, and ATS profile sync |
 
 ---
 
@@ -72,13 +72,23 @@ Following the [Full-Stack & SaaS Architectural Audit](SkillSetu_AI_SaaS_Architec
 
 ---
 
-### ⏳ Sprint 3: Real LLM Orchestration, Unified ATS Parser & Dynamic Career Roadmaps (Current)
+### ✅ Sprint 3: Real LLM Orchestration, Unified ATS Parser & Dynamic Career Roadmaps (Completed)
 - **Branch:** `feat/sprint-3-real-llm-orchestration-and-evaluation`
-- **Target Deliverables:**
-  1. **Unified ATS Parser Pipeline**: Deprecate the static "Aditya Verma" mock in `backend/app/api/v1/resume.py` and consolidate `/api/v1/resume/upload-pdf` onto `app.services.ats.parser_service` with `pdfplumber` layout-aware extraction and Groq/instructor structured entity extraction.
-  2. **Dynamic AI Technical Interview Coach**: Replace hardcoded 88.0% scores in `backend/app/api/v1/career_compass.py` with dynamic rubric grading evaluating clarity, technical depth, and confidence, providing constructive feedback and model answers.
-  3. **Course-Catalog-Backed Career Roadmaps**: Connect `career_roadmap.py` to the genuine 13-course catalog in `courses/` to generate tailored 90-day learning curricula with verified module slugs and estimated study hours.
-  4. **Frontend Wire-Up**: 1-click dynamic AI curriculum generation in `ReadinessRoadmap.tsx`, real profile population in `ResumeUploadDrawer.tsx`, and dynamic scorecard progress bars in `AIInterviewerModal.tsx`.
+- **8 Atomic Commits (`6c327fa` → `36c170a`)**:
+  1. `feat(ats): enhance parser service with unified schema normalizer and layout extractor`
+  2. `refactor(resume): deprecate mock pdf parser and connect upload-pdf to unified ats engine`
+  3. `feat(interview): implement dynamic llm interview evaluator and rubric grading service`
+  4. `refactor(career-compass): connect interview question and evaluation routes to dynamic evaluator`
+  5. `feat(roadmap): connect career compass roadmaps to real course catalog and dynamic curriculum generator`
+  6. `feat(frontend): wire dynamic roadmap generation and enhance ats resume drawer in student portal`
+  7. `feat(frontend): enhance ai interview coach modal with dynamic scorecard and rubric metrics`
+  8. `test(integration): add comprehensive test suite for sprint 3 llm orchestration and roadmaps`
+- **Key Deliverables:**
+  - **Unified ATS Resume Parser Engine**: Deprecated the static "Aditya Verma" mock parser in `backend/app/api/v1/resume.py`. Connected `/api/v1/resume/parse` directly to `app.services.ats.parser_service` with spatial `pdfplumber` layout-aware text extraction, Groq/instructor structured entity extraction, and intelligent regex heuristic fallback (NF2). Normalizes data into standard `ResumeSchema` / ATS payload with categorized skills (core technical, frameworks/tools, soft skills), work experience, education, and ATS score metadata.
+  - **Dynamic LLM & Rubric Technical Interview Coach**: Replaced static 88.0% mock interview responses with `InterviewCoachEvaluator`. Supports dual-mode execution (Groq Llama 3.3 / semantic heuristic rubric fallback) scoring answers on Clarity, Technical Accuracy, and Confidence, dynamically generating contextual praise, improvement points, and production model answers.
+  - **Catalog-Backed Dynamic Career Roadmaps**: Connected CareerCompass to the 13 modular courses in `courses/`, matching candidate skill gaps (e.g., Python, SQL, AWS, Docker) to real lessons, estimated hours, and 20-question mock tests with 60% passing gates across 3 progressive phases (Fundamentals, Advanced Implementation, Production Readiness).
+  - **Interactive Frontend Telemetry**: Added 1-click dynamic AI curriculum generation to `ReadinessRoadmap.tsx`, live metric progress bars (clarity, accuracy, confidence) and collapsible model answers to `AIInterviewerModal.tsx`, and real profile autofill to `ResumeUploadDrawer.tsx`.
+  - **Enterprise Test Suite**: **92/92 passing pytest tests** with 100% pass rate.
 
 ---
 
@@ -199,7 +209,7 @@ npm run dev
 
 ## 🧪 Automated Test Suites
 
-Run the complete backend test suite (**81 tests passing with 0 regressions**):
+Run the complete backend test suite (**92 tests passing with 0 regressions**):
 ```bash
 cd backend
 python -m pytest -v
@@ -213,12 +223,16 @@ pytest -v test_sprint1_rbac_and_persistence.py
 # Test Sprint 2 (AST Security, Ephemeral 50k DB Sandbox & Timeout Runner)
 pytest -v test_sandbox_security.py test_sandbox_python_runner.py test_sandbox_database_runner.py test_sandbox_suite.py
 
+# Test Sprint 3 (ATS Parser, Dynamic Interview Rubric & Personalized Roadmap)
+pytest -v test_resume_parser_unified.py test_interview_evaluator.py test_dynamic_roadmap.py test_assessments_resume_suite.py test_features_suite.py
+
 # Test ATS Engine & ChromaDB Semantic Matching
 pytest -v test_ats_suite.py
 ```
 
-Run frontend code quality linting:
+Run frontend code quality linting & production build:
 ```bash
 cd frontend
 npm run lint
+npm run build
 ```
