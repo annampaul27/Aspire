@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from typing import Dict, List, Optional, Any
 
 from features.career_roadmap import prepare_career_roadmap, get_career_roadmap_requirements
+from features.personalized_roadmap import generate_personalized_roadmap
 from features.github_analysis import (
     prepare_github_analysis,
     get_github_analysis_requirements,
@@ -35,25 +36,44 @@ router = APIRouter()
 # 1. Career Roadmap
 # -------------------------------------------------------------
 class RoadmapRequest(BaseModel):
-    target_role: str = Field(..., example="Backend Engineer")
-    current_skills: List[str] = Field(..., example=["Python", "FastAPI", "SQL"])
+    target_role: str = Field(..., examples=["Backend Engineer"])
+    current_skills: List[str] = Field(..., examples=["Python", "FastAPI", "SQL"])
     skill_gaps: List[Dict[str, Any]] = Field(
         ...,
-        example=[{"skill": "PostgreSQL Optimization", "priority": "High"}]
+        examples=[{"skill": "PostgreSQL Optimization", "priority": "High"}]
     )
     candidate_profile: Optional[str] = None
+    weekly_hours: Optional[int] = 5
 
 
-@router.post("/roadmap", summary="Prepare 90-Day Career Roadmap (Jayasree A B)")
-@router.post("/generate", summary="Generate 90-Day Career Compass (Jayasree A B)")
+@router.post("/roadmap", summary="Prepare 90-Day Career Roadmap (Jayasree A B & rdnk2004)")
+@router.post("/generate", summary="Generate 90-Day Career Compass (Jayasree A B & rdnk2004)")
 def get_roadmap(req: RoadmapRequest):
     try:
-        return prepare_career_roadmap(
+        prep = prepare_career_roadmap(
             target_role=req.target_role,
             current_skills=req.current_skills,
             skill_gaps=req.skill_gaps,
             candidate_profile=req.candidate_profile,
         )
+        personalized = generate_personalized_roadmap(
+            skill_gaps=req.skill_gaps,
+            target_role=req.target_role,
+            weekly_hours=req.weekly_hours or 5,
+        )
+        # Merge structured specification with authentic course catalog curriculum
+        return {
+            **prep,
+            "personalized_roadmap": personalized,
+            "roadmap_title": personalized.get("roadmap_title", f"Personalized Roadmap for {req.target_role}"),
+            "phases": personalized.get("phases", []),
+            "total_course_duration_hours": personalized.get("total_course_duration_hours", 0),
+            "total_course_duration_minutes": personalized.get("total_course_duration_minutes", 0),
+            "skill_gap_count": personalized.get("skill_gap_count", len(req.skill_gaps)),
+            "available_course_count": personalized.get("available_course_count", 0),
+            "external_learning": personalized.get("external_learning", []),
+            "completion_rule": personalized.get("completion_rule", {}),
+        }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
