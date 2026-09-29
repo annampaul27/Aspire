@@ -10,9 +10,6 @@ import {
   RefreshCw,
   Sparkles,
   BookOpen,
-  CheckCircle2,
-  ChevronRight,
-  GraduationCap,
   Layers,
 } from "lucide-react";
 
@@ -26,7 +23,7 @@ interface RoadmapPhase {
     path: string;
     duration_minutes: number;
   };
-  course_content?: any;
+  course_content?: Record<string, unknown>;
   lessons: Array<{
     title: string;
     duration_minutes: number;

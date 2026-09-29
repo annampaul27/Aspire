@@ -132,6 +132,29 @@ def test_parse_pdf_resume_invalid_extension():
     assert res.status_code == 400
     assert "Only PDF resumes" in res.json()["detail"]
 
+def test_parse_pdf_resume_with_technical_skills():
+    """Test uploading a resume extracting structured ATS fields via unified parser service."""
+    sample_text = (
+        "Aditya Verma\n"
+        "aditya@example.com\n"
+        "Bengaluru, India\n"
+        "Skills: Python, FastAPI, Docker, PostgreSQL, React, Git, Kubernetes\n"
+        "Experience: Senior Engineer at Nexus Scale Labs (2022 - Present)\n"
+        "Education: Bachelor of Technology in Computer Science, IIIT Bengaluru (2020)\n"
+    )
+    files = {"file": ("aditya_resume.pdf", io.BytesIO(sample_text.encode("utf-8")), "application/pdf")}
+    res = client.post("/api/v1/resume/parse", files=files)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["success"] is True
+    assert "data" in data
+    assert data["data"]["ats_metadata"]["format_compliance"] in [
+        "Optimal Single-Column ATS Layout",
+        "ATS-100 Compliant",
+        "ATS-Standard Compliant"
+    ]
+    assert data["data"]["ats_metadata"]["ats_score"] >= 80
+
 def test_save_and_get_latest_ats_resume():
     """Test saving edited ATS resume and fetching latest."""
     sample_resume = {

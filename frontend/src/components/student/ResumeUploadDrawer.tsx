@@ -15,6 +15,30 @@ interface ResumeUploadDrawerProps {
   onClose: () => void;
 }
 
+interface ParsedResumePayload {
+  personal_info?: {
+    full_name?: string;
+    email?: string;
+    phone?: string;
+    location?: string;
+    github_url?: string;
+    linkedin_url?: string;
+  };
+  name?: string;
+  email?: string;
+  college?: string;
+  github_url?: string;
+  linkedin_url?: string;
+  experience_years?: number;
+  education?: Array<{ institution?: string }>;
+  skills?: {
+    core_technical?: string[];
+    frameworks_and_tools?: string[];
+    soft_skills?: string[];
+  } | string[];
+  [key: string]: unknown;
+}
+
 export default function ResumeUploadDrawer({ onClose }: ResumeUploadDrawerProps) {
   const {
     currentStudent,
@@ -32,7 +56,7 @@ export default function ResumeUploadDrawer({ onClose }: ResumeUploadDrawerProps)
   const [linkedinUrl, setLinkedinUrl] = useState(currentStudent.linkedinUrl);
   const [experienceYears, setExperienceYears] = useState(currentStudent.experienceYears);
 
-  const [rawResumeData, setRawResumeData] = useState<any>(null);
+  const [rawResumeData, setRawResumeData] = useState<ParsedResumePayload | null>(null);
 
   const handleFileUpload = async (file: File) => {
     setIsParsing(true);
@@ -55,22 +79,22 @@ export default function ResumeUploadDrawer({ onClose }: ResumeUploadDrawerProps)
 
       if (response.ok) {
         const resJson = await response.json();
-        const parsed = resJson.data || resJson;
-        const personal = parsed.personal_info || parsed;
+        const parsed: ParsedResumePayload = resJson.data || resJson;
+        const personal = parsed.personal_info;
         setRawResumeData(parsed);
 
-        if (personal.full_name || parsed.name) setFullName(personal.full_name || parsed.name);
-        if (personal.email || parsed.email) setEmail(personal.email || parsed.email);
+        if (personal?.full_name || parsed.name) setFullName(personal?.full_name || parsed.name || "");
+        if (personal?.email || parsed.email) setEmail(personal?.email || parsed.email || "");
         if (parsed.education?.[0]?.institution || parsed.college) {
-          setCollege(parsed.education?.[0]?.institution || parsed.college);
+          setCollege(parsed.education?.[0]?.institution || parsed.college || "");
         }
-        if (personal.github_url || parsed.github_url) setGithubUrl(personal.github_url || parsed.github_url);
-        if (personal.linkedin_url || parsed.linkedin_url) setLinkedinUrl(personal.linkedin_url || parsed.linkedin_url);
+        if (personal?.github_url || parsed.github_url) setGithubUrl(personal?.github_url || parsed.github_url || "");
+        if (personal?.linkedin_url || parsed.linkedin_url) setLinkedinUrl(personal?.linkedin_url || parsed.linkedin_url || "");
         if (parsed.experience_years !== undefined) setExperienceYears(parsed.experience_years);
 
         const skillsCount =
-          parsed.skills?.core_technical?.length ||
-          parsed.skills?.length ||
+          (parsed.skills && !Array.isArray(parsed.skills) && parsed.skills.core_technical?.length) ||
+          (Array.isArray(parsed.skills) && parsed.skills.length) ||
           0;
 
         addToast({
