@@ -298,3 +298,57 @@ def test_personalized_roadmap_fastapi_endpoint():
     assert data["weekly_learning_hours"] == 8
     assert len(data["phases"]) >= 2
     assert data["phases"][0]["mock_test"]["passing_score"] == 60
+
+
+def test_dynamic_interview_rubric_scoring_integration():
+    """Test that detailed technical answers score higher than poor one-line answers."""
+    poor_resp = client.post(
+        "/api/v1/career-compass/interview/evaluate",
+        json={
+            "question_text": "Explain distributed transaction management using two-phase commit.",
+            "candidate_answer": "It is good.",
+        },
+    )
+    assert poor_resp.status_code == 200
+    poor_eval = poor_resp.json()["evaluation"]
+    assert poor_eval["overall_score"] < 50
+    assert len(poor_eval["what_to_improve"]) > 0
+
+    strong_resp = client.post(
+        "/api/v1/career-compass/interview/evaluate",
+        json={
+            "question_text": "Explain distributed transaction management using two-phase commit.",
+            "candidate_answer": (
+                "Two-phase commit coordinates distributed transactions across multiple nodes with a prepare "
+                "phase and commit phase to guarantee atomicity and consistency under network partitions. "
+                "I architect consensus utilizing write-ahead logging and connection pooling to ensure high throughput."
+            ),
+        },
+    )
+    assert strong_resp.status_code == 200
+    strong_eval = strong_resp.json()["evaluation"]
+    assert strong_eval["overall_score"] >= 75
+    assert strong_eval["metrics"]["technical_accuracy"] >= 70
+    assert strong_eval["overall_score"] > poor_eval["overall_score"] + 25
+
+
+def test_dynamic_course_backed_roadmap_integration():
+    """Test that career compass roadmap pulls real courses and milestones from the catalog."""
+    resp = client.post(
+        "/api/v1/career-compass/personalized-roadmap",
+        json={
+            "skill_gaps": ["Python", "SQL", "Docker"],
+            "target_role": "Lead Backend Architect",
+            "weekly_hours": 10,
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["target_role"] == "Lead Backend Architect"
+    assert data["available_course_count"] >= 2
+    assert len(data["phases"]) >= 2
+    for phase in data["phases"]:
+        assert "skill" in phase
+        assert "lessons" in phase
+        assert "mock_test" in phase
+        assert phase["mock_test"]["passing_score"] == 60

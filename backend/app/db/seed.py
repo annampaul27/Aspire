@@ -1,7 +1,11 @@
 import datetime
 from sqlalchemy.orm import Session
 from app.db.session import engine, SessionLocal
-from app.models.entities import Base, Organization, User, Skill, Job, Subscription
+import app.models.entities
+from app.models.entities import (
+    Base, Organization, User, Skill, Job, Subscription,
+    DispatchedSprint, VerifiedCredential, Assessment, AtsResume, SavedJob, UserNotification
+)
 from app.core.security import get_password_hash
 
 DEFAULT_HASHED_PASSWORD = get_password_hash("SkillSetu@2026")

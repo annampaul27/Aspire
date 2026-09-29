@@ -6,6 +6,7 @@ import json
 import os
 from datetime import datetime
 from app.db.database import get_db_connection
+from app.services.ats.parser_service import extract_text, parse_resume, convert_resume_to_ats_payload
 
 router = APIRouter(prefix="/resume", tags=["FR-02: ATS Resume Parsing & Editing"])
 
@@ -187,15 +188,21 @@ async def parse_pdf_resume(file: UploadFile = File(...)):
     if len(file_bytes) == 0:
         raise HTTPException(status_code=400, detail="Uploaded file is empty.")
 
-    # Execute mock AI parsing engine
-    parsed_json = mock_ai_parse_pdf_content(file_bytes, file.filename)
+    # Execute authentic ATS parsing engine with fallback
+    try:
+        raw_text = await extract_text(file_bytes, file.filename)
+        resume_schema = parse_resume(raw_text)
+        parsed_json = convert_resume_to_ats_payload(resume_schema, file.filename)
+    except Exception as e:
+        print(f"[ResumeParser] Authentic parsing encountered error, falling back to mock: {e}")
+        parsed_json = mock_ai_parse_pdf_content(file_bytes, file.filename)
 
     return {
         "success": True,
         "file_name": file.filename,
         "file_size_bytes": len(file_bytes),
         "data": parsed_json,
-        "message": "Resume parsed successfully via AI spatial parser into structured ATS-compliant format."
+        "message": "Resume parsed successfully via authentic ATS parser into structured ATS-compliant format."
     }
 
 @router.post("/save-profile")

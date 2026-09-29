@@ -12,13 +12,18 @@ class ResumeSchema(BaseModel):
     name: str = Field(default="Candidate", description="Full candidate name")
     email: Optional[str] = None
     phone: Optional[str] = None
+    location: Optional[str] = "Bengaluru, India"
     college: Optional[str] = None
     work_experience: List[WorkExperience] = Field(default_factory=list)
+    education: List[dict] = Field(default_factory=list, description="Education history")
+    projects: List[dict] = Field(default_factory=list, description="Personal or academic projects")
     skills: List[str] = Field(default_factory=list, description="Normalized list of extracted skills.")
     summary: str = Field(default="", description="A brief professional summary.")
     github_url: Optional[str] = None
     linkedin_url: Optional[str] = None
+    portfolio_url: Optional[str] = None
     experience_years: Optional[float] = 0.0
+    user_class: Optional[str] = Field(default="Experienced", description="Fresher or Experienced")
 
 class JDSchema(BaseModel):
     job_title: str = Field(default="Software Engineer", description="Title of the job role")

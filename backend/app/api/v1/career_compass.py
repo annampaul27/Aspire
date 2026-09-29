@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from typing import Dict, List, Optional, Any
 
 from features.career_roadmap import prepare_career_roadmap, get_career_roadmap_requirements
+from features.personalized_roadmap import generate_personalized_roadmap
 from features.github_analysis import (
     prepare_github_analysis,
     get_github_analysis_requirements,
@@ -26,6 +27,7 @@ from features.job_market_analysis import (
 from features.portfolio_builder import prepare_portfolio
 from features.resume_analysis import prepare_resume_analysis, get_resume_analysis_requirements
 from features.skill_gap_analysis import prepare_skill_gap_analysis, build_competency_area
+from app.services.interview.evaluator import InterviewCoachEvaluator
 
 router = APIRouter()
 
@@ -34,25 +36,44 @@ router = APIRouter()
 # 1. Career Roadmap
 # -------------------------------------------------------------
 class RoadmapRequest(BaseModel):
-    target_role: str = Field(..., example="Backend Engineer")
-    current_skills: List[str] = Field(..., example=["Python", "FastAPI", "SQL"])
+    target_role: str = Field(..., examples=["Backend Engineer"])
+    current_skills: List[str] = Field(..., examples=["Python", "FastAPI", "SQL"])
     skill_gaps: List[Dict[str, Any]] = Field(
         ...,
-        example=[{"skill": "PostgreSQL Optimization", "priority": "High"}]
+        examples=[{"skill": "PostgreSQL Optimization", "priority": "High"}]
     )
     candidate_profile: Optional[str] = None
+    weekly_hours: Optional[int] = 5
 
 
-@router.post("/roadmap", summary="Prepare 90-Day Career Roadmap (Jayasree A B)")
-@router.post("/generate", summary="Generate 90-Day Career Compass (Jayasree A B)")
+@router.post("/roadmap", summary="Prepare 90-Day Career Roadmap (Jayasree A B & rdnk2004)")
+@router.post("/generate", summary="Generate 90-Day Career Compass (Jayasree A B & rdnk2004)")
 def get_roadmap(req: RoadmapRequest):
     try:
-        return prepare_career_roadmap(
+        prep = prepare_career_roadmap(
             target_role=req.target_role,
             current_skills=req.current_skills,
             skill_gaps=req.skill_gaps,
             candidate_profile=req.candidate_profile,
         )
+        personalized = generate_personalized_roadmap(
+            skill_gaps=req.skill_gaps,
+            target_role=req.target_role,
+            weekly_hours=req.weekly_hours or 5,
+        )
+        # Merge structured specification with authentic course catalog curriculum
+        return {
+            **prep,
+            "personalized_roadmap": personalized,
+            "roadmap_title": personalized.get("roadmap_title", f"Personalized Roadmap for {req.target_role}"),
+            "phases": personalized.get("phases", []),
+            "total_course_duration_hours": personalized.get("total_course_duration_hours", 0),
+            "total_course_duration_minutes": personalized.get("total_course_duration_minutes", 0),
+            "skill_gap_count": personalized.get("skill_gap_count", len(req.skill_gaps)),
+            "available_course_count": personalized.get("available_course_count", 0),
+            "external_learning": personalized.get("external_learning", []),
+            "completion_rule": personalized.get("completion_rule", {}),
+        }
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -95,20 +116,21 @@ def get_github_schema():
 # 3. AI Interview Coach
 # -------------------------------------------------------------
 class InterviewQuestionRequest(BaseModel):
-    role: str = Field(..., example="Senior Backend Engineer")
-    topic: str = Field(..., example="Distributed Systems & Partitioning")
+    role: str = Field(..., examples=["Senior Backend Engineer"])
+    topic: str = Field(..., examples=["Distributed Systems & Partitioning"])
 
 
-@router.post("/interview/question", summary="Generate Interview Question Prompt (Jayasree A B)")
+@router.post("/interview/question", summary="Generate Dynamic AI Interview Question Prompt (Jayasree A B & rdnk2004)")
 def get_interview_question(req: InterviewQuestionRequest):
     try:
         prep = prepare_interview_question(role=req.role, topic=req.topic)
-        # Sample generated question template conforming to feature spec
+        evaluator = InterviewCoachEvaluator()
+        generated = evaluator.generate_question(role=req.role, topic=req.topic)
         q = build_interview_question(
-            question_id="q-dist-01",
-            question_text=f"How would you handle network partitioning in a multi-region database for a {req.role} scenario?",
-            expected_keywords=["CAP theorem", "split-brain", "quorum", "consistency"],
-            hints=["Consider trade-offs between availability and consistency.", "Discuss consensus algorithms like Raft."],
+            question_id=generated.question_id,
+            question_text=generated.question_text,
+            expected_keywords=generated.expected_keywords,
+            hints=generated.hints,
         )
         return {"preparation": prep, "generated_question": q}
     except ValueError as e:
@@ -116,27 +138,36 @@ def get_interview_question(req: InterviewQuestionRequest):
 
 
 class InterviewEvalRequest(BaseModel):
-    question_text: str = Field(..., example="How do you handle database indexing for large tables?")
-    candidate_answer: str = Field(..., example="I use B-Tree indexes on high-cardinality query columns and avoid indexing write-heavy tables.")
+    question_text: str = Field(..., examples=["How do you handle database indexing for large tables?"])
+    candidate_answer: str = Field(..., examples=["I use B-Tree indexes on high-cardinality query columns and avoid indexing write-heavy tables."])
+    role: Optional[str] = Field(default="Senior Backend Engineer", examples=["Senior Backend Engineer"])
 
 
-@router.post("/interview/evaluate", summary="Evaluate Interview Response (Jayasree A B)")
+@router.post("/interview/evaluate", summary="Evaluate Interview Response with Dynamic Rubric (Jayasree A B & rdnk2004)")
 def evaluate_interview_response(req: InterviewEvalRequest):
     try:
         prep = prepare_answer_evaluation(
             question_text=req.question_text,
             transcript=req.candidate_answer,
         )
-        # Deterministic scoring evaluation matching feature criteria
-        eval_result = build_interview_evaluation(
-            overall_score=88.0,
-            clarity=90.0,
-            technical_accuracy=86.0,
-            confidence_estimate=0.92,
-            what_went_well=["Clear distinction between read and write patterns", "Concise reasoning"],
-            what_to_improve=["Mention partial indexes or EXPLAIN ANALYZE verification"],
-            better_answer="A complete answer explains B-Tree indexing trade-offs, composite keys, and using EXPLAIN ANALYZE to verify query plans.",
+        evaluator = InterviewCoachEvaluator()
+        result = evaluator.evaluate_answer(
+            question_text=req.question_text,
+            candidate_answer=req.candidate_answer,
+            role=req.role,
         )
+        eval_result = build_interview_evaluation(
+            overall_score=result.overall_score,
+            clarity=result.clarity,
+            technical_accuracy=result.technical_accuracy,
+            confidence_estimate=result.confidence_estimate,
+            what_went_well=result.what_went_well,
+            what_to_improve=result.what_to_improve,
+            better_answer=result.better_answer,
+        )
+        # Augment with dynamic rubric competencies
+        eval_result["strengths"] = result.strengths
+        eval_result["recommended_topics"] = result.recommended_topics
         return {"preparation": prep, "evaluation": eval_result}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
