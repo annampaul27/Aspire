@@ -364,7 +364,7 @@ def convert_resume_to_ats_payload(resume: ResumeSchema, raw_text: str = "") -> D
 
     # Calculate ATS score & metadata based on parsed structure
     num_skills = len(skills_list)
-    ats_score = min(96, max(75, 70 + (num_skills * 2)))
+    ats_score = min(96, max(82, 74 + (num_skills * 2)))
 
     return {
         "personal_info": {

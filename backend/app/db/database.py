@@ -247,6 +247,14 @@ def init_db():
     conn.commit()
     conn.close()
 
+    # Synchronize SQLAlchemy relational tables (dispatched_sprints, verified_credentials, organizations, etc.)
+    try:
+        from app.db.session import engine
+        import app.models.entities
+        app.models.entities.Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"[init_db] Warning creating SQLAlchemy tables: {e}")
+
 def get_user_verified_skills(user_id: str) -> List[str]:
     """
     Returns array of verified skills for a user from their profile and passed assessments.
