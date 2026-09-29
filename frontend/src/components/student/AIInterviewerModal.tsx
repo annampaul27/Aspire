@@ -37,6 +37,8 @@ interface EvaluationData {
   what_went_well: string[];
   what_to_improve: string[];
   better_answer: string;
+  strengths?: string[];
+  recommended_topics?: string[];
 }
 
 const PRESET_TOPICS = [
@@ -123,6 +125,7 @@ export default function AIInterviewerModal({
         body: JSON.stringify({
           question_text: activeQuestion.question_text,
           candidate_answer: candidateAnswer,
+          role: selectedRole,
         }),
       });
 
@@ -419,6 +422,48 @@ export default function AIInterviewerModal({
                       </ul>
                     </div>
                   </div>
+
+                  {/* Strengths & Practice Recommendations */}
+                  {((evaluation.strengths && evaluation.strengths.length > 0) ||
+                    (evaluation.recommended_topics && evaluation.recommended_topics.length > 0)) && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+                      {evaluation.strengths && evaluation.strengths.length > 0 && (
+                        <div className="p-3 rounded-lg bg-gray-900/90 border border-gray-800 space-y-1.5">
+                          <span className="text-[11px] font-semibold text-purple-300 block">
+                            🎯 Demonstrated Competencies:
+                          </span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {evaluation.strengths.map((str, sIdx) => (
+                              <span
+                                key={sIdx}
+                                className="px-2 py-0.5 rounded bg-purple-950/70 border border-purple-800/80 text-[10px] font-mono text-purple-300"
+                              >
+                                {str}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {evaluation.recommended_topics && evaluation.recommended_topics.length > 0 && (
+                        <div className="p-3 rounded-lg bg-gray-900/90 border border-gray-800 space-y-1.5">
+                          <span className="text-[11px] font-semibold text-blue-300 block">
+                            📚 Recommended Focus Areas:
+                          </span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {evaluation.recommended_topics.map((top, tIdx) => (
+                              <span
+                                key={tIdx}
+                                className="px-2 py-0.5 rounded bg-blue-950/70 border border-blue-800/80 text-[10px] font-mono text-blue-300"
+                              >
+                                {top}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Ideal Model Answer */}
                   <div className="p-3 rounded-lg bg-gray-900 border border-gray-800 text-xs space-y-1">
