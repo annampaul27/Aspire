@@ -87,10 +87,10 @@ def get_roadmap_schema():
 # 2. GitHub Project Analysis
 # -------------------------------------------------------------
 class GithubAnalysisRequest(BaseModel):
-    repository_name: str = Field(..., example="distributed-cache")
-    repository_url: str = Field(..., example="https://github.com/developer/distributed-cache")
-    files: List[str] = Field(default_factory=list, example=["main.go", "cache.go", "README.md"])
-    file_content: str = Field(default="", example="package main\n\nfunc main() {}")
+    repository_name: str = Field(..., json_schema_extra={"example": "distributed-cache"})
+    repository_url: str = Field(..., json_schema_extra={"example": "https://github.com/developer/distributed-cache"})
+    files: List[str] = Field(default_factory=list, json_schema_extra={"example": ["main.go", "cache.go", "README.md"]})
+    file_content: str = Field(default="", json_schema_extra={"example": "package main\n\nfunc main() {}"})
 
 
 @router.post("/github-analysis", summary="Analyze GitHub Repository Complexity (Jayasree A B)")
@@ -178,8 +178,8 @@ def evaluate_interview_response(req: InterviewEvalRequest):
 # -------------------------------------------------------------
 @router.get("/job-market", summary="Analyze Job Market Demand (Jayasree A B)")
 def get_job_market(
-    role_title: str = Query(..., example="Full Stack Developer"),
-    location: Optional[str] = Query(None, example="Remote"),
+    role_title: str = Query(..., examples=["Full Stack Developer"]),
+    location: Optional[str] = Query(None, examples=["Remote"]),
 ):
     try:
         prep = prepare_job_market_analysis(role_title=role_title, location=location)
@@ -201,7 +201,7 @@ def get_job_market(
 # 5. Portfolio Builder
 # -------------------------------------------------------------
 class PortfolioRequest(BaseModel):
-    candidate_data: Dict[str, Any] = Field(..., example={"name": "Alex", "title": "Software Engineer"})
+    candidate_data: Dict[str, Any] = Field(..., json_schema_extra={"example": {"name": "Alex", "title": "Software Engineer"}})
     color_theme: str = "cyan"
     mode: str = "Dark"
     layout_style: str = "Classic"
@@ -228,7 +228,7 @@ def get_portfolio_prep(req: PortfolioRequest):
 # 6. Resume Deep Analysis
 # -------------------------------------------------------------
 class ResumeDeepAnalysisRequest(BaseModel):
-    resume_text: str = Field(..., example="Senior Developer with 4 years experience in Python and PostgreSQL.")
+    resume_text: str = Field(..., json_schema_extra={"example": "Senior Developer with 4 years experience in Python and PostgreSQL."})
     job_description: Optional[str] = None
 
 
@@ -247,8 +247,8 @@ def analyze_resume_deep(req: ResumeDeepAnalysisRequest):
 # 7. Skill Gap Analysis
 # -------------------------------------------------------------
 class SkillGapPrepRequest(BaseModel):
-    candidate_profile: str = Field(..., example="Proficient in Python, basic Docker, no Kubernetes")
-    target_role: str = Field(..., example="DevOps Engineer")
+    candidate_profile: str = Field(..., json_schema_extra={"example": "Proficient in Python, basic Docker, no Kubernetes"})
+    target_role: str = Field(..., json_schema_extra={"example": "DevOps Engineer"})
     job_description: Optional[str] = None
 
 
