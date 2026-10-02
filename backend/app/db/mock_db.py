@@ -1,8 +1,8 @@
 from typing import Optional, Dict, Any, List
 from app.core.security import get_password_hash, verify_password
 
-# Pre-computed bcrypt hash for 'SkillSetu@2026'
-DEFAULT_HASHED_PASSWORD = get_password_hash("SkillSetu@2026")
+# Pre-computed bcrypt hash for 'AspireAI@2026'
+DEFAULT_HASHED_PASSWORD = get_password_hash("AspireAI@2026")
 
 MOCK_ORGANIZATIONS: Dict[str, Dict[str, Any]] = {
     "org-acme": {
@@ -69,9 +69,9 @@ MOCK_USERS: Dict[str, Dict[str, Any]] = {
         "current_tier": "job_ready",
         "avatar_url": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
     },
-    "root@skillsetu.ai": {
+    "root@aspire.ai": {
         "id": "usr-superuser-root",
-        "email": "root@skillsetu.ai",
+        "email": "root@aspire.ai",
         "password_hash": DEFAULT_HASHED_PASSWORD,
         "full_name": "Platform Superuser",
         "role": "admin",

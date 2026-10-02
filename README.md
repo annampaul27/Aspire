@@ -1,4 +1,4 @@
-# SkillSetu AI — Role-Separated Talent Infrastructure & Trust Engine
+# Aspire AI — Role-Separated Talent Infrastructure & Trust Engine
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115.0-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Next.js](https://img.shields.io/badge/Next.js-15.0-black.svg?logo=next.js&logoColor=white)](https://nextjs.org)
@@ -10,7 +10,7 @@
 [![Pytest](https://img.shields.io/badge/Pytest-92%20Passed-brightgreen.svg?logo=pytest&logoColor=white)](https://pytest.org)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-SkillSetu AI bridges the gap between talent supply (students) and employer demand (corporates, universities, staffing agencies). It combines an AI-powered Applicant Tracking System (ATS), cryptographic proof-of-work credentialing (SHA-256), a dual-tier isolated execution sandbox with AST security filtering, and deterministic deficit-resistance skill matching.
+Aspire AI bridges the gap between talent supply (students) and employer demand (corporates, universities, staffing agencies). It combines an AI-powered Applicant Tracking System (ATS), cryptographic proof-of-work credentialing (SHA-256), a dual-tier isolated execution sandbox with AST security filtering, and deterministic deficit-resistance skill matching.
 
 ---
 
@@ -27,7 +27,7 @@ SkillSetu AI bridges the gap between talent supply (students) and employer deman
 
 ## 🏆 SaaS Commercialization Milestones & Engineering Roadmap
 
-Following the [Full-Stack & SaaS Architectural Audit](SkillSetu_AI_SaaS_Architectural_Audit.pdf), SkillSetu AI has evolved from a 48-hour hackathon prototype into a hardened, production-grade enterprise platform.
+Following the [Full-Stack & SaaS Architectural Audit](SkillSetu_AI_SaaS_Architectural_Audit.pdf), Aspire AI has evolved from a 48-hour hackathon prototype into a hardened, production-grade enterprise platform.
 
 ### ✅ Sprint 1: Production Multi-Tenancy, Database Persistence & Hardened RBAC (Completed)
 - **Branch:** `feat/sprint-1-database-persistence-and-hardened-rbac`
@@ -43,7 +43,7 @@ Following the [Full-Stack & SaaS Architectural Audit](SkillSetu_AI_SaaS_Architec
   9. `test(sprint1): add comprehensive integration test suite for rbac and database persistence`
   10. `fix(db): ensure Base.metadata.create_all and user column migrations run before seeding`
 - **Key Deliverables:**
-  - **SQLAlchemy 2.0 Dual-Engine Architecture**: Auto-connects to managed cloud PostgreSQL (Supabase / Neon / AWS RDS) via `DATABASE_URL` with zero-friction fallback to local SQLite (`skillsetu.db`).
+  - **SQLAlchemy 2.0 Dual-Engine Architecture**: Auto-connects to managed cloud PostgreSQL (Supabase / Neon / AWS RDS) via `DATABASE_URL` with zero-friction fallback to local SQLite (`aspire.db`).
   - **Alembic Versioned Migrations**: Automated database migrations for `organizations`, `organization_memberships`, `subscriptions`, `dispatched_sprints`, and `verified_credentials`.
   - **Hardened RBAC Security**: FastAPI dependency injection (`require_role("employer")`, `require_role("admin")`, `require_role("student")`) preventing horizontal privilege escalation.
   - **Client Token Handling**: Eliminated `finally` auth bypass in `frontend/src/app/login/page.tsx`; automatic `Authorization: Bearer <token>` injection on all API requests in `frontend/src/lib/api/client.ts`.
@@ -128,7 +128,7 @@ AI-Skill/
 │   │   │   └── security.py      # SHA-256 & bcrypt cryptographic utilities
 │   │   ├── db/
 │   │   │   ├── session.py       # SQLAlchemy 2.0 dual-engine session factory
-│   │   │   └── skillsetu.db     # Local SQLite persistent database
+│   │   │   └── aspire.db        # Local SQLite persistent database
 │   │   ├── models/
 │   │   │   ├── base.py          # SQLAlchemy DeclarativeBase
 │   │   │   ├── saas.py          # Multi-tenant models (Org, Sprints, Credentials)

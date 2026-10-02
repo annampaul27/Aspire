@@ -127,7 +127,7 @@ export default function Navbar() {
             </div>
             <div className="flex items-baseline gap-1.5">
               <span className="font-extrabold text-lg text-white tracking-tight">
-                Skill<span className="text-purple-400">Setu</span>
+                Aspire <span className="text-purple-400">AI</span>
               </span>
 
               {/* Strict Role Badges */}

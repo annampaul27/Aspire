@@ -71,7 +71,7 @@ export default function VerifyCredentialPage() {
           passedQuestions: 3,
           totalQuestions: 3,
           issuedAt: "2026-09-20T11:42:00Z",
-          issuerOrg: "SkillSetu Verification Engine",
+          issuerOrg: "Aspire AI Verification Engine",
           isSponsored: true,
           sponsorOrg: "Snowflake Labs",
           canonicalPayload: fallbackPayload,
@@ -112,22 +112,22 @@ export default function VerifyCredentialPage() {
   };
 
   const copyPublicUrl = () => {
-    const url = typeof window !== "undefined" ? window.location.href : `https://skillsetu.ai/verify/${hashParam}`;
+    const url = typeof window !== "undefined" ? window.location.href : `https://aspire.ai/verify/${hashParam}`;
     navigator.clipboard.writeText(url);
     setCopiedUrl(true);
     setTimeout(() => setCopiedUrl(false), 2500);
   };
 
   const copyReadmeBadge = () => {
-    const url = typeof window !== "undefined" ? window.location.href : `https://skillsetu.ai/verify/${hashParam}`;
-    const badgeMarkdown = `[![SkillSetu Verified](https://img.shields.io/badge/SkillSetu_SHA256-Verified_${credential?.score || 94}%25-10b981?style=for-the-badge&logo=shield)](${url})`;
+    const url = typeof window !== "undefined" ? window.location.href : `https://aspire.ai/verify/${hashParam}`;
+    const badgeMarkdown = `[![Aspire AI Verified](https://img.shields.io/badge/Aspire_AI_SHA256-Verified_${credential?.score || 94}%25-10b981?style=for-the-badge&logo=shield)](${url})`;
     navigator.clipboard.writeText(badgeMarkdown);
     setCopiedBadge(true);
     setTimeout(() => setCopiedBadge(false), 2500);
   };
 
   const shareToLinkedIn = () => {
-    const url = typeof window !== "undefined" ? encodeURIComponent(window.location.href) : encodeURIComponent(`https://skillsetu.ai/verify/${hashParam}`);
+    const url = typeof window !== "undefined" ? encodeURIComponent(window.location.href) : encodeURIComponent(`https://aspire.ai/verify/${hashParam}`);
     const shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
     window.open(shareUrl, "_blank", "width=600,height=600");
   };

@@ -243,7 +243,7 @@ async def process_payment(amount: float):
       passedQuestions: 3,
       totalQuestions: 3,
       issuedAt,
-      issuerOrg: "SkillSetu Trust Engine (Hackathon Demo)",
+      issuerOrg: "Aspire AI Trust Engine (Hackathon Demo)",
       isSponsored: true,
       sponsorOrg: "Acme HyperScale Systems",
       canonicalPayload,
@@ -346,7 +346,7 @@ async def process_payment(amount: float):
 
   const handleCopyBadge = () => {
     if (!mintedCredential) return;
-    const badgeMarkdown = `[![SkillSetu Verified](https://img.shields.io/badge/SkillSetu_SHA256-Verified_100%25-10b981)](http://localhost:3000/verify/${mintedCredential.hash})`;
+    const badgeMarkdown = `[![Aspire AI Verified](https://img.shields.io/badge/Aspire_AI_SHA256-Verified_100%25-10b981)](http://localhost:3000/verify/${mintedCredential.hash})`;
     navigator.clipboard.writeText(badgeMarkdown);
     setCopiedBadge(true);
     addToast({
@@ -375,7 +375,7 @@ async def process_payment(amount: float):
               </h1>
             </div>
             <p className="text-xs text-gray-400">
-              Single-screen demonstration of SkillSetu’s closed-loop architecture: Blind Radar → 1-Click Sprint → Proctored Bug-Fixer → SHA-256 Micro-Minting → Live Talent Liquidity.
+              Single-screen demonstration of Aspire AI’s closed-loop architecture: Blind Radar → 1-Click Sprint → Proctored Bug-Fixer → SHA-256 Micro-Minting → Live Talent Liquidity.
             </p>
           </div>
 

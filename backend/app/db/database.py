@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 from typing import Optional, Dict, Any, List
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "skillsetu.db")
+DB_PATH = os.path.join(os.path.dirname(__file__), "aspire.db")
 
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)

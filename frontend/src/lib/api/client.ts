@@ -1,12 +1,12 @@
 /**
- * Core HTTP Client for SkillSetu Backend API
+ * Core HTTP Client for Aspire AI Backend API
  * Hardened with automatic Bearer JWT injection, 401 interceptors, and typed helpers (Audit §4.6)
  */
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
-export const TOKEN_STORAGE_KEY = "skillsetu_jwt_token";
+export const TOKEN_STORAGE_KEY = "aspireai_jwt_token";
 
 /**
  * Retrieves the cryptographic JWT token from browser localStorage
@@ -83,7 +83,7 @@ export async function fetchWithTimeout(
     // Centralized 401 Unauthorized handling
     if (res.status === 401 && typeof window !== "undefined") {
       window.dispatchEvent(
-        new CustomEvent("skillsetu:unauthorized", {
+        new CustomEvent("aspireai:unauthorized", {
           detail: { url, status: 401 },
         })
       );

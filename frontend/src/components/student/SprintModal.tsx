@@ -167,7 +167,7 @@ export default function SprintModal({ sprint, onClose }: SprintModalProps) {
           score: finalPercentage,
           passedQuestions: correctCount,
           totalQuestions: sprint.part3Questions.length,
-          issuerOrg: "SkillSetu Deterministic Engine",
+          issuerOrg: "Aspire AI Deterministic Engine",
           isSponsored: !!sprint.sponsorOrgName,
           sponsorOrg: sprint.sponsorOrgName,
           answersLog,

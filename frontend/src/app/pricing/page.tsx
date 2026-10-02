@@ -72,8 +72,8 @@ Value Prop: Empowerment over automation—we filter out resume spam and cheating
   // Employer ROI calculations
   const agencyCostPerHire = 120000; // Average ₹1.2L recruitment agency fee in India
   const traditionalTotalCost = hiresPerMonth * agencyCostPerHire;
-  const skillsetuCost = hiresPerMonth <= 2 ? 4999 : hiresPerMonth <= 10 ? 14999 : 49999;
-  const employerSavings = traditionalTotalCost - skillsetuCost;
+  const aspireaiCost = hiresPerMonth <= 2 ? 4999 : hiresPerMonth <= 10 ? 14999 : 49999;
+  const employerSavings = traditionalTotalCost - aspireaiCost;
   const employerSavingsPercent = Math.round((employerSavings / traditionalTotalCost) * 100);
 
   // Student ROI calculations
@@ -159,7 +159,7 @@ Value Prop: Empowerment over automation—we filter out resume spam and cheating
                 </span>
                 <span className="text-xs text-slate-400">Slide Title: Monetization & Revenue Model</span>
               </div>
-              <span className="text-xs font-mono text-slate-500">SkillSetu · 16:9 Presentation View</span>
+              <span className="text-xs font-mono text-slate-500">Aspire AI · 16:9 Presentation View</span>
             </div>
 
             {/* Slide 2-Column Grid */}
@@ -841,8 +841,8 @@ Value Prop: Empowerment over automation—we filter out resume spam and cheating
                     <span className="font-mono text-slate-200">₹{(traditionalTotalCost).toLocaleString("en-IN")}</span>
                   </div>
                   <div className="flex justify-between text-slate-400">
-                    <span>SkillSetu SaaS Platform Cost:</span>
-                    <span className="font-mono text-emerald-400 font-bold">₹{skillsetuCost.toLocaleString("en-IN")}/mo</span>
+                    <span>Aspire AI SaaS Platform Cost:</span>
+                    <span className="font-mono text-emerald-400 font-bold">₹{aspireaiCost.toLocaleString("en-IN")}/mo</span>
                   </div>
                 </div>
               </div>
@@ -894,7 +894,7 @@ Value Prop: Empowerment over automation—we filter out resume spam and cheating
 
                 <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2 text-xs">
                   <div className="flex justify-between text-slate-400">
-                    <span>SkillSetu Pro Investment ({prepMonths} mo × ₹299):</span>
+                    <span>Aspire AI Pro Investment ({prepMonths} mo × ₹299):</span>
                     <span className="font-mono text-purple-400 font-bold">₹{proCostTotal.toLocaleString("en-IN")}</span>
                   </div>
                   <div className="flex justify-between text-slate-400">
@@ -1053,7 +1053,7 @@ Value Prop: Empowerment over automation—we filter out resume spam and cheating
             <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
               <h4 className="text-sm font-bold text-white flex items-center gap-2">
                 <HelpCircle className="w-4 h-4 text-blue-400" />
-                <span>How does SkillSetu stop candidates from cheating with AI?</span>
+                <span>How does Aspire AI stop candidates from cheating with AI?</span>
               </h4>
               <p className="text-xs text-slate-400 leading-relaxed">
                 Our dynamic sandbox injects randomized test fixtures, evaluates code AST trees directly, and runs real-time code executions. Candidates must explain architectural decisions during follow-up AI grills.

@@ -37,7 +37,7 @@ export default function AdminProfilePage() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [adminName, setAdminName] = useState(currentUser?.name || "Platform Superuser (Root)");
-  const [adminEmail, setAdminEmail] = useState(currentUser?.email || "root@skillsetu.ai");
+  const [adminEmail, setAdminEmail] = useState(currentUser?.email || "root@aspire.ai");
   const [keyRotationStatus, setKeyRotationStatus] = useState<string>("Active & Verified");
 
   const totalAnomalies = anomalies.length;

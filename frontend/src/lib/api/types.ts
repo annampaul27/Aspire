@@ -1,5 +1,5 @@
 /**
- * API Type Definitions for SkillSetu Backend Integration
+ * API Type Definitions for Aspire AI Backend Integration
  */
 
 export interface GitHubAnalysisPayload {

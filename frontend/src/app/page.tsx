@@ -39,7 +39,7 @@ export default function HomePage() {
           </h1>
 
           <p className="text-sm sm:text-base text-gray-400 leading-relaxed max-w-xl">
-            SkillSetu connects employers with job-ready candidates through
+            Aspire AI connects employers with job-ready candidates through
             verified skill assessments, structured micro-learning, and
             tamper-proof credentials — eliminating resume noise and bridging
             skill gaps.

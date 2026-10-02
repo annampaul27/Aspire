@@ -1,5 +1,5 @@
 /**
- * SkillSetu Modular API Client
+ * Aspire AI Modular API Client
  * Centralized Domain-Driven API Export Index
  */
 

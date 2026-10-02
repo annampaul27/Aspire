@@ -68,7 +68,7 @@ export default function SkillVerificationModal({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>(() => {
     if (typeof window === "undefined") return {};
-    const key = `skillsetu_answers_${skillId}_${currentStudent.id}`;
+    const key = `aspireai_answers_${skillId}_${currentStudent.id}`;
     const saved = localStorage.getItem(key);
     if (saved) {
       try {
@@ -88,8 +88,8 @@ export default function SkillVerificationModal({
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const handleSubmitAssessmentRef = useRef<(() => Promise<void>) | null>(null);
-  const storageKey = `skillsetu_timer_${skillId}_${currentStudent.id}`;
-  const answersStorageKey = `skillsetu_answers_${skillId}_${currentStudent.id}`;
+  const storageKey = `aspireai_timer_${skillId}_${currentStudent.id}`;
+  const answersStorageKey = `aspireai_answers_${skillId}_${currentStudent.id}`;
 
   // 1. Fetch exactly 20 questions
   useEffect(() => {
@@ -423,7 +423,7 @@ export default function SkillVerificationModal({
             score: result.score,
             passedQuestions: result.correct_count,
             totalQuestions: result.total_questions,
-            issuerOrg: "SkillSetu Multi-Tier Badge Engine",
+            issuerOrg: "Aspire AI Multi-Tier Badge Engine",
             isSponsored: false,
             answersLog: [],
             antiCheatAudit: { tabBlurEvents: 0, flagged: false },
@@ -515,7 +515,7 @@ export default function SkillVerificationModal({
         score: scorePercent,
         passedQuestions: correctCount,
         totalQuestions: REQUIRED_QUESTIONS_COUNT,
-        issuerOrg: "SkillSetu Verification Engine",
+        issuerOrg: "Aspire AI Verification Engine",
         isSponsored: false,
         answersLog: [],
         antiCheatAudit: { tabBlurEvents: 0, flagged: false },
