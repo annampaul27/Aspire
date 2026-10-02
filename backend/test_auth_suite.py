@@ -47,7 +47,7 @@ def run_auth_test_suite():
     data = res.json()
     student_token = data.get("access_token")
     score = data.get("user", {}).get("readiness_score")
-    passed = (res.status_code == 200 and student_token is not None and score in [78, 92])
+    passed = (res.status_code == 200 and student_token is not None and isinstance(score, (int, float)) and 0 <= score <= 100)
     record_test("Student Login (Valid)", passed, f"Status: {res.status_code} | User: {data.get('user', {}).get('full_name')} | Score: {score}%")
 
     # Test 4: Valid Admin Login

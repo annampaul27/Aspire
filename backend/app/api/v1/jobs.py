@@ -1,12 +1,14 @@
-from fastapi import APIRouter, HTTPException, BackgroundTasks, status
+from fastapi import APIRouter, HTTPException, BackgroundTasks, status, Depends
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import uuid
 import json
 import logging
 from datetime import datetime, timedelta
+from sqlalchemy.orm import Session
 
-from app.db.database import get_db_connection, get_all_candidate_profiles
+from app.db.session import get_db, get_db_session
+from app.models.entities import Job, User, UserNotification
 from app.core.matching_engine import calculate_match_percentage
 
 logger = logging.getLogger("jobs_ingestion")
@@ -37,56 +39,67 @@ def run_job_matching_for_all_candidates(job: Dict[str, Any]):
     Inserts 'job_match' notifications for eligible matches (>= 80% match).
     """
     logger.info(f"Starting asynchronous matching engine for job '{job['title']}' ({job['id']})")
-    candidates = get_all_candidate_profiles()
-    logger.info(f"Evaluating {len(candidates)} candidates against required skills: {job['required_skills']}")
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
+    
     matches_created = 0
-    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now_dt = datetime.now()
 
-    for cand in candidates:
-        match_res = calculate_match_percentage(
-            user_skills=cand["verified_skills"],
-            required_skills=job["required_skills"],
-            threshold=job.get("threshold", 80.0)
-        )
+    with get_db_session() as db:
+        candidates = db.query(User).filter(User.role == "student").all()
+        logger.info(f"Evaluating {len(candidates)} candidates against required skills: {job['required_skills']}")
 
-        logger.info(
-            f"Candidate {cand['full_name']} ({cand['id']}) match: {match_res['match_percentage']}% "
-            f"(Eligible: {match_res['is_eligible_match']}, Matched: {match_res['matched_skills']})"
-        )
+        for cand in candidates:
+            v_skills = []
+            if cand.verified_skills_json:
+                try:
+                    parsed = json.loads(cand.verified_skills_json)
+                    if isinstance(parsed, list):
+                        v_skills = parsed
+                except Exception:
+                    pass
 
-        if match_res["is_eligible_match"]:
-            match_pct = round(match_res["match_percentage"])
-            company_name = job.get("company") or "Acme HyperScale Systems"
-            job_title = job.get("title")
+            match_res = calculate_match_percentage(
+                user_skills=v_skills,
+                required_skills=job["required_skills"],
+                threshold=job.get("threshold", 80.0)
+            )
 
-            # Notification format specified in FR-05 requirement:
-            # "New Match: You are an 85% match for [Job Title] at [Company]. Apply now!"
-            message = f"New Match: You are an {match_pct}% match for {job_title} at {company_name}. Apply now!"
-            notif_id = f"notif-match-{uuid.uuid4().hex[:10]}"
+            logger.info(
+                f"Candidate {cand.full_name} ({cand.id}) match: {match_res['match_percentage']}% "
+                f"(Eligible: {match_res['is_eligible_match']}, Matched: {match_res['matched_skills']})"
+            )
 
-            try:
-                cursor.execute("""
-                INSERT INTO user_notifications (
-                    id, user_id, job_id, message, notification_type, is_read, trigger_date
-                ) VALUES (?, ?, ?, ?, 'job_match', 0, ?)
-                """, (notif_id, cand["id"], job["id"], message, now_str))
-                matches_created += 1
-                logger.info(f"Inserted job_match notification for {cand['id']} -> {notif_id}")
-            except Exception as e:
-                logger.error(f"Failed to insert notification for candidate {cand['id']}: {e}")
+            if match_res["is_eligible_match"]:
+                match_pct = round(match_res["match_percentage"])
+                company_name = job.get("company") or "Acme HyperScale Systems"
+                job_title = job.get("title")
 
-    conn.commit()
-    conn.close()
+                message = f"New Match: You are an {match_pct}% match for {job_title} at {company_name}. Apply now!"
+                notif_id = f"notif-match-{uuid.uuid4().hex[:10]}"
+
+                try:
+                    notif = UserNotification(
+                        id=notif_id,
+                        user_id=cand.id,
+                        job_id=job["id"],
+                        message=message,
+                        notification_type="job_match",
+                        is_read=False,
+                        trigger_date=now_dt,
+                    )
+                    db.add(notif)
+                    matches_created += 1
+                    logger.info(f"Inserted job_match notification for {cand.id} -> {notif_id}")
+                except Exception as e:
+                    logger.error(f"Failed to insert notification for candidate {cand.id}: {e}")
+
+        db.commit()
     logger.info(f"Asynchronous matching completed. Created {matches_created} notifications for job {job['id']}.")
 
 @router.post("/incoming", status_code=status.HTTP_202_ACCEPTED)
 async def ingest_incoming_job(
     payload: IncomingJobPayload,
-    background_tasks: BackgroundTasks
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
 ):
     """
     FR-05 Job Ingestion Endpoint:
@@ -96,10 +109,6 @@ async def ingest_incoming_job(
     job_id = payload.id or f"job-{uuid.uuid4().hex[:8]}"
     company = payload.company or "Acme HyperScale Systems"
     
-    # Store job in SQLite database
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
     now = datetime.now()
     deadline = now + timedelta(days=30)
 
@@ -107,33 +116,45 @@ async def ingest_incoming_job(
     critical_skills = [{"id": s.lower().replace(" ", "_"), "name": s, "weight": 3.0} for s in payload.required_skills]
     optional_skills = [{"id": s.lower().replace(" ", "_"), "name": s, "weight": 1.0} for s in (payload.optional_skills or [])]
 
-    cursor.execute("""
-    INSERT OR REPLACE INTO jobs (
-        id, org_id, title, department, location, type, experience_min_years,
-        salary_range, description, pass_threshold, opening_date, application_deadline,
-        critical_skills_json, optional_skills_json, status, company
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        job_id,
-        payload.org_id,
-        payload.title,
-        payload.department,
-        payload.location,
-        payload.type,
-        payload.experience_min_years,
-        payload.salary_range,
-        payload.description,
-        payload.pass_threshold,
-        now.strftime("%Y-%m-%d %H:%M:%S"),
-        deadline.strftime("%Y-%m-%d %H:%M:%S"),
-        json.dumps(critical_skills),
-        json.dumps(optional_skills),
-        "active",
-        company
-    ))
+    existing_job = db.query(Job).filter(Job.id == job_id).first()
+    if existing_job:
+        existing_job.org_id = payload.org_id or "org-acme"
+        existing_job.title = payload.title
+        existing_job.company = company
+        existing_job.department = payload.department
+        existing_job.location = payload.location
+        existing_job.type = payload.type or "Full-Time"
+        existing_job.experience_min_years = payload.experience_min_years or 0.0
+        existing_job.salary_range = payload.salary_range
+        existing_job.description = payload.description
+        existing_job.pass_threshold = payload.pass_threshold or 85
+        existing_job.opening_date = now
+        existing_job.application_deadline = deadline
+        existing_job.critical_skills_json = json.dumps(critical_skills)
+        existing_job.optional_skills_json = json.dumps(optional_skills)
+        existing_job.status = "active"
+    else:
+        new_job = Job(
+            id=job_id,
+            org_id=payload.org_id or "org-acme",
+            company=company,
+            title=payload.title,
+            department=payload.department,
+            location=payload.location,
+            type=payload.type or "Full-Time",
+            experience_min_years=payload.experience_min_years or 0.0,
+            salary_range=payload.salary_range,
+            description=payload.description,
+            pass_threshold=payload.pass_threshold or 85,
+            opening_date=now,
+            application_deadline=deadline,
+            critical_skills_json=json.dumps(critical_skills),
+            optional_skills_json=json.dumps(optional_skills),
+            status="active",
+        )
+        db.add(new_job)
 
-    conn.commit()
-    conn.close()
+    db.commit()
 
     job_dict = payload.model_dump()
     job_dict["id"] = job_id
@@ -224,23 +245,11 @@ async def get_60_jd_match_feed(candidate_skills: Optional[str] = "Python,FastAPI
     }
 
 @router.get("/{job_id}")
-async def get_job_details(job_id: str):
+async def get_job_details(job_id: str, db: Session = Depends(get_db)):
     """
     Retrieve specific job details for the actionable alert modal.
     """
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-    SELECT 
-        id, org_id, title, department, location, type, experience_min_years,
-        salary_range, description, pass_threshold, opening_date, application_deadline,
-        critical_skills_json, optional_skills_json, status, company, created_at
-    FROM jobs 
-    WHERE id = ?
-    """, (job_id,))
-    row = cursor.fetchone()
-    conn.close()
-
+    row = db.query(Job).filter(Job.id == job_id).first()
     if not row:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -250,30 +259,33 @@ async def get_job_details(job_id: str):
     critical_skills = []
     optional_skills = []
     try:
-        if row["critical_skills_json"]:
-            critical_skills = json.loads(row["critical_skills_json"])
-        if row["optional_skills_json"]:
-            optional_skills = json.loads(row["optional_skills_json"])
+        if row.critical_skills_json:
+            critical_skills = json.loads(row.critical_skills_json)
+        if row.optional_skills_json:
+            optional_skills = json.loads(row.optional_skills_json)
     except Exception:
         pass
 
     required_skill_names = [s.get("name", s) if isinstance(s, dict) else s for s in critical_skills]
 
+    opening_dt = row.opening_date.strftime("%Y-%m-%d %H:%M:%S") if isinstance(row.opening_date, datetime) else str(row.opening_date)
+    deadline_dt = row.application_deadline.strftime("%Y-%m-%d %H:%M:%S") if isinstance(row.application_deadline, datetime) else str(row.application_deadline)
+
     return {
-        "id": row["id"],
-        "title": row["title"],
-        "company": row["company"] or "Acme HyperScale Systems",
-        "department": row["department"],
-        "location": row["location"],
-        "type": row["type"],
-        "salary_range": row["salary_range"],
-        "experience_min_years": row["experience_min_years"],
-        "description": row["description"],
-        "pass_threshold": row["pass_threshold"],
-        "opening_date": row["opening_date"],
-        "application_deadline": row["application_deadline"],
+        "id": row.id,
+        "title": row.title,
+        "company": row.company or "Acme HyperScale Systems",
+        "department": row.department,
+        "location": row.location,
+        "type": row.type,
+        "salary_range": row.salary_range,
+        "experience_min_years": row.experience_min_years,
+        "description": row.description,
+        "pass_threshold": row.pass_threshold,
+        "opening_date": opening_dt,
+        "application_deadline": deadline_dt,
         "critical_skills": critical_skills,
         "optional_skills": optional_skills,
         "required_skill_names": required_skill_names,
-        "status": row["status"]
+        "status": row.status
     }

@@ -1,11 +1,13 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Dict, Any, List, Optional
 import uuid
 import json
 import os
 from datetime import datetime
-from app.db.database import get_db_connection
+from sqlalchemy.orm import Session
+from app.db.session import get_db
+from app.models.entities import AtsResume, User
 from app.services.ats.parser_service import extract_text, parse_resume, convert_resume_to_ats_payload
 
 router = APIRouter(prefix="/resume", tags=["FR-02: ATS Resume Parsing & Editing"])
@@ -206,50 +208,46 @@ async def parse_pdf_resume(file: UploadFile = File(...)):
     }
 
 @router.post("/save-profile")
-async def save_ats_profile(request: SaveProfileRequest):
+async def save_ats_profile(request: SaveProfileRequest, db: Session = Depends(get_db)):
     """
     FR-02 Save Endpoint:
-    - Persists the validated and user-edited ATS JSON structure to SQLite database.
+    - Persists the validated and user-edited ATS JSON structure to database.
     - Updates user profile, user_class (Fresher / Experienced), and ATS score.
     """
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
     resume_id = f"ats-{uuid.uuid4().hex[:8]}"
     ats_score = request.resume_data.get("ats_metadata", {}).get("ats_score", 85)
     parsed_json_str = json.dumps(request.resume_data)
 
     # 1. Insert into ats_resumes table
-    cursor.execute("""
-    INSERT INTO ats_resumes (id, user_id, file_name, parsed_json, ats_score)
-    VALUES (?, ?, ?, ?, ?)
-    """, (resume_id, request.user_id, request.file_name, parsed_json_str, ats_score))
+    new_resume = AtsResume(
+        id=resume_id,
+        user_id=request.user_id,
+        file_name=request.file_name,
+        parsed_json=parsed_json_str,
+        ats_score=ats_score,
+    )
+    db.add(new_resume)
 
     # 2. Update user table fields
     personal_info = request.resume_data.get("personal_info", {})
     full_name = personal_info.get("full_name")
     
     # Calculate experience years from work experience if available
-    exp_years = 0.0
     work_exp = request.resume_data.get("work_experience", [])
     if request.user_class == "Experienced":
         exp_years = max(1.0, len(work_exp) * 1.5)
     else:
         exp_years = 0.0
 
-    cursor.execute("""
-    UPDATE users
-    SET user_class = ?,
-        experience_years = ?,
-        updated_at = CURRENT_TIMESTAMP
-    WHERE id = ?
-    """, (request.user_class, exp_years, request.user_id))
+    user = db.query(User).filter(User.id == request.user_id).first()
+    if user:
+        user.user_class = request.user_class
+        user.experience_years = exp_years
+        if full_name:
+            user.full_name = full_name
+        user.updated_at = datetime.now()
 
-    if full_name:
-        cursor.execute("UPDATE users SET full_name = ? WHERE id = ?", (full_name, request.user_id))
-
-    conn.commit()
-    conn.close()
+    db.commit()
 
     return {
         "success": True,
@@ -261,26 +259,26 @@ async def save_ats_profile(request: SaveProfileRequest):
     }
 
 @router.get("/user/{user_id}/latest")
-async def get_latest_ats_resume(user_id: str):
+async def get_latest_ats_resume(user_id: str, db: Session = Depends(get_db)):
     """
-    Retrieve user's latest ATS resume structure from SQLite database.
+    Retrieve user's latest ATS resume structure from database.
     """
-    conn = get_db_connection()
-    row = conn.execute("""
-    SELECT * FROM ats_resumes 
-    WHERE user_id = ? 
-    ORDER BY created_at DESC 
-    LIMIT 1
-    """, (user_id,)).fetchone()
-    conn.close()
+    row = (
+        db.query(AtsResume)
+        .filter(AtsResume.user_id == user_id)
+        .order_by(AtsResume.created_at.desc())
+        .first()
+    )
 
     if not row:
         return {"data": None, "message": "No saved ATS resume found for user."}
 
+    updated_at_str = row.updated_at.strftime("%Y-%m-%d %H:%M:%S") if isinstance(row.updated_at, datetime) else str(row.updated_at)
+
     return {
-        "resume_id": row["id"],
-        "file_name": row["file_name"],
-        "ats_score": row["ats_score"],
-        "data": json.loads(row["parsed_json"]),
-        "updated_at": row["updated_at"]
+        "resume_id": row.id,
+        "file_name": row.file_name,
+        "ats_score": row.ats_score,
+        "data": json.loads(row.parsed_json),
+        "updated_at": updated_at_str,
     }
