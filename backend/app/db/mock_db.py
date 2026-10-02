@@ -1,5 +1,24 @@
+"""
+[DEPRECATED - SPRINT 4 DATABASE UNIFICATION]
+This module provided in-memory mock datasets during early hackathon prototyping.
+As of Sprint 4, all platform authentication, tenant organization scoping,
+user profiles, assessments, jobs, and notifications have been migrated to
+persistent SQLAlchemy models (app.models.entities) and unified session management
+(app.db.session).
+
+Do NOT import this module in new services. Use SQLAlchemy Session via Depends(get_db).
+"""
+
+import warnings
 from typing import Optional, Dict, Any, List
 from app.core.security import get_password_hash, verify_password
+
+warnings.warn(
+    "app.db.mock_db is deprecated as of Sprint 4 and scheduled for removal. "
+    "Use app.db.session and app.models.entities instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 # Pre-computed bcrypt hash for 'AspireAI@2026'
 DEFAULT_HASHED_PASSWORD = get_password_hash("AspireAI@2026")
