@@ -7,7 +7,7 @@
 [![Alembic](https://img.shields.io/badge/Alembic-Migrations-orange.svg)](https://alembic.sqlalchemy.org)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-FF6B6B.svg)](https://trychroma.com)
 [![Groq](https://img.shields.io/badge/Groq-Llama3_Extraction-F55036.svg)](https://groq.com)
-[![Pytest](https://img.shields.io/badge/Pytest-92%20Passed-brightgreen.svg?logo=pytest&logoColor=white)](https://pytest.org)
+[![Pytest](https://img.shields.io/badge/Pytest-100%20Passed-brightgreen.svg?logo=pytest&logoColor=white)](https://pytest.org)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Aspire AI bridges the gap between talent supply (students) and employer demand (corporates, universities, staffing agencies). It combines an AI-powered Applicant Tracking System (ATS), cryptographic proof-of-work credentialing (SHA-256), a dual-tier isolated execution sandbox with AST security filtering, and deterministic deficit-resistance skill matching.
@@ -92,7 +92,25 @@ Following the [Full-Stack & SaaS Architectural Audit](SkillSetu_AI_SaaS_Architec
 
 ---
 
-### 🔮 Sprint 4: SaaS Billing, Metering & Payment Webhooks (Future Roadmap)
+### ✅ Sprint 4: Database Unification, Real Multi-Tenant Data Persistence & Auth Consolidation (Completed)
+- **Branch:** `feat/sprint-4-database-unification-and-auth-persistence`
+- **6 Atomic Commits (`0591800` → `7b1b847`)**:
+  1. `feat(auth): migrate authentication, registration, and org endpoints to sqlalchemy persistence`
+  2. `feat(db): migrate jobs, assessments, resumes, and notifications to unified sqlalchemy session`
+  3. `refactor(main): modernize lifespan event handlers and consolidate route mountings`
+  4. `refactor(db): eliminate mock_db dependencies across all core api services`
+  5. `test(sprint4): add 360-degree integration test suite for database unification and auth persistence`
+  6. `docs(sprint4): document sprint 4 database unification, auth persistence, and migration results`
+- **Key Deliverables:**
+  - **Single Source of Truth Database**: Unified all backend endpoints on SQLAlchemy 2.0 ORM sessions (`SessionLocal` / `get_db`). Migrated user registration, login, profile queries, and organization listings from in-memory `mock_db` dictionaries to relational `users`, `organizations`, and `organization_memberships` tables.
+  - **ORM-Backed Assessment, Resume & Job Subsystems**: Migrated raw SQLite string interpolations in `assessments.py`, `resume.py`, `jobs.py`, and `notifications.py` to type-safe SQLAlchemy models (`Assessment`, `AtsResume`, `Job`, `SavedJob`, `UserNotification`).
+  - **Deprecation of `mock_db`**: Added formal deprecation notice and runtime warning to `mock_db.py`; eliminated all active runtime imports across core API services.
+  - **Modernized FastAPI Lifespan**: Converted deprecated `@app.on_event` startup/shutdown to modern `@asynccontextmanager async def lifespan(app: FastAPI)` handler; consolidated route mountings with backwards-compatible aliases hidden from Swagger schemas.
+  - **360-Degree Integration Suite**: Added `test_sprint4_unification_and_persistence.py` bringing entire backend regression coverage to **100/100 tests passing with 100% pass rate**.
+
+---
+
+### 🔮 Sprint 5: SaaS Billing, Metering & Payment Webhooks (Future Roadmap)
 - **Target Deliverables:**
   1. **Dual Payment Gateways**: Razorpay integration for Indian domestic clients (UPI, NetBanking, RuPay) and Stripe integration for global B2B employers.
   2. **Subscription Webhooks**: FastAPI webhook listeners handling `checkout.session.completed`, `invoice.payment_succeeded`, and `customer.subscription.deleted`.
