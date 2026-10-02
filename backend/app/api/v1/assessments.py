@@ -4,7 +4,9 @@ from typing import Dict, Any, List, Optional
 import uuid
 import json
 from datetime import datetime
-from app.db.database import get_db_connection
+from sqlalchemy.orm import Session
+from app.db.session import get_db
+from app.models.entities import Skill, Assessment, User
 
 router = APIRouter(prefix="/assessments", tags=["FR-01: Skill Verification & Badges"])
 
@@ -287,17 +289,25 @@ class GradeResponse(BaseModel):
     threshold_applied: int = 70
 
 @router.get("/skills", tags=["Skills Taxonomy"])
-async def list_skills():
+async def list_skills(db: Session = Depends(get_db)):
     """
     List all platform skills available for verification.
     """
-    conn = get_db_connection()
-    skills = conn.execute("SELECT * FROM skills ORDER BY weight DESC, name ASC").fetchall()
-    conn.close()
-    return [dict(s) for s in skills]
+    skills = db.query(Skill).order_by(Skill.weight.desc(), Skill.name.asc()).all()
+    return [
+        {
+            "id": s.id,
+            "name": s.name,
+            "category": s.category,
+            "description": s.description,
+            "weight": s.weight,
+            "is_critical": s.is_critical,
+        }
+        for s in skills
+    ]
 
 @router.get("/{skill_id}/questions")
-async def get_assessment_questions(skill_id: str):
+async def get_assessment_questions(skill_id: str, db: Session = Depends(get_db)):
     """
     Retrieve exactly 20 questions for the skill assessment, enforcing a 12-minute time limit.
     """
@@ -311,11 +321,8 @@ async def get_assessment_questions(skill_id: str):
         questions_20 += DEFAULT_QUESTIONS[len(questions_20):20]
 
     # Look up skill name from DB
-    conn = get_db_connection()
-    skill_row = conn.execute("SELECT name FROM skills WHERE id = ?", (skill_key,)).fetchone()
-    conn.close()
-    
-    skill_name = skill_row["name"] if skill_row else skill_id.title()
+    skill_row = db.query(Skill).filter(Skill.id == skill_key).first()
+    skill_name = skill_row.name if skill_row else skill_id.title()
 
     # Sanitize questions (strip correct_option_index before sending to client)
     client_questions = []
@@ -337,7 +344,7 @@ async def get_assessment_questions(skill_id: str):
     }
 
 @router.post("/grade", response_model=GradeResponse)
-async def grade_assessment(submission: GradeSubmissionRequest):
+async def grade_assessment(submission: GradeSubmissionRequest, db: Session = Depends(get_db)):
     """
     FR-01 Grading Endpoint:
     - Calculates score against 20 questions.
@@ -348,16 +355,12 @@ async def grade_assessment(submission: GradeSubmissionRequest):
     skill_key = submission.skill_id.lower()
     raw_questions = SKILL_QUESTION_BANKS.get(skill_key, DEFAULT_QUESTIONS)[:20]
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
     # Check user existence and class
-    user_row = cursor.execute("SELECT id, full_name, user_class FROM users WHERE id = ?", (submission.user_id,)).fetchone()
+    user_row = db.query(User).filter(User.id == submission.user_id).first()
     if not user_row:
-        # Default or fallback creation
         user_class = "Experienced" if submission.user_id == "cand-1" else "Fresher"
     else:
-        user_class = user_row["user_class"]
+        user_class = user_row.user_class
 
     # Calculate score
     correct_count = 0
@@ -439,39 +442,31 @@ async def grade_assessment(submission: GradeSubmissionRequest):
     # Generate assessment ID and insert into database
     assessment_id = f"asmt-{uuid.uuid4().hex[:8]}"
 
-    cursor.execute("""
-    INSERT INTO assessments (
-        id, user_id, skill_id, score, total_questions, correct_count,
-        time_taken_seconds, verification_status, badge_tier, answers_log_json
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        assessment_id,
-        submission.user_id,
-        skill_key,
-        score_percentage,
-        total_questions,
-        correct_count,
-        submission.time_taken_seconds,
-        verification_status,
-        badge_tier,
-        json.dumps(detailed_log)
-    ))
+    new_assessment = Assessment(
+        id=assessment_id,
+        user_id=submission.user_id,
+        skill_id=skill_key,
+        score=score_percentage,
+        total_questions=total_questions,
+        correct_count=correct_count,
+        time_taken_seconds=submission.time_taken_seconds,
+        verification_status=verification_status,
+        badge_tier=badge_tier,
+        answers_log_json=json.dumps(detailed_log),
+        completed_at=datetime.now(),
+    )
+    db.add(new_assessment)
 
     # If passed, boost readiness score in users table
-    if is_passed:
-        cursor.execute("""
-        UPDATE users 
-        SET readiness_score = MIN(100, readiness_score + 10),
-            current_tier = 'job_ready'
-        WHERE id = ?
-        """, (submission.user_id,))
+    if is_passed and user_row:
+        user_row.readiness_score = min(100, user_row.readiness_score + 10)
+        user_row.current_tier = "job_ready"
 
-    conn.commit()
+    db.commit()
 
     # Skill name lookup
-    skill_row = cursor.execute("SELECT name FROM skills WHERE id = ?", (skill_key,)).fetchone()
-    skill_name = skill_row["name"] if skill_row else skill_key.title()
-    conn.close()
+    skill_row = db.query(Skill).filter(Skill.id == skill_key).first()
+    skill_name = skill_row.name if skill_row else skill_key.title()
 
     return GradeResponse(
         assessment_id=assessment_id,
@@ -492,18 +487,32 @@ async def grade_assessment(submission: GradeSubmissionRequest):
     )
 
 @router.get("/user/{user_id}/history")
-async def get_user_assessment_history(user_id: str):
+async def get_user_assessment_history(user_id: str, db: Session = Depends(get_db)):
     """
     Retrieve all past assessment attempts, badge tiers, and verification statuses for a user.
     """
-    conn = get_db_connection()
-    rows = conn.execute("""
-    SELECT a.*, s.name as skill_name, u.user_class 
-    FROM assessments a
-    JOIN skills s ON a.skill_id = s.id
-    JOIN users u ON a.user_id = u.id
-    WHERE a.user_id = ?
-    ORDER BY a.completed_at DESC
-    """, (user_id,)).fetchall()
-    conn.close()
-    return [dict(r) for r in rows]
+    results = (
+        db.query(Assessment, Skill.name.label("skill_name"), User.user_class)
+        .outerjoin(Skill, Assessment.skill_id == Skill.id)
+        .outerjoin(User, Assessment.user_id == User.id)
+        .filter(Assessment.user_id == user_id)
+        .order_by(Assessment.completed_at.desc())
+        .all()
+    )
+    history = []
+    for asmt, skill_name, user_class in results:
+        history.append({
+            "id": asmt.id,
+            "user_id": asmt.user_id,
+            "skill_id": asmt.skill_id,
+            "skill_name": skill_name or asmt.skill_id.title(),
+            "score": asmt.score,
+            "total_questions": asmt.total_questions,
+            "correct_count": asmt.correct_count,
+            "time_taken_seconds": asmt.time_taken_seconds,
+            "verification_status": asmt.verification_status,
+            "badge_tier": asmt.badge_tier,
+            "user_class": user_class or "Experienced",
+            "completed_at": asmt.completed_at.strftime("%Y-%m-%d %H:%M:%S") if isinstance(asmt.completed_at, datetime) else str(asmt.completed_at),
+        })
+    return history

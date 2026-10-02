@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
 
 class Settings(BaseSettings):
@@ -29,10 +29,11 @@ class Settings(BaseSettings):
     # Relational Database URL (PostgreSQL in production/cloud, SQLite fallback for local dev)
     DATABASE_URL: str = ""
 
-    class Config:
-        case_sensitive = True
-        extra = "allow"
-        env_file = (".env", "backend/.env")
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        case_sensitive=True,
+        extra="allow",
+        env_file=(".env", "backend/.env"),
+        env_file_encoding="utf-8"
+    )
 
 settings = Settings()

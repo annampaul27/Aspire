@@ -11,7 +11,9 @@ backend_dir = os.path.abspath(os.path.join(current_dir, "..", ".."))
 if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
-from app.db.database import get_db_connection
+from sqlalchemy import select, func, or_
+from app.db.session import SessionLocal
+from app.models.entities import SavedJob, Job, User, UserNotification
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("notification_worker")
@@ -22,7 +24,7 @@ def run_deadline_notifications_job(reference_date: Optional[date] = None) -> Dic
     
     Logic:
     - Calculates target_date = reference_date (defaults to today) + 21 days (3 weeks).
-    - Queries SQLite database for any saved jobs where application_deadline or opening_date
+    - Queries database for any saved jobs where application_deadline or opening_date
       matches target_date.
     - Generates user_notifications records with formatted action messages.
     """
@@ -39,109 +41,134 @@ def run_deadline_notifications_job(reference_date: Optional[date] = None) -> Dic
     logger.info(f"Target 3-Week Date     : {target_date_str} (Exactly 21 days ahead)")
     logger.info("=" * 60)
     
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Query saved jobs matching either application_deadline or opening_date exactly 21 days out
-    query = """
-    SELECT 
-        s.user_id,
-        u.email,
-        u.full_name as user_name,
-        j.id as job_id,
-        j.title as job_title,
-        j.application_deadline,
-        j.opening_date,
-        date(j.application_deadline) as deadline_date,
-        date(j.opening_date) as opening_date_only
-    FROM saved_jobs s
-    JOIN jobs j ON s.job_id = j.id
-    JOIN users u ON s.user_id = u.id
-    WHERE date(j.application_deadline) = ? OR date(j.opening_date) = ?
-    """
-    
-    cursor.execute(query, (target_date_str, target_date_str))
-    matches = cursor.fetchall()
-    
     created_count = 0
     notifications_created = []
     
-    for row in matches:
-        user_id = row["user_id"]
-        job_id = row["job_id"]
-        job_title = row["job_title"]
-        deadline_date = row["deadline_date"]
-        opening_date_only = row["opening_date_only"]
-        
-        # Check if deadline is exactly 21 days out
-        if deadline_date == target_date_str:
-            notification_type = "deadline_warning"
-            # Format: Action Required: The application window for [Job Title] closes in exactly 3 weeks on [Date].
-            message = (
-                f"Action Required: The application window for {job_title} "
-                f"closes in exactly 3 weeks on {deadline_date}."
+    with SessionLocal() as db:
+        stmt = (
+            select(
+                SavedJob.user_id,
+                User.email,
+                User.full_name.label("user_name"),
+                Job.id.label("job_id"),
+                Job.title.label("job_title"),
+                Job.application_deadline,
+                Job.opening_date,
+                func.date(Job.application_deadline).label("deadline_date"),
+                func.date(Job.opening_date).label("opening_date_only")
             )
+            .join(Job, SavedJob.job_id == Job.id)
+            .join(User, SavedJob.user_id == User.id)
+            .where(
+                or_(
+                    func.date(Job.application_deadline) == target_date_str,
+                    func.date(Job.opening_date) == target_date_str
+                )
+            )
+        )
+        
+        matches = db.execute(stmt).all()
+        
+        for row in matches:
+            user_id = row.user_id
+            job_id = row.job_id
+            job_title = row.job_title
+            deadline_date = str(row.deadline_date) if row.deadline_date else ""
+            opening_date_only = str(row.opening_date_only) if row.opening_date_only else ""
             
-            notif_id = f"notif-{uuid.uuid4().hex[:12]}"
-            try:
-                cursor.execute("""
-                INSERT OR IGNORE INTO user_notifications (
-                    id, user_id, job_id, message, notification_type, is_read, trigger_date
-                ) VALUES (?, ?, ?, ?, ?, 0, ?)
-                """, (notif_id, user_id, job_id, message, notification_type, current_date_str))
+            # Check if deadline is exactly 21 days out
+            if deadline_date == target_date_str:
+                notification_type = "deadline_warning"
+                message = (
+                    f"Action Required: The application window for {job_title} "
+                    f"closes in exactly 3 weeks on {deadline_date}."
+                )
                 
-                if cursor.rowcount > 0:
+                # Check for existing notification
+                existing = db.execute(
+                    select(UserNotification).where(
+                        UserNotification.user_id == user_id,
+                        UserNotification.job_id == job_id,
+                        UserNotification.notification_type == notification_type,
+                        func.date(UserNotification.trigger_date) == current_date_str
+                    )
+                ).scalar_one_or_none()
+                
+                if not existing:
+                    notif_id = f"notif-{uuid.uuid4().hex[:12]}"
+                    notif = UserNotification(
+                        id=notif_id,
+                        user_id=user_id,
+                        job_id=job_id,
+                        message=message,
+                        notification_type=notification_type,
+                        is_read=False,
+                        trigger_date=datetime.combine(reference_date, datetime.min.time()),
+                        created_at=datetime.now()
+                    )
+                    db.add(notif)
+                    db.commit()
                     created_count += 1
                     notifications_created.append({
                         "id": notif_id,
                         "user_id": user_id,
-                        "user_name": row["user_name"],
+                        "user_name": row.user_name,
                         "job_id": job_id,
                         "job_title": job_title,
                         "type": notification_type,
                         "message": message,
                         "trigger_date": current_date_str
                     })
-                    logger.info(f"Generated alert for {row['user_name']} ({user_id}): {message}")
+                    logger.info(f"Generated alert for {row.user_name} ({user_id}): {message}")
                 else:
                     logger.info(f"Duplicate alert skipped for user {user_id} and job {job_id} on {current_date_str}")
-            except Exception as e:
-                logger.error(f"Error inserting notification: {e}")
+                    
+            # Check if opening date is exactly 21 days out
+            if opening_date_only == target_date_str:
+                notification_type = "opening_warning"
+                message = (
+                    f"Upcoming Opportunity: The application window for {job_title} "
+                    f"opens in exactly 3 weeks on {opening_date_only}."
+                )
                 
-        # Check if opening date is exactly 21 days out
-        if opening_date_only == target_date_str:
-            notification_type = "opening_warning"
-            message = (
-                f"Upcoming Opportunity: The application window for {job_title} "
-                f"opens in exactly 3 weeks on {opening_date_only}."
-            )
-            notif_id = f"notif-{uuid.uuid4().hex[:12]}"
-            try:
-                cursor.execute("""
-                INSERT OR IGNORE INTO user_notifications (
-                    id, user_id, job_id, message, notification_type, is_read, trigger_date
-                ) VALUES (?, ?, ?, ?, ?, 0, ?)
-                """, (notif_id, user_id, job_id, message, notification_type, current_date_str))
+                existing = db.execute(
+                    select(UserNotification).where(
+                        UserNotification.user_id == user_id,
+                        UserNotification.job_id == job_id,
+                        UserNotification.notification_type == notification_type,
+                        func.date(UserNotification.trigger_date) == current_date_str
+                    )
+                ).scalar_one_or_none()
                 
-                if cursor.rowcount > 0:
+                if not existing:
+                    notif_id = f"notif-{uuid.uuid4().hex[:12]}"
+                    notif = UserNotification(
+                        id=notif_id,
+                        user_id=user_id,
+                        job_id=job_id,
+                        message=message,
+                        notification_type=notification_type,
+                        is_read=False,
+                        trigger_date=datetime.combine(reference_date, datetime.min.time()),
+                        created_at=datetime.now()
+                    )
+                    db.add(notif)
+                    db.commit()
                     created_count += 1
                     notifications_created.append({
                         "id": notif_id,
                         "user_id": user_id,
-                        "user_name": row["user_name"],
+                        "user_name": row.user_name,
                         "job_id": job_id,
                         "job_title": job_title,
                         "type": notification_type,
                         "message": message,
                         "trigger_date": current_date_str
                     })
-                    logger.info(f"Generated opening alert for {row['user_name']} ({user_id}): {message}")
-            except Exception as e:
-                logger.error(f"Error inserting opening notification: {e}")
-
-    conn.commit()
-    conn.close()
-    
+                    logger.info(f"Generated opening alert for {row.user_name} ({user_id}): {message}")
+                else:
+                    logger.info(f"Duplicate opening alert skipped for user {user_id} and job {job_id} on {current_date_str}")
+                    
     logger.info(f"Summary: Matches Found: {len(matches)}, Notifications Created: {created_count}")
     return {
         "status": "success",
