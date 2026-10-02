@@ -10,7 +10,7 @@ client = TestClient(app)
 def get_token_for(email: str, role: str, org_id: str = None) -> str:
     payload = {
         "email": email,
-        "password": "SkillSetu@2026",
+        "password": "AspireAI@2026",
         "role": role,
     }
     if org_id:
@@ -163,7 +163,7 @@ def test_sprint_completion_minting_and_db_persistence():
 # --- 5. Admin Governance ---
 def test_admin_superuser_access():
     """Verify Platform Superuser has full RBAC oversight."""
-    admin_token = get_token_for("root@skillsetu.ai", "admin")
+    admin_token = get_token_for("root@aspire.ai", "admin")
     res = client.get("/api/v1/sprints/active", headers={"Authorization": f"Bearer {admin_token}"})
     assert res.status_code == 200
     assert isinstance(res.json(), list)

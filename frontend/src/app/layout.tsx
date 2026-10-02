@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SkillSetu — AI-Powered Talent & Skill Assessment Platform",
+  title: "Aspire AI — AI-Powered Talent & Skill Assessment Platform",
   description:
     "Connect employers with job-ready talent through verified skill assessments, intelligent candidate matching, and structured learning paths.",
 };

@@ -23,7 +23,7 @@ def run_auth_test_suite():
     # Test 1: Valid Employer Login
     res = client.post("/api/v1/auth/login", json={
         "email": "priya.sharma@acme.com",
-        "password": "SkillSetu@2026",
+        "password": "AspireAI@2026",
         "role": "employer",
         "org_id": "org-acme"
     })
@@ -41,7 +41,7 @@ def run_auth_test_suite():
     # Test 3: Valid Student Login
     res = client.post("/api/v1/auth/login", json={
         "email": "aditya.verma@example.com",
-        "password": "SkillSetu@2026",
+        "password": "AspireAI@2026",
         "role": "student"
     })
     data = res.json()
@@ -51,8 +51,8 @@ def run_auth_test_suite():
 
     # Test 4: Valid Admin Login
     res = client.post("/api/v1/auth/login", json={
-        "email": "root@skillsetu.ai",
-        "password": "SkillSetu@2026",
+        "email": "root@aspire.ai",
+        "password": "AspireAI@2026",
         "role": "admin"
     })
     data = res.json()
@@ -84,7 +84,7 @@ def run_auth_test_suite():
     # Test 7: Role Mismatch Check (User registered as employer tries to log in as student)
     res = client.post("/api/v1/auth/login", json={
         "email": "priya.sharma@acme.com",
-        "password": "SkillSetu@2026",
+        "password": "AspireAI@2026",
         "role": "student"
     })
     data = res.json()
@@ -94,7 +94,7 @@ def run_auth_test_suite():
     # Test 8: Invalid Organization ID Scoping
     res = client.post("/api/v1/auth/login", json={
         "email": "priya.sharma@acme.com",
-        "password": "SkillSetu@2026",
+        "password": "AspireAI@2026",
         "role": "employer",
         "org_id": "org-non-existent-99"
     })

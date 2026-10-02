@@ -105,7 +105,7 @@ function LoginPageContent() {
       setEmail("aditya.verma@example.com");
       setPassword("••••••••••••");
     } else if (newRole === "admin") {
-      setEmail("root@skillsetu.ai");
+      setEmail("root@aspire.ai");
       setPassword("••••••••••••");
     }
   };
@@ -139,7 +139,7 @@ function LoginPageContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: em,
-          password: password === "••••••••••••" ? "SkillSetu@2026" : password,
+          password: password === "••••••••••••" ? "AspireAI@2026" : password,
           role: r,
           org_id: r === "employer" ? targetOrg : undefined,
         }),
@@ -188,7 +188,7 @@ function LoginPageContent() {
         body: JSON.stringify({
           full_name: regFullName,
           email: regEmail,
-          password: regPassword || "SkillSetu@2026",
+          password: regPassword || "AspireAI@2026",
           role: "student",
           college: regCollege,
         }),
@@ -265,7 +265,7 @@ function LoginPageContent() {
               <ShieldCheck className="w-6 h-6 text-white" />
             </div>
             <span className="text-2xl font-black tracking-tight text-white">
-              Skill<span className="text-purple-400">Setu</span>
+              Aspire <span className="text-purple-400">AI</span>
             </span>
           </Link>
           <h2 className="text-2xl font-bold tracking-tight text-white">
@@ -382,7 +382,7 @@ function LoginPageContent() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleQuickLogin("admin", "root@skillsetu.ai")}
+                  onClick={() => handleQuickLogin("admin", "root@aspire.ai")}
                   className="px-2.5 py-1.5 rounded-lg bg-purple-950/60 hover:bg-purple-900/60 border border-purple-500/30 text-purple-300 text-xs font-semibold transition-colors flex items-center justify-center gap-1"
                 >
                   <span>Super Admin (Root)</span>

@@ -2,7 +2,7 @@
 
 > **Sprint Reference:** Milestone 1 (Sprint 1) from [SkillSetu_AI_SaaS_Architectural_Audit.pdf](file:///d:/AI-Skill/SkillSetu_AI_SaaS_Architectural_Audit.pdf)  
 > **Git Feature Branch:** `feat/sprint-1-database-persistence-and-hardened-rbac`  
-> **Target Goal:** Transition SkillSetu AI from hackathon simulation mocks to a secure, persistent, and horizontally scalable SaaS foundation with relational database persistence, Alembic migrations, cryptographic JWT client handling, and strict FastAPI RBAC.
+> **Target Goal:** Transition Aspire AI from hackathon simulation mocks to a secure, persistent, and horizontally scalable SaaS foundation with relational database persistence, Alembic migrations, cryptographic JWT client handling, and strict FastAPI RBAC.
 
 ---
 
@@ -33,7 +33,7 @@ To deliver an enterprise-grade solution that exceeds standard hackathon refactor
 
 1. **Dual-Engine Architecture (PostgreSQL Ready + SQLite Local Dev Zero-Friction)**:
    - The SQLAlchemy 2.0 session factory dynamically connects to `DATABASE_URL` (e.g. Supabase, Neon, AWS RDS in production).
-   - If `DATABASE_URL` is omitted, it defaults to a local SQLite database (`sqlite:///app/db/skillsetu.db`) with `PRAGMA foreign_keys=ON;` and thread safety configured.
+   - If `DATABASE_URL` is omitted, it defaults to a local SQLite database (`sqlite:///app/db/aspire.db`) with `PRAGMA foreign_keys=ON;` and thread safety configured.
    - *Benefit:* Full cloud PostgreSQL readiness without breaking local developer velocity or automated CI runs.
 
 2. **Declarative SQLAlchemy 2.0 Typing (`Mapped` & `mapped_column`)**:
@@ -130,7 +130,7 @@ To provide clear traceability and effortless rollback capability, Sprint 1 is st
 ### Task 7: Update Frontend HTTP Client (`client.ts`) with Bearer Token Injection
 - **Files:** `frontend/src/lib/api/client.ts`
 - **Action:**
-  - Read `skillsetu_jwt_token` from `localStorage` in browser environments and inject `Authorization: Bearer <token>`.
+  - Read `aspireai_jwt_token` from `localStorage` in browser environments and inject `Authorization: Bearer <token>`.
   - Export structured helper methods: `apiClient.get()`, `apiClient.post()`, `apiClient.put()`, `apiClient.delete()`.
   - Intercept 401 responses and dispatch token expiration events.
 - **Verification:** Run `npm run lint` and verify TypeScript compilation.
@@ -143,7 +143,7 @@ To provide clear traceability and effortless rollback capability, Sprint 1 is st
   - Only execute `login(...)` when the backend returns status 200 with a valid `access_token`.
   - Display explicit error notifications if credentials fail.
   - Add an explicit "Demo Offline Mode" option if backend is unreachable, ensuring transparent state rather than a silent security bypass.
-  - Ensure `store.tsx` updates `skillsetu_jwt_token` in `localStorage` on login and purges on logout.
+  - Ensure `store.tsx` updates `aspireai_jwt_token` in `localStorage` on login and purges on logout.
 - **Verification:** Run `npm run lint` and test login validation flow.
 - **Commit:** `fix(auth): eliminate login finally bypass and synchronize token with store`
 

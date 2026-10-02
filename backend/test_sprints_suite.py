@@ -7,7 +7,7 @@ client = TestClient(app)
 def get_employer_auth_headers():
     res = client.post("/api/v1/auth/login", json={
         "email": "priya.sharma@acme.com",
-        "password": "SkillSetu@2026",
+        "password": "AspireAI@2026",
         "role": "employer",
         "org_id": "org-acme",
     })

@@ -2,12 +2,12 @@ from pydantic_settings import BaseSettings
 from typing import List
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "SkillSetu AI Engine"
+    PROJECT_NAME: str = "Aspire AI Engine"
     VERSION: str = "2.0.0"
     API_V1_STR: str = "/api/v1"
     
     # Cryptographic JWT Settings
-    JWT_SECRET_KEY: str = "skillsetu-deterministic-sha256-jwt-secret-key-super-secure-2026"
+    JWT_SECRET_KEY: str = "aspireai-deterministic-sha256-jwt-secret-key-super-secure-2026"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     

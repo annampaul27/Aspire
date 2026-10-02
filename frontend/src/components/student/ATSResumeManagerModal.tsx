@@ -128,11 +128,11 @@ const DEFAULT_PARSED_DATA: ATSResumeData = {
   ],
   projects: [
     {
-      title: "SkillSetu Proof-of-Work Verification Engine",
+      title: "Aspire AI Proof-of-Work Verification Engine",
       description: "Deterministic skill-gap evaluation system with SHA-256 cryptographic credential ledger and automated grading.",
       technologies: ["FastAPI", "Next.js", "PostgreSQL", "TailwindCSS"],
-      github_url: "https://github.com/adityaverma-eng/skillsetu",
-      live_url: "https://skillsetu.ai",
+      github_url: "https://github.com/adityaverma-eng/aspire-ai",
+      live_url: "https://aspire.ai",
     },
   ],
   certifications: [

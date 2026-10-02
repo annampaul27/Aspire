@@ -335,7 +335,7 @@ export default function AIInterviewerModal({
                 {/* Submit Evaluation Button */}
                 <div className="flex items-center justify-between gap-3 pt-1">
                   <span className="text-[10px] text-gray-500">
-                    Evaluated by SkillSetu AI Interview Engine (Clarity, Technical Depth & Confidence)
+                    Evaluated by Aspire AI Interview Engine (Clarity, Technical Depth & Confidence)
                   </span>
 
                   <button

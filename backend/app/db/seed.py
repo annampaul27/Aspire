@@ -8,7 +8,7 @@ from app.models.entities import (
 )
 from app.core.security import get_password_hash
 
-DEFAULT_HASHED_PASSWORD = get_password_hash("SkillSetu@2026")
+DEFAULT_HASHED_PASSWORD = get_password_hash("AspireAI@2026")
 
 def seed_database_defaults(db: Session = None):
     """
@@ -150,7 +150,7 @@ def seed_database_defaults(db: Session = None):
             },
             {
                 "id": "usr-superuser-root",
-                "email": "root@skillsetu.ai",
+                "email": "root@aspire.ai",
                 "full_name": "Platform Superuser",
                 "role": "admin",
                 "org_id": None,
@@ -161,14 +161,13 @@ def seed_database_defaults(db: Session = None):
         ]
 
         for u_data in users_to_seed:
-            existing = db.query(User).filter(User.email == u_data["email"]).first()
+            existing = db.query(User).filter((User.email == u_data["email"]) | (User.id == u_data["id"])).first()
             if not existing:
                 db.add(User(**u_data))
             else:
-                # Ensure password_hash is updated if previously null
-                if not existing.password_hash:
-                    existing.password_hash = u_data["password_hash"]
-                if u_data.get("org_id") and not existing.org_id:
+                existing.email = u_data["email"]
+                existing.password_hash = u_data["password_hash"]
+                if u_data.get("org_id"):
                     existing.org_id = u_data["org_id"]
         db.commit()
 

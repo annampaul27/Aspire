@@ -24,7 +24,7 @@ export default function BackendHubPage() {
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-400 max-w-3xl leading-relaxed">
-              Complete Next.js frontend exposure of SkillSetu’s backend intelligence: 13 Modular Courses with Timed Proctored Tests, 90-Day Career Compass, GitHub AST Codebase Verifier, AI Interview Coach, 60-JD Real-Time Matcher, and FR-04 Deadline Sweep Worker.
+              Complete Next.js frontend exposure of Aspire AI’s backend intelligence: 13 Modular Courses with Timed Proctored Tests, 90-Day Career Compass, GitHub AST Codebase Verifier, AI Interview Coach, 60-JD Real-Time Matcher, and FR-04 Deadline Sweep Worker.
             </p>
           </div>
 

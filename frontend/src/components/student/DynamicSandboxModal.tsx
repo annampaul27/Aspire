@@ -203,7 +203,7 @@ export default function DynamicSandboxModal({
         score: 95,
         passedQuestions: 2,
         totalQuestions: 2,
-        issuerOrg: "SkillSetu Verification Engine",
+        issuerOrg: "Aspire AI Verification Engine",
         isSponsored: false,
         answersLog: [
           {
@@ -513,7 +513,7 @@ export default function DynamicSandboxModal({
         {/* Footer */}
         <div className="p-4 border-t border-gray-800 bg-gray-950/60 flex items-center justify-between shrink-0">
           <span className="text-xs text-gray-500">
-            SkillSetu Verification Engine
+            Aspire AI Verification Engine
           </span>
           <button
             onClick={onClose}

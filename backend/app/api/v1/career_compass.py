@@ -191,7 +191,7 @@ def get_job_market(
             "ai engineer": 58000,
         }
         count = sample_counts.get(role_title.lower(), 18000)
-        result = build_market_result(job_count=count, source="SkillSetu Industry Aggregator")
+        result = build_market_result(job_count=count, source="Aspire AI Industry Aggregator")
         return {"preparation": prep, "market_demand": result}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

@@ -323,7 +323,7 @@ export default function NotificationCenter({ userId = "cand-1" }: NotificationCe
           {/* Footer */}
           <div className="px-4 py-2.5 bg-gray-950/60 border-t border-gray-800 text-xs text-gray-500 flex items-center justify-between">
             <span>Automated deadline & application alerts</span>
-            <span className="text-gray-400">SkillSetu Alerts</span>
+            <span className="text-gray-400">Aspire AI Alerts</span>
           </div>
         </div>
       )}

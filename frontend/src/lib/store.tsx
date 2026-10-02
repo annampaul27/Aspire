@@ -109,7 +109,7 @@ const StoreContext = createContext<StoreContextType | null>(null);
 function getSavedSession() {
   if (typeof window === "undefined") return null;
   try {
-    const saved = localStorage.getItem("skillsetu_auth_session");
+    const saved = localStorage.getItem("aspireai_auth_session");
     return saved ? JSON.parse(saved) : null;
   } catch {
     return null;
@@ -241,7 +241,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   ) => {
     try {
       localStorage.setItem(
-        "skillsetu_auth_session",
+        "aspireai_auth_session",
         JSON.stringify({
           role: savedRole,
           currentUser: userObj,
@@ -294,7 +294,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } else if (newRole === "admin") {
       const userObj = {
         name: "Platform Superuser",
-        email: email || "root@skillsetu.ai",
+        email: email || "root@aspire.ai",
         role: "admin" as RoleType,
       };
       setCurrentUser(userObj);
@@ -312,12 +312,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setCurrentUser(null);
     clearAuthToken();
     try {
-      localStorage.removeItem("skillsetu_auth_session");
+      localStorage.removeItem("aspireai_auth_session");
     } catch {}
     addToast({
       type: "info",
       title: "Session Terminated",
-      message: "You have securely logged out of SkillSetu AI.",
+      message: "You have securely logged out of Aspire AI.",
     });
   };
 
@@ -350,7 +350,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     addToast({
       type: "success",
       title: `Welcome, ${newCandidate.fullName}! 🎉`,
-      message: `Your student profile has been created and registered on SkillSetu AI.`,
+      message: `Your student profile has been created and registered on Aspire AI.`,
     });
 
     return newCandidate;
@@ -541,7 +541,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       passedQuestions: 3,
       totalQuestions: 3,
       issuedAt,
-      issuerOrg: "SkillSetu Trust Engine",
+      issuerOrg: "Aspire AI Trust Engine",
       isSponsored: false,
       canonicalPayload: canonicalPayload,
       answersLog: [

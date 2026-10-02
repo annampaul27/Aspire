@@ -388,7 +388,7 @@ def convert_resume_to_ats_payload(resume: ResumeSchema, raw_text: str = "") -> D
         "projects": proj_items,
         "certifications": [
             "Certified Cloud Practitioner",
-            "SkillSetu SHA-256 Verified Developer"
+            "Aspire AI SHA-256 Verified Developer"
         ],
         "ats_metadata": {
             "ats_score": ats_score,

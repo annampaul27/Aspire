@@ -9,7 +9,7 @@ from app.api.v1.career_compass import router as career_compass_router
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
-    description="SkillSetu AI RESTful Backend API — Role-Separated Multi-Tenant Talent Infrastructure & Cryptographic Trust Engine",
+    description="Aspire AI RESTful Backend API — Role-Separated Multi-Tenant Talent Infrastructure & Cryptographic Trust Engine",
     docs_url="/docs",
     redoc_url="/redoc",
 )
@@ -94,7 +94,7 @@ async def health_check():
 @app.get("/", tags=["Root"])
 async def root():
     return {
-        "message": "Welcome to SkillSetu AI RESTful Backend API",
+        "message": "Welcome to Aspire AI RESTful Backend API",
         "docs": "/docs",
         "health": "/health",
         "auth_endpoints": f"{settings.API_V1_STR}/auth/login",

@@ -21,7 +21,7 @@ if DATABASE_URL:
     )
 else:
     # Fallback to local SQLite database for zero-friction local development & automated test suites
-    DB_PATH = os.path.join(os.path.dirname(__file__), "skillsetu.db")
+    DB_PATH = os.path.join(os.path.dirname(__file__), "aspire.db")
     SQLITE_URL = f"sqlite:///{DB_PATH}"
     engine = create_engine(
         SQLITE_URL,

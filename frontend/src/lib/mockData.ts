@@ -192,7 +192,7 @@ export const INITIAL_CREDENTIALS: ProofOfWorkCredential[] = [
     passedQuestions: 3,
     totalQuestions: 3,
     issuedAt: "2026-09-20T11:42:00Z",
-    issuerOrg: "SkillSetu Trust Engine",
+    issuerOrg: "Aspire AI Trust Engine",
     isSponsored: false,
     canonicalPayload: JSON.stringify({
       candidateEmail: "aditya.verma@example.com",
@@ -242,7 +242,7 @@ export const INITIAL_CREDENTIALS: ProofOfWorkCredential[] = [
     passedQuestions: 3,
     totalQuestions: 3,
     issuedAt: "2026-09-22T14:15:00Z",
-    issuerOrg: "SkillSetu Trust Engine",
+    issuerOrg: "Aspire AI Trust Engine",
     isSponsored: false,
     canonicalPayload: JSON.stringify({
       candidateEmail: "aditya.verma@example.com",
@@ -292,7 +292,7 @@ export const INITIAL_CREDENTIALS: ProofOfWorkCredential[] = [
     passedQuestions: 3,
     totalQuestions: 3,
     issuedAt: "2026-09-18T09:30:00Z",
-    issuerOrg: "SkillSetu Trust Engine",
+    issuerOrg: "Aspire AI Trust Engine",
     isSponsored: true,
     sponsorOrg: "Snowflake Labs",
     canonicalPayload: JSON.stringify({

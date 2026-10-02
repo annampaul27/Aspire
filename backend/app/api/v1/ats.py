@@ -26,7 +26,7 @@ async def ats_status():
     """
     return {
         "status": "online",
-        "engine": "SkillSetu ATS AI Parser & ChromaDB Matching Engine",
+        "engine": "Aspire AI ATS AI Parser & ChromaDB Matching Engine",
         "compliance": ["E1", "E2", "E3", "E4", "E10", "NF1", "NF2"],
         "contributor": {
             "name": "Annam Paul",
