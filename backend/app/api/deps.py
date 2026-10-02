@@ -3,10 +3,11 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional, List, Dict, Any
 from sqlalchemy.orm import Session
 
+from sqlalchemy import func
+
 from app.core.security import decode_access_token
 from app.db.session import get_db
 from app.models.entities import User
-from app.db.mock_db import get_user_by_email
 
 security_scheme = HTTPBearer(auto_error=False)
 
@@ -43,30 +44,25 @@ async def get_current_user(
         )
         
     # 1. Query user from relational PostgreSQL/SQLite database
-    db_user = db.query(User).filter(User.email == email.lower()).first()
-    if db_user:
-        return {
-            "id": db_user.id,
-            "email": db_user.email,
-            "full_name": db_user.full_name,
-            "role": db_user.role,
-            "org_id": db_user.org_id,
-            "user_class": db_user.user_class,
-            "college": db_user.college,
-            "readiness_score": db_user.readiness_score,
-            "current_tier": db_user.current_tier,
-            "avatar_url": db_user.avatar_url,
-        }
-
-    # 2. Fallback to mock_db for backward compatibility
-    mock_user = get_user_by_email(email)
-    if not mock_user:
+    db_user = db.query(User).filter(func.lower(User.email) == email.lower()).first()
+    if not db_user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"User associated with email '{email}' not found.",
         )
-        
-    return mock_user
+
+    return {
+        "id": db_user.id,
+        "email": db_user.email,
+        "full_name": db_user.full_name,
+        "role": db_user.role,
+        "org_id": db_user.org_id,
+        "user_class": db_user.user_class,
+        "college": db_user.college,
+        "readiness_score": db_user.readiness_score,
+        "current_tier": db_user.current_tier,
+        "avatar_url": db_user.avatar_url,
+    }
 
 async def get_optional_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_scheme),
@@ -83,7 +79,7 @@ async def get_optional_user(
         if not payload or not payload.get("email"):
             return None
         email = payload["email"]
-        db_user = db.query(User).filter(User.email == email.lower()).first()
+        db_user = db.query(User).filter(func.lower(User.email) == email.lower()).first()
         if db_user:
             return {
                 "id": db_user.id,
@@ -92,7 +88,7 @@ async def get_optional_user(
                 "role": db_user.role,
                 "org_id": db_user.org_id,
             }
-        return get_user_by_email(email)
+        return None
     except Exception:
         return None
 
