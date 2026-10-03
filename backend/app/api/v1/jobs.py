@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db, get_db_session
 from app.models.entities import Job, User, UserNotification
 from app.core.matching_engine import calculate_match_percentage
+from app.services.billing.metering import QuotaEnforcementService
 
 logger = logging.getLogger("jobs_ingestion")
 logger.setLevel(logging.INFO)
@@ -46,6 +47,14 @@ def run_job_matching_for_all_candidates(job: Dict[str, Any]):
     with get_db_session() as db:
         candidates = db.query(User).filter(User.role == "student").all()
         logger.info(f"Evaluating {len(candidates)} candidates against required skills: {job['required_skills']}")
+
+        org_id = job.get("org_id") or "org-acme"
+        if candidates and org_id:
+            try:
+                QuotaEnforcementService.check_and_record_candidate_evaluation(db, org_id, count=len(candidates))
+            except HTTPException as exc:
+                logger.warning(f"Candidate evaluation quota reached for org {org_id}: {exc.detail}")
+                return
 
         for cand in candidates:
             v_skills = []
@@ -134,6 +143,7 @@ async def ingest_incoming_job(
         existing_job.optional_skills_json = json.dumps(optional_skills)
         existing_job.status = "active"
     else:
+        QuotaEnforcementService.check_job_creation_quota(db, payload.org_id or "org-acme")
         new_job = Job(
             id=job_id,
             org_id=payload.org_id or "org-acme",

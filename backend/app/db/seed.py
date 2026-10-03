@@ -29,6 +29,25 @@ def seed_database_defaults(db: Session = None):
                     conn.execute(text("ALTER TABLE users ADD COLUMN password_hash VARCHAR(255)"))
                 if "org_id" not in cols:
                     conn.execute(text("ALTER TABLE users ADD COLUMN org_id VARCHAR(64)"))
+
+            if "subscriptions" in inspector.get_table_names():
+                sub_cols = [c["name"] for c in inspector.get_columns("subscriptions")]
+                sub_additions = [
+                    ("user_id", "VARCHAR(64)"),
+                    ("provider", "VARCHAR(32) DEFAULT 'razorpay'"),
+                    ("provider_subscription_id", "VARCHAR(128)"),
+                    ("provider_payment_id", "VARCHAR(128)"),
+                    ("current_period_start", "DATETIME"),
+                    ("current_period_end", "DATETIME"),
+                    ("evaluations_used", "INTEGER DEFAULT 0"),
+                    ("evaluations_limit", "INTEGER DEFAULT 25"),
+                    ("active_jobs_limit", "INTEGER DEFAULT 3"),
+                ]
+                for col_name, col_type in sub_additions:
+                    if col_name not in sub_cols:
+                        conn.execute(text(f"ALTER TABLE subscriptions ADD COLUMN {col_name} {col_type}"))
+                conn.execute(text("UPDATE subscriptions SET active_jobs_limit = -1, evaluations_limit = -1 WHERE plan_id = 'enterprise'"))
+                conn.execute(text("UPDATE subscriptions SET active_jobs_limit = 10, evaluations_limit = 250 WHERE plan_id = 'growth'"))
         except Exception:
             pass
 
@@ -85,6 +104,9 @@ def seed_database_defaults(db: Session = None):
                     status="active",
                     seats_purchased=25,
                     billing_cycle="annual",
+                    active_jobs_limit=-1,
+                    evaluations_limit=-1,
+                    evaluations_used=0,
                 ),
                 Subscription(
                     id="sub-apex-acad",
@@ -93,6 +115,9 @@ def seed_database_defaults(db: Session = None):
                     status="active",
                     seats_purchased=10,
                     billing_cycle="annual",
+                    active_jobs_limit=5,
+                    evaluations_limit=100,
+                    evaluations_used=0,
                 ),
                 Subscription(
                     id="sub-talentbridge-growth",
@@ -101,6 +126,9 @@ def seed_database_defaults(db: Session = None):
                     status="active",
                     seats_purchased=10,
                     billing_cycle="monthly",
+                    active_jobs_limit=10,
+                    evaluations_limit=250,
+                    evaluations_used=0,
                 ),
             ]
             db.add_all(subs)

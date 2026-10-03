@@ -7,7 +7,7 @@
 [![Alembic](https://img.shields.io/badge/Alembic-Migrations-orange.svg)](https://alembic.sqlalchemy.org)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-FF6B6B.svg)](https://trychroma.com)
 [![Groq](https://img.shields.io/badge/Groq-Llama3_Extraction-F55036.svg)](https://groq.com)
-[![Pytest](https://img.shields.io/badge/Pytest-100%20Passed-brightgreen.svg?logo=pytest&logoColor=white)](https://pytest.org)
+[![Pytest](https://img.shields.io/badge/Pytest-109%20Passed-brightgreen.svg?logo=pytest&logoColor=white)](https://pytest.org)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Aspire AI bridges the gap between talent supply (students) and employer demand (corporates, universities, staffing agencies). It combines an AI-powered Applicant Tracking System (ATS), cryptographic proof-of-work credentialing (SHA-256), a dual-tier isolated execution sandbox with AST security filtering, and deterministic deficit-resistance skill matching.
@@ -21,7 +21,7 @@ Aspire AI bridges the gap between talent supply (students) and employer demand (
 | **Nandana** | [@nandana-web520](https://github.com/nandana-web520) | **Feature Architect — Skill Verification & ATS Resume Studio**<br>• Designed & implemented the Skill Verification Engine (**FR-01**)<br>• 20-question, 12-minute timed assessment with automatic grading & multi-tier badge issuance (Bronze, Silver, Gold, Platinum)<br>• ATS-Friendly Tailored Resume Studio (**FR-02**) with AI spatial parsing and real-time schema editing<br>• SQLite persistence layer (`backend/app/db/database.py`) and FastAPI endpoints (`/api/v1/assessments`, `/api/v1/resume`) |
 | **Jayasree A B** | [@JayasreeAB](https://github.com/JayasreeAB) | **Feature Architect — CareerCompass AI Modules & Course Curriculum**<br>• Designed & implemented the 8 CareerCompass feature modules (`backend/features/`)<br>• Dynamic Personalized Roadmap Generator mapping skill gaps to curriculum phases (`personalized_roadmap.py`)<br>• Designed & authored the 13 modular CareerCompass course curricula, structured lessons, and 20-question timed mock exams (`courses/`) across Python, SQL, AWS, LLM, Trees, Arrays, Django, Flask, Pandas, Javascript, HTML, CSS, Excel<br>• Fast dynamic course catalog and interactive mock testing engine (`backend/app/api/v1/courses.py`)<br>• Personalized 90-Day Career Roadmap generator (`career_roadmap.py`)<br>• AI GitHub repository project analyzer & complexity assessor (`github_analysis.py`)<br>• Dynamic mock interview coach & answer evaluation scoring (`interview_coach.py`)<br>• Real-time job market demand classifier (`job_market_analysis.py`)<br>• Automated personal developer portfolio website builder (`portfolio_builder.py`)<br>• Deep resume highlights, strengths & weakness extractor (`resume_analysis.py`)<br>• Multidimensional competency & skill gap analyzer (`skill_gap_analysis.py`) |
 | **Anna M Paul** | [@annampaul27](https://github.com/annampaul27) | **Core Feature Architect — ATS & Dynamic Sandbox Engine**<br>• Designed & implemented the ATS FastAPI microservices (`/api/v1/ats/*`)<br>• Structured LLM parsing pipeline via Groq + Instructor (`ResumeSchema`, `JDSchema`)<br>• ChromaDB persistent vector repository & semantic applicant retrieval<br>• Deterministic skill gap comparison & tier segmentation (**E1, E2, E3, E4, E10**)<br>• Dynamic Code Bug-Fixer Engine & Challenge Generator (`code-bug-fixer-engine/`, `/api/v1/sandbox/*`)<br>• Real-time sandbox test runner with latency metrics & SHA-256 cryptographic proof-of-work minting |
-| **Nikhil Krishna R D** | [@rdnk2004](https://github.com/rdnk2004) | **Lead Full-Stack & SaaS Platform Architect**<br>• Architected the role-separated multi-tenant infrastructure across Student, Employer, Academic Admin, and Public verification personas<br>• Built the complete Next.js 15 App Router frontend tier (17 production routes, dark-mode design system, and reactive global store)<br>• Engineered the Employer Talent Radar, Weighted Deficit Resistance Model, Blind DEI Screening engine, and 5-stage recruitment pipeline Kanban<br>• Designed the immutable SHA-256 cryptographic proof-of-work credential ledger and public zero-auth verification portal (`/verify/[hash]`)<br>• **Sprint 1 Lead (Database Persistence & Hardened RBAC):** Spearheaded migration from in-memory hackathon state to SQLAlchemy 2.0 dual-engine persistence (managed cloud PostgreSQL + SQLite), authored Alembic versioned migrations for multi-tenant organizations & subscriptions, and implemented server-side RBAC dependencies (`require_role`) with automatic Bearer token handling in `client.ts`<br>• **Sprint 2 Lead (Isolated Execution Sandbox):** Eliminated mock regex heuristics in `sandbox.py`; built the static AST security analyzer (`AstSecurityAnalyzer`), the ephemeral in-memory 50,000-row relational database benchmark with authentic `EXPLAIN QUERY PLAN` telemetry, the process-isolated Python runner with 3.0s timeout protection, and the live query plan telemetry UI<br>• **Sprint 3 Lead (Real LLM Orchestration, Unified ATS Parser & Dynamic Career Roadmaps):** Deprecated hardcoded mock PDF parsing heuristics in `/resume/parse` and connected unified `pdfplumber` + Groq/instructor ATS parsing pipeline with automatic schema normalizer; implemented dynamic LLM + semantic rubric evaluation for AI mock interviews scoring clarity, technical depth, and confidence with context-aware feedback; connected CareerCompass roadmaps to genuine 13-course catalog with dynamic 90-day phase generator; enhanced frontend with live rubric scorecards, 1-click curriculum generation, and ATS profile sync<br>• **Sprint 4 Lead (Database Unification, Multi-Tenant Data Persistence & Auth Consolidation):** Unified dual-database architecture onto SQLAlchemy 2.0 ORM session factory (`app.db.session.get_db`); eradicated in-memory `mock_db` persistence and connected user registration, authentication, organization directory, assessments, ATS resume storage, incoming job alerts, and 21-day deadline notifications to relational tables (`users`, `organizations`, `assessments`, `ats_resumes`, `jobs`, `user_notifications`); modernized FastAPI application lifecycle with modern `lifespan` context manager; eliminated all Pydantic/FastAPI deprecations; and engineered end-to-end 360-degree integration test suite achieving 100/100 passing tests (100% pass rate) |
+| **Nikhil Krishna R D** | [@rdnk2004](https://github.com/rdnk2004) | **Lead Full-Stack & SaaS Platform Architect**<br>• Architected the role-separated multi-tenant infrastructure across Student, Employer, Academic Admin, and Public verification personas<br>• Built the complete Next.js 15 App Router frontend tier (17 production routes, dark-mode design system, and reactive global store)<br>• Engineered the Employer Talent Radar, Weighted Deficit Resistance Model, Blind DEI Screening engine, and 5-stage recruitment pipeline Kanban<br>• Designed the immutable SHA-256 cryptographic proof-of-work credential ledger and public zero-auth verification portal (`/verify/[hash]`)<br>• **Sprint 1 Lead (Database Persistence & Hardened RBAC):** Spearheaded migration from in-memory hackathon state to SQLAlchemy 2.0 dual-engine persistence (managed cloud PostgreSQL + SQLite), authored Alembic versioned migrations for multi-tenant organizations & subscriptions, and implemented server-side RBAC dependencies (`require_role`) with automatic Bearer token handling in `client.ts`<br>• **Sprint 2 Lead (Isolated Execution Sandbox):** Eliminated mock regex heuristics in `sandbox.py`; built the static AST security analyzer (`AstSecurityAnalyzer`), the ephemeral in-memory 50,000-row relational database benchmark with authentic `EXPLAIN QUERY PLAN` telemetry, the process-isolated Python runner with 3.0s timeout protection, and the live query plan telemetry UI<br>• **Sprint 3 Lead (Real LLM Orchestration, Unified ATS Parser & Dynamic Career Roadmaps):** Deprecated hardcoded mock PDF parsing heuristics in `/resume/parse` and connected unified `pdfplumber` + Groq/instructor ATS parsing pipeline with automatic schema normalizer; implemented dynamic LLM + semantic rubric evaluation for AI mock interviews scoring clarity, technical depth, and confidence with context-aware feedback; connected CareerCompass roadmaps to genuine 13-course catalog with dynamic 90-day phase generator; enhanced frontend with live rubric scorecards, 1-click curriculum generation, and ATS profile sync<br>• **Sprint 4 Lead (Database Unification, Multi-Tenant Data Persistence & Auth Consolidation):** Unified dual-database architecture onto SQLAlchemy 2.0 ORM session factory (`app.db.session.get_db`); eradicated in-memory `mock_db` persistence and connected user registration, authentication, organization directory, assessments, ATS resume storage, incoming job alerts, and 21-day deadline notifications to relational tables (`users`, `organizations`, `assessments`, `ats_resumes`, `jobs`, `user_notifications`); modernized FastAPI application lifecycle with modern `lifespan` context manager; eliminated all Pydantic/FastAPI deprecations; and engineered end-to-end 360-degree integration test suite achieving 100/100 passing tests (100% pass rate)<br>• **Sprint 5 Lead (SaaS Billing, Metering, Dual Payment Gateways & Subscription Webhooks):** Engineered end-to-end commercial monetization infrastructure with dual payment gateways (Razorpay in INR paise for domestic Indian clients & Stripe in USD cents for global enterprise B2B); built HMAC-SHA256 cryptographic webhook listeners (`/api/v1/billing/webhooks/{provider}`) handling payment success, renewal, and cancellation events; implemented multi-tenant usage metering and automated quota enforcement (`HTTP 402 Payment Required`) guarding active job requisitions and candidate evaluations; replaced mock simulation mode on frontend pricing page with live 3-step checkout, telemetry, and signature verification; and delivered 360-degree integration test suite achieving 109/109 passing tests (100% pass rate) |
 
 ---
 
@@ -110,15 +110,32 @@ Following the [Full-Stack & SaaS Architectural Audit](SkillSetu_AI_SaaS_Architec
 
 ---
 
-### 🔮 Sprint 5: SaaS Billing, Metering & Payment Webhooks (Future Roadmap)
+### ✅ Sprint 5: SaaS Billing, Metering, Dual Payment Gateways & Subscription Webhooks (Completed)
+- **Branch:** `feat/sprint-5-saas-billing-metering-and-payment-webhooks`
+- **6 Atomic Commits (`0f066f9` → `39a50a6`)**:
+  1. `feat(billing): extend subscription schema with usage metering, quotas, and plan catalog`
+  2. `feat(billing): implement dual payment gateway adapter for razorpay and stripe`
+  3. `feat(billing): add cryptographic webhook listeners and subscription lifecycle event handlers`
+  4. `feat(billing): implement multi-tenant usage metering and quota enforcement dependencies`
+  5. `feat(frontend): connect pricing page to live checkout and subscription verification`
+  6. `test(sprint5): add 360-degree integration test suite for saas billing, webhooks, and metering`
+- **Key Deliverables:**
+  - **Dual Payment Gateways**: Built an enterprise `PaymentGatewayService` supporting **Razorpay** (INR domestic payments in paise with order generation and SHA-256 HMAC signature verification) and **Stripe** (USD international B2B checkout sessions in cents with webhook signature verification).
+  - **Cryptographic Webhook Handlers (`/api/v1/billing/webhooks/{provider}`)**: Secure webhook listeners verifying raw payload signatures with provider secrets, handling order fulfillment, plan activations, automated recurring renewals, and subscription cancellations.
+  - **Multi-Tenant Usage Metering & Quota Enforcement (`QuotaEnforcementService`)**: Enforced tenant quotas returning structured `HTTP 402 Payment Required` with required upgrades when limits are reached:
+    - **Active Job Requisitions**: Enforced on `/api/v1/jobs/ingest` and `/api/v1/jobs` (e.g. Starter: 3 active jobs, Growth: 10 active jobs, Enterprise: unlimited).
+    - **Candidate ATS Evaluations**: Enforced and metered on automated candidate matching (`/api/v1/jobs/{job_id}/match-all`) tracking monthly usage against plan limits.
+  - **Unified Plan Catalog & Telemetry (`/api/v1/billing/plans` & `/api/v1/billing/subscription`)**: Tiered SaaS plan definition catalog (`student_free`, `student_pro`, `starter`, `growth`, `enterprise`) with audience filtering (`student` vs `employer`) and dynamic telemetry exposing active usage against quota thresholds.
+  - **Interactive Live Checkout Frontend (`frontend/src/app/pricing/page.tsx`)**: Replaced hackathon simulation modal (`💡 Demo Simulation Mode`) with live 3-step checkout flow (Plan Selection → Gateway Order Creation → Cryptographic Payment Authorization & Verification), active subscription telemetry banner, and real-time error handling.
+  - **Enterprise Test Suite**: Added `test_sprint5_billing_and_metering.py` bringing entire backend regression coverage to **109/109 tests passing with 100% pass rate**.
+
+---
+
+### 🔮 Sprint 6: Real-Time WebSockets, Collaborative Hiring Pipeline & Advanced Telemetry (Future Roadmap)
 - **Target Deliverables:**
-  1. **Dual Payment Gateways**: Razorpay integration for Indian domestic clients (UPI, NetBanking, RuPay) and Stripe integration for global B2B employers.
-  2. **Subscription Webhooks**: FastAPI webhook listeners handling `checkout.session.completed`, `invoice.payment_succeeded`, and `customer.subscription.deleted`.
-  3. **Multi-Tenant Usage Metering**: Automated enforcement of plan tier quotas:
-     - **Starter Tier**: 3 active job requisitions, 50 candidate screens/month.
-     - **Growth Tier**: 10 active job requisitions, 300 candidate screens/month.
-     - **Enterprise Tier**: Unlimited requisitions, custom sandbox repos, dedicated SLA.
-  4. **Frontend Checkout Flow**: Live payment modal activation in `frontend/src/app/pricing/page.tsx` replacing simulation dialogs.
+  1. **Real-Time WebSockets**: Live bidirectional event streaming for hiring team collaboration, candidate status shifts, and instantaneous recruiter-candidate notifications.
+  2. **Collaborative Hiring Pipeline**: Multi-reviewer scorecard evaluation, synchronized Kanban board updates with optimistic concurrency control, and private recruiter interview notes.
+  3. **Advanced Telemetry & Analytics Dashboard**: Prometheus/OpenTelemetry instrumentation for candidate funnel conversion velocity, skill gap heatmaps, and enterprise billing spend analytics.
 
 ---
 
@@ -134,6 +151,7 @@ AI-Skill/
 │   │   ├── api/v1/
 │   │   │   ├── auth.py          # JWT authentication, session tokens & role claims
 │   │   │   ├── ats.py           # ATS resume/JD parsing, comparison & vector querying
+│   │   │   ├── billing.py       # SaaS plan catalog, checkout, webhooks & quota metering
 │   │   │   ├── courses.py       # Modular course catalog & timed mock test engine
 │   │   │   ├── assessments.py   # 20-question proctored skill assessments
 │   │   │   ├── career_compass.py# AI interview coach, GitHub audit & roadmaps
@@ -153,6 +171,10 @@ AI-Skill/
 │   │   │   └── ats.py           # Pydantic schemas (ResumeSchema, JDSchema)
 │   │   └── services/
 │   │       ├── ats/             # PDF/DOCX parser, ChromaDB vector & matching services
+│   │       ├── billing/         # Dual gateway adapter, plan catalog & quota metering
+│   │       │   ├── catalog.py   # Tiered plan definitions & feature quotas
+│   │       │   ├── gateway.py   # Razorpay (INR) & Stripe (USD) payment adapters
+│   │       │   └── metering.py  # Active job & candidate evaluation quota enforcement
 │   │       └── sandbox/         # Isolated execution sandbox subsystem
 │   │           ├── base.py      # BaseSandboxRunner interface & SHA-256 proof generator
 │   │           ├── security.py  # AstSecurityAnalyzer static AST code sanitizer
@@ -169,6 +191,8 @@ AI-Skill/
 │   ├── test_sandbox_python_runner.py # Subprocess isolation & timeout test suite
 │   ├── test_sandbox_database_runner.py # 50k-row EXPLAIN query plan test suite
 │   ├── test_sandbox_suite.py    # End-to-end sandbox execution & anti-cheating suite
+│   ├── test_sprint4_unification_and_persistence.py # Database unification & persistence suite
+│   ├── test_sprint5_billing_and_metering.py # SaaS billing, dual gateways & metering suite
 │   └── run.py                   # Local dev server launcher (Port 8000)
 │
 ├── frontend/
@@ -227,7 +251,7 @@ npm run dev
 
 ## 🧪 Automated Test Suites
 
-Run the complete backend test suite (**92 tests passing with 0 regressions**):
+Run the complete backend test suite (**109 tests passing with 0 regressions across 17 suites**):
 ```bash
 cd backend
 python -m pytest -v
@@ -243,6 +267,12 @@ pytest -v test_sandbox_security.py test_sandbox_python_runner.py test_sandbox_da
 
 # Test Sprint 3 (ATS Parser, Dynamic Interview Rubric & Personalized Roadmap)
 pytest -v test_resume_parser_unified.py test_interview_evaluator.py test_dynamic_roadmap.py test_assessments_resume_suite.py test_features_suite.py
+
+# Test Sprint 4 (Database Unification, Auth Persistence & Multi-Tenant Scoping)
+pytest -v test_sprint4_unification_and_persistence.py
+
+# Test Sprint 5 (SaaS Billing, Dual Gateways, Webhooks & Metering Quotas)
+pytest -v test_sprint5_billing_and_metering.py
 
 # Test ATS Engine & ChromaDB Semantic Matching
 pytest -v test_ats_suite.py

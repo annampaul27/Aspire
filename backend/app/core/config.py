@@ -29,6 +29,13 @@ class Settings(BaseSettings):
     # Relational Database URL (PostgreSQL in production/cloud, SQLite fallback for local dev)
     DATABASE_URL: str = ""
 
+    # SaaS Billing & Dual Payment Gateways (Razorpay & Stripe)
+    STRIPE_API_KEY: str = ""
+    STRIPE_WEBHOOK_SECRET: str = "whsec_aspire_test_secret_2026"
+    RAZORPAY_KEY_ID: str = "rzp_test_aspire_2026"
+    RAZORPAY_KEY_SECRET: str = "rzp_test_secret_aspire_2026"
+    RAZORPAY_WEBHOOK_SECRET: str = "rzp_webhook_secret_2026"
+
     model_config = SettingsConfigDict(
         case_sensitive=True,
         extra="allow",

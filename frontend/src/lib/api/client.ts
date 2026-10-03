@@ -170,3 +170,93 @@ export const apiClient = {
     return res.json() as Promise<T>;
   },
 };
+
+export interface PlanDefinition {
+  id: string;
+  name: string;
+  audience: "student" | "employer" | "all";
+  description: string;
+  price_inr_monthly: number;
+  price_inr_annual: number;
+  price_usd_monthly: number;
+  price_usd_annual: number;
+  limits: {
+    active_jobs: number;
+    candidate_evaluations_monthly: number;
+    seats_included: number;
+    resume_uploads_monthly: number;
+    ai_interviews_monthly: number;
+  };
+  features: string[];
+  badge?: string;
+  is_popular: boolean;
+}
+
+export interface UserSubscription {
+  id: string;
+  org_id?: string;
+  user_id?: string;
+  plan_id: string;
+  status: string;
+  seats_purchased: number;
+  billing_cycle: "monthly" | "annual";
+  provider: string;
+  active_jobs_limit: number;
+  evaluations_limit: number;
+  evaluations_used: number;
+  current_period_end?: string;
+}
+
+export interface CheckoutPayload {
+  plan_id: string;
+  billing_cycle: "monthly" | "annual";
+  provider: "razorpay" | "stripe";
+  currency?: "INR" | "USD";
+  seats?: number;
+}
+
+export interface CheckoutResponse {
+  provider: "razorpay" | "stripe";
+  order_id?: string;
+  session_id?: string;
+  checkout_url?: string;
+  key_id?: string;
+  publishable_key?: string;
+  amount: number;
+  currency: string;
+  plan_id: string;
+  billing_cycle: string;
+}
+
+export interface VerifyPaymentPayload {
+  provider: "razorpay" | "stripe";
+  plan_id: string;
+  billing_cycle: string;
+  order_id?: string;
+  payment_id?: string;
+  signature?: string;
+  session_id?: string;
+}
+
+export const billingApi = {
+  getPlans: (audience: string = "all"): Promise<{ plans: PlanDefinition[] }> =>
+    apiClient.get<{ plans: PlanDefinition[] }>(`/billing/plans?audience=${audience}`),
+
+  getCurrentSubscription: (): Promise<UserSubscription> =>
+    apiClient.get<UserSubscription>("/billing/subscription"),
+
+  createCheckout: (payload: CheckoutPayload): Promise<CheckoutResponse> =>
+    apiClient.post<CheckoutResponse>("/billing/checkout", payload),
+
+  verifyPayment: (
+    payload: VerifyPaymentPayload
+  ): Promise<{ status: string; message: string; subscription: UserSubscription }> =>
+    apiClient.post<{ status: string; message: string; subscription: UserSubscription }>(
+      "/billing/verify-payment",
+      payload
+    ),
+
+  cancelSubscription: (): Promise<{ status: string; message: string }> =>
+    apiClient.post<{ status: string; message: string }>("/billing/cancel"),
+};
+
