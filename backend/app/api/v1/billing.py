@@ -41,7 +41,7 @@ async def get_plans_catalog(audience: Optional[str] = Query(None, description="'
     Returns the comprehensive tiered SaaS plan catalog with features, quotas, and INR/USD pricing.
     """
     plans = list_all_plans(audience=audience)
-    return {"plans": [p.dict() for p in plans], "count": len(plans)}
+    return {"plans": [p.model_dump() for p in plans], "count": len(plans)}
 
 @router.get("/subscription")
 async def get_active_subscription(
@@ -279,6 +279,17 @@ async def verify_payment_and_activate(
         "status": "active",
         "billing_cycle": payload.billing_cycle,
         "current_period_end": period_end.isoformat(),
+        "subscription": {
+            "id": new_sub.id,
+            "plan_id": plan.id,
+            "status": "active",
+            "active_jobs_limit": new_sub.active_jobs_limit,
+            "evaluations_limit": new_sub.evaluations_limit,
+            "evaluations_used": new_sub.evaluations_used,
+            "billing_cycle": payload.billing_cycle,
+            "provider": payload.provider,
+            "current_period_end": period_end.isoformat(),
+        },
         "message": f"Successfully activated {plan.name} subscription.",
     }
 

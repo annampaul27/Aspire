@@ -27,10 +27,10 @@ class QuotaEnforcementService:
         ).scalars().first()
 
         plan_def = get_plan_by_id(sub.plan_id) if (sub and sub.plan_id) else None
-        if plan_def:
-            limit = plan_def.limits.active_jobs
-        elif sub and sub.active_jobs_limit is not None:
+        if sub and sub.active_jobs_limit is not None:
             limit = sub.active_jobs_limit
+        elif plan_def:
+            limit = plan_def.limits.active_jobs
         else:
             limit = 3
 
@@ -69,10 +69,10 @@ class QuotaEnforcementService:
             return
 
         plan_def = get_plan_by_id(sub.plan_id) if (sub and sub.plan_id) else None
-        if plan_def:
-            eval_limit = plan_def.limits.candidate_evaluations_monthly
-        elif sub and sub.evaluations_limit is not None:
+        if sub and sub.evaluations_limit is not None:
             eval_limit = sub.evaluations_limit
+        elif plan_def:
+            eval_limit = plan_def.limits.candidate_evaluations_monthly
         else:
             eval_limit = 25
 
