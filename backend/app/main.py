@@ -19,6 +19,7 @@ from app.api.v1.notifications import router as notifications_router
 from app.api.v1.jobs import router as jobs_router
 from app.api.v1.courses import router as courses_router
 from app.api.v1.github import router as github_router
+from app.api.v1.billing import router as billing_router
 
 scheduler = AsyncIOScheduler()
 
@@ -86,6 +87,7 @@ app.include_router(jobs_router, prefix=f"{settings.API_V1_STR}/jobs")
 app.include_router(courses_router, prefix=settings.API_V1_STR)
 app.include_router(github_router, prefix=f"{settings.API_V1_STR}/github", tags=["GitHub Analysis & Security"])
 app.include_router(github_router, prefix=f"{settings.API_V1_STR}/career-compass/github", tags=["GitHub Analysis & Security"])
+app.include_router(billing_router, prefix=settings.API_V1_STR)
 
 # -------------------------------------------------------------------------
 # Backward Compatibility Route Aliases (Frontend & Client SDK Compatibility)
@@ -94,6 +96,7 @@ app.include_router(sandbox_router, prefix="/api", include_in_schema=False)
 app.include_router(jobs_router, prefix="/api/jobs", include_in_schema=False)
 app.include_router(courses_router, prefix="/api", include_in_schema=False)
 app.include_router(github_router, prefix="/api/github", include_in_schema=False)
+app.include_router(billing_router, prefix="/api", include_in_schema=False)
 
 @app.get("/health", tags=["System Telemetry"])
 async def health_check():
