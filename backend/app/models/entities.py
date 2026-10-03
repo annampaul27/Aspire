@@ -97,13 +97,24 @@ class Subscription(Base):
     __tablename__ = "subscriptions"
 
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
-    org_id: Mapped[str] = mapped_column(
-        String(64), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False
+    org_id: Mapped[Optional[str]] = mapped_column(
+        String(64), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=True
+    )
+    user_id: Mapped[Optional[str]] = mapped_column(
+        String(64), ForeignKey("users.id", ondelete="CASCADE"), nullable=True
     )
     plan_id: Mapped[str] = mapped_column(String(64), default="enterprise")
     status: Mapped[str] = mapped_column(String(32), default="active")
     seats_purchased: Mapped[int] = mapped_column(Integer, default=25)
     billing_cycle: Mapped[str] = mapped_column(String(32), default="monthly")
+    provider: Mapped[str] = mapped_column(String(32), default="razorpay")
+    provider_subscription_id: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+    provider_payment_id: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+    current_period_start: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, nullable=True)
+    current_period_end: Mapped[Optional[datetime.datetime]] = mapped_column(DateTime, nullable=True)
+    evaluations_used: Mapped[int] = mapped_column(Integer, default=0)
+    evaluations_limit: Mapped[int] = mapped_column(Integer, default=25)
+    active_jobs_limit: Mapped[int] = mapped_column(Integer, default=3)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime, default=func.now(), nullable=False
     )
@@ -111,7 +122,7 @@ class Subscription(Base):
         DateTime, default=func.now(), onupdate=func.now(), nullable=False
     )
 
-    organization: Mapped["Organization"] = relationship("Organization", back_populates="subscriptions")
+    organization: Mapped[Optional["Organization"]] = relationship("Organization", back_populates="subscriptions")
 
 
 class DispatchedSprint(Base):

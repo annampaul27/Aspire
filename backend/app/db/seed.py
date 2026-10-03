@@ -29,6 +29,23 @@ def seed_database_defaults(db: Session = None):
                     conn.execute(text("ALTER TABLE users ADD COLUMN password_hash VARCHAR(255)"))
                 if "org_id" not in cols:
                     conn.execute(text("ALTER TABLE users ADD COLUMN org_id VARCHAR(64)"))
+
+            if "subscriptions" in inspector.get_table_names():
+                sub_cols = [c["name"] for c in inspector.get_columns("subscriptions")]
+                sub_additions = [
+                    ("user_id", "VARCHAR(64)"),
+                    ("provider", "VARCHAR(32) DEFAULT 'razorpay'"),
+                    ("provider_subscription_id", "VARCHAR(128)"),
+                    ("provider_payment_id", "VARCHAR(128)"),
+                    ("current_period_start", "DATETIME"),
+                    ("current_period_end", "DATETIME"),
+                    ("evaluations_used", "INTEGER DEFAULT 0"),
+                    ("evaluations_limit", "INTEGER DEFAULT 25"),
+                    ("active_jobs_limit", "INTEGER DEFAULT 3"),
+                ]
+                for col_name, col_type in sub_additions:
+                    if col_name not in sub_cols:
+                        conn.execute(text(f"ALTER TABLE subscriptions ADD COLUMN {col_name} {col_type}"))
         except Exception:
             pass
 
