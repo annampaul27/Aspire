@@ -1,9 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Candidate, ProofOfWorkCredential } from "@/types";
 import { useStore } from "@/lib/store";
-import { ShieldCheck } from "lucide-react";
+import { useCollaborationSocket } from "@/lib/useCollaborationSocket";
+import { collaborationApi } from "@/lib/api/collaboration";
+import CandidateScorecardDrawer from "./CandidateScorecardDrawer";
+import { ShieldCheck, Users, Star, ArrowRight, ArrowLeft } from "lucide-react";
 
 interface PipelineKanbanProps {
   onSelectCandidate: (candidate: Candidate) => void;
@@ -24,11 +27,19 @@ export default function PipelineKanban({
 }: PipelineKanbanProps) {
   const {
     candidates,
+    currentOrg,
     updateCandidatePipelineStatus,
     isAnonymizedScreening,
   } = useStore();
 
-  const handleMoveStage = (
+  const [scorecardCandidate, setScorecardCandidate] = useState<Candidate | null>(null);
+
+  // Real-Time WebSocket Synchronization Hook
+  const { isConnected, peerCount } = useCollaborationSocket({
+    orgId: currentOrg?.id || "org-acme",
+  });
+
+  const handleMoveStage = async (
     candidateId: string,
     currentStatus: Candidate["pipelineStatus"],
     direction: "next" | "prev"
@@ -38,25 +49,64 @@ export default function PipelineKanban({
     const targetIndex = direction === "next" ? currentIndex + 1 : currentIndex - 1;
 
     if (targetIndex >= 0 && targetIndex < stageIds.length) {
+      const targetStage = stageIds[targetIndex];
+
+      // Optimistic update
       updateCandidatePipelineStatus(
         candidateId,
-        stageIds[targetIndex],
+        targetStage,
         "Recruiter Kanban Action"
       );
+
+      // Persist to backend and broadcast via WebSocket
+      try {
+        await collaborationApi.movePipelineStage(
+          candidateId,
+          currentStatus,
+          targetStage,
+          `Moved via live collaborative Kanban to ${targetStage.toUpperCase()}`
+        );
+      } catch (err) {
+        console.warn("Backend pipeline stage sync warning:", err);
+      }
     }
   };
 
   return (
     <div className="space-y-4">
-      <div>
-        <h3 className="text-sm font-semibold text-white">
-          Hiring Pipeline
-        </h3>
-        <p className="text-xs text-gray-400 mt-0.5">
-          Candidate stages and verified skill credentials.
-        </p>
+      {/* Kanban Header with Live Sync Telemetry */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h3 className="text-sm font-semibold text-white">
+            Hiring Pipeline
+          </h3>
+          <p className="text-xs text-gray-400 mt-0.5">
+            Collaborative team stages and verified skill credentials.
+          </p>
+        </div>
+
+        {/* WebSocket Real-Time Badge */}
+        <div className="flex items-center gap-2">
+          <div
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono border transition-all ${
+              isConnected
+                ? "bg-emerald-950/40 text-emerald-300 border-emerald-800/60 shadow-sm shadow-emerald-950"
+                : "bg-gray-900 text-gray-400 border-gray-800"
+            }`}
+          >
+            <span
+              className={`w-2 h-2 rounded-full ${
+                isConnected ? "bg-emerald-400 animate-pulse" : "bg-gray-500"
+              }`}
+            />
+            <span className="font-semibold">
+              {isConnected ? `Live Sync Active (${peerCount} ${peerCount === 1 ? 'peer' : 'peers'})` : "Sync Connecting..."}
+            </span>
+          </div>
+        </div>
       </div>
 
+      {/* 5-Stage Kanban Grid */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3.5 overflow-x-auto min-h-[480px]">
         {STAGES.map((stage, idx) => {
           const stageCandidates = candidates.filter((c) => c.pipelineStatus === stage.id);
@@ -98,9 +148,9 @@ export default function PipelineKanban({
                         </button>
                         <span
                           className={`text-[10px] font-mono font-semibold ${
-                            candidate.currentTier === "job_ready"
+                            candidate.readinessScore >= 85
                               ? "text-emerald-400"
-                              : candidate.currentTier === "bridgeable"
+                              : candidate.readinessScore >= 68
                               ? "text-amber-400"
                               : "text-red-400"
                           }`}
@@ -130,14 +180,26 @@ export default function PipelineKanban({
                         ))}
                       </div>
 
+                      {/* Scorecard Evaluation Trigger Button */}
+                      <div className="pt-1">
+                        <button
+                          onClick={() => setScorecardCandidate(candidate)}
+                          className="w-full py-1 px-2 rounded bg-purple-950/30 hover:bg-purple-900/50 text-purple-300 border border-purple-800/50 text-[10px] font-semibold flex items-center justify-center gap-1 transition-colors"
+                        >
+                          <Star className="w-3 h-3 text-purple-400 fill-purple-400/30" />
+                          <span>Team Scorecards & Notes</span>
+                        </button>
+                      </div>
+
                       {/* Stage Move Controls */}
                       <div className="pt-2 border-t border-gray-850 flex items-center justify-between">
                         {idx > 0 ? (
                           <button
                             onClick={() => handleMoveStage(candidate.id, candidate.pipelineStatus, "prev")}
-                            className="text-xs text-gray-400 hover:text-white transition-colors"
+                            className="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-0.5"
                           >
-                            ← Prev
+                            <ArrowLeft className="w-3 h-3" />
+                            <span>Prev</span>
                           </button>
                         ) : (
                           <span />
@@ -145,9 +207,10 @@ export default function PipelineKanban({
                         {idx < STAGES.length - 1 && (
                           <button
                             onClick={() => handleMoveStage(candidate.id, candidate.pipelineStatus, "next")}
-                            className="text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors"
+                            className="text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-0.5"
                           >
-                            Advance →
+                            <span>Advance</span>
+                            <ArrowRight className="w-3 h-3" />
                           </button>
                         )}
                       </div>
@@ -165,6 +228,13 @@ export default function PipelineKanban({
           );
         })}
       </div>
+
+      {/* Candidate Scorecard & Notes Drawer */}
+      <CandidateScorecardDrawer
+        candidate={scorecardCandidate}
+        isOpen={!!scorecardCandidate}
+        onClose={() => setScorecardCandidate(null)}
+      />
     </div>
   );
 }
