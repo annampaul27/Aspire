@@ -20,6 +20,7 @@ from app.core.security import decode_access_token
 from app.models.entities import (
     User,
     Organization,
+    Job,
     PipelineStageChange,
     CandidateScorecard,
     RecruiterNote,
@@ -232,22 +233,32 @@ async def move_pipeline_stage(
 
     # 3. Create real-time candidate notification if advancing to interview or offer
     if payload.to_stage in ["interview", "offer"]:
-        notification_message = (
-            f"Congratulations! Acme HyperScale Systems advanced your application to the {payload.to_stage.upper()} stage."
-            if payload.to_stage == "interview"
-            else "🎉 Incredible news! You have received a formal offer extension from Acme HyperScale Systems."
-        )
-        notif = UserNotification(
-            id=f"notif_{uuid.uuid4().hex[:12]}",
-            user_id=candidate.id,
-            job_id=payload.job_id or "job-general",
-            message=notification_message,
-            notification_type="stage_advancement",
-            is_read=False,
-            trigger_date=datetime.datetime.utcnow(),
-            created_at=datetime.datetime.utcnow(),
-        )
-        db.add(notif)
+        job_record = None
+        if payload.job_id:
+            job_record = db.query(Job).filter(Job.id == payload.job_id).first()
+        if not job_record:
+            job_record = (
+                db.query(Job).filter(Job.org_id == org_id).first()
+                or db.query(Job).first()
+            )
+
+        if job_record:
+            notification_message = (
+                f"Congratulations! Acme HyperScale Systems advanced your application to the {payload.to_stage.upper()} stage."
+                if payload.to_stage == "interview"
+                else "🎉 Incredible news! You have received a formal offer extension from Acme HyperScale Systems."
+            )
+            notif = UserNotification(
+                id=f"notif_{uuid.uuid4().hex[:12]}",
+                user_id=candidate.id,
+                job_id=job_record.id,
+                message=notification_message,
+                notification_type="stage_advancement",
+                is_read=False,
+                trigger_date=datetime.datetime.utcnow(),
+                created_at=datetime.datetime.utcnow(),
+            )
+            db.add(notif)
 
     db.commit()
     db.refresh(candidate)
