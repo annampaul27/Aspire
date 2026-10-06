@@ -57,6 +57,7 @@ class User(Base):
     current_tier: Mapped[str] = mapped_column(String(32), default="bridgeable")
     avatar_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     verified_skills_json: Mapped[str] = mapped_column(Text, default="[]")
+    pipeline_status: Mapped[str] = mapped_column(String(32), default="applied", nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime, default=func.now(), nullable=False
     )
@@ -296,3 +297,80 @@ class UserNotification(Base):
             "user_id", "job_id", "notification_type", "trigger_date", name="uq_user_notification"
         ),
     )
+
+
+class PipelineStageChange(Base):
+    __tablename__ = "pipeline_stage_changes"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    candidate_id: Mapped[str] = mapped_column(
+        String(64), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    org_id: Mapped[str] = mapped_column(
+        String(64), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False
+    )
+    job_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    from_stage: Mapped[str] = mapped_column(String(32), default="applied", nullable=False)
+    to_stage: Mapped[str] = mapped_column(String(32), nullable=False)
+    changed_by_user_id: Mapped[Optional[str]] = mapped_column(
+        String(64), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    reason: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime, default=func.now(), nullable=False
+    )
+
+
+class CandidateScorecard(Base):
+    __tablename__ = "candidate_scorecards"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    candidate_id: Mapped[str] = mapped_column(
+        String(64), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    org_id: Mapped[str] = mapped_column(
+        String(64), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False
+    )
+    job_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    reviewer_id: Mapped[str] = mapped_column(
+        String(64), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    overall_recommendation: Mapped[str] = mapped_column(
+        String(32), default="hire", nullable=False
+    )  # 'strong_hire', 'hire', 'neutral', 'reject'
+    technical_rating: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
+    communication_rating: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
+    problem_solving_rating: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
+    culture_add_rating: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
+    feedback_notes: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime, default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime, default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+    __table_args__ = (
+        UniqueConstraint("candidate_id", "org_id", "reviewer_id", name="uq_candidate_scorecard_reviewer"),
+    )
+
+
+class RecruiterNote(Base):
+    __tablename__ = "recruiter_notes"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    candidate_id: Mapped[str] = mapped_column(
+        String(64), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    org_id: Mapped[str] = mapped_column(
+        String(64), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False
+    )
+    author_id: Mapped[str] = mapped_column(
+        String(64), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    note_content: Mapped[str] = mapped_column(Text, nullable=False)
+    is_private: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime, default=func.now(), nullable=False
+    )
+

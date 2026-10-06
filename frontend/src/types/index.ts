@@ -197,3 +197,67 @@ export interface UserNotification {
   created_at: string;
 }
 
+export interface CandidateScorecard {
+  id: string;
+  candidate_id: string;
+  reviewer_id: string;
+  reviewer_name?: string;
+  overall_recommendation: "strong_hire" | "hire" | "neutral" | "reject";
+  technical_rating: number; // 1-5
+  communication_rating: number; // 1-5
+  problem_solving_rating: number; // 1-5
+  culture_add_rating: number; // 1-5
+  feedback_notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ScorecardSummary {
+  total_reviews: number;
+  avg_technical: number;
+  avg_communication: number;
+  avg_problem_solving: number;
+  avg_culture_add: number;
+  composite_score: number;
+  recommendation_breakdown: {
+    strong_hire: number;
+    hire: number;
+    neutral: number;
+    reject: number;
+  };
+  consensus: "consensus_hire" | "consensus_reject" | "mixed_reviews" | "pending_evaluations";
+}
+
+export interface RecruiterNote {
+  id: string;
+  candidate_id: string;
+  author_id: string;
+  author_name: string;
+  note_content: string;
+  is_private: boolean;
+  created_at: string;
+}
+
+export interface CollaboratorPresence {
+  user_id: string;
+  full_name: string;
+  role: string;
+  email?: string;
+  connected_at: string;
+}
+
+export interface PipelineStageEvent {
+  stage_change_id: string;
+  candidate_id: string;
+  candidate_name: string;
+  from_stage: Candidate["pipelineStatus"];
+  to_stage: Candidate["pipelineStatus"];
+  changed_by: {
+    id: string;
+    name: string;
+  };
+  reason?: string;
+  timestamp: string;
+}
+
+
