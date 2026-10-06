@@ -4,7 +4,8 @@ from app.db.session import engine, SessionLocal
 import app.models.entities
 from app.models.entities import (
     Base, Organization, User, Skill, Job, Subscription,
-    DispatchedSprint, VerifiedCredential, Assessment, AtsResume, SavedJob, UserNotification
+    DispatchedSprint, VerifiedCredential, Assessment, AtsResume, SavedJob, UserNotification,
+    PipelineStageChange, CandidateScorecard, RecruiterNote
 )
 from app.core.security import get_password_hash
 
@@ -18,7 +19,7 @@ def seed_database_defaults(db: Session = None):
     # Ensure all relational tables exist before querying or seeding
     Base.metadata.create_all(bind=engine)
 
-    # Ensure password_hash and org_id exist on users table for existing SQLite databases
+    # Ensure password_hash, org_id, and pipeline_status exist on users table for existing SQLite databases
     with engine.begin() as conn:
         try:
             from sqlalchemy import inspect, text
@@ -29,6 +30,8 @@ def seed_database_defaults(db: Session = None):
                     conn.execute(text("ALTER TABLE users ADD COLUMN password_hash VARCHAR(255)"))
                 if "org_id" not in cols:
                     conn.execute(text("ALTER TABLE users ADD COLUMN org_id VARCHAR(64)"))
+                if "pipeline_status" not in cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN pipeline_status VARCHAR(32) DEFAULT 'applied'"))
 
             if "subscriptions" in inspector.get_table_names():
                 sub_cols = [c["name"] for c in inspector.get_columns("subscriptions")]
