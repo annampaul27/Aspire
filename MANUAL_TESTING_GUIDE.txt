@@ -4,7 +4,7 @@ ASPIRE AI — COMPREHENSIVE MANUAL TESTING & QA VERIFICATION GUIDE
 Project: Aspire AI (Role-Separated Talent Infrastructure & SaaS Platform)
 Target Audience: QA Testers, Peer Reviewers, Evaluation Judges
 Last Updated: October 2026
-Version: 1.0 (Covers Sprints 1 through 5 Features)
+Version: 1.1 (Covers Sprints 1 through 7 Features)
 
 --------------------------------------------------------------------------------
 TABLE OF CONTENTS
@@ -18,7 +18,8 @@ TABLE OF CONTENTS
 7. TEST SUITE 5: EMPLOYER TALENT RADAR & BLIND DEI EQUALIZER
 8. TEST SUITE 6: SAAS BILLING, DUAL GATEWAYS & USAGE QUOTAS
 9. TEST SUITE 7: CRYPTOGRAPHIC PROOF-OF-WORK VERIFICATION (/verify/[hash])
-10. QA ISSUE REPORTING TEMPLATE
+10. TEST SUITE 8: REAL-TIME WEBSOCKETS & COLLABORATIVE HIRING PIPELINE
+11. QA ISSUE REPORTING TEMPLATE
 
 ================================================================================
 1. LOCAL ENVIRONMENT SETUP & SERVER STARTUP
@@ -54,14 +55,16 @@ TERMINAL 2: FRONTEND (Next.js 15 - Port 3000)
 All seeded demo accounts share the standard password:
 PASSWORD FOR ALL ACCOUNTS: AspireAI@2026
 
-+----------------------+--------------------------+-----------------------+-----------------------+---------------------+
-| Role Persona         | Email Address            | Password              | Organization / School | Default Portal      |
-+----------------------+--------------------------+-----------------------+-----------------------+---------------------+
-| 1. Employer          | priya.sharma@acme.com    | AspireAI@2026         | Acme HyperScale (org) | http://localhost:3000/employer
-| 2. Student (Ready)   | pooja.s@example.com      | AspireAI@2026         | NIT Trichy            | http://localhost:3000/student
-| 3. Student (Bridge)  | aditya.verma@example.com | AspireAI@2026         | IIIT                  | http://localhost:3000/student
-| 4. Super Administrator| root@aspire.ai          | AspireAI@2026         | Aspire Platform Root  | http://localhost:3000/admin
-+----------------------+--------------------------+-----------------------+-----------------------+---------------------+
++---------------------------+--------------------------------+---------------+---------------------------------+---------------------------------+
+| Role Persona              | Email Address                  | Password      | Organization / School           | Default Portal                  |
++---------------------------+--------------------------------+---------------+---------------------------------+---------------------------------+
+| 1. Employer (Lead)        | priya.sharma@acme.com          | AspireAI@2026 | Acme HyperScale Systems         | http://localhost:3000/employer  |
+| 2. Employer (Co-Reviewer) | rohit.mehta@acme.com           | AspireAI@2026 | Acme HyperScale Systems         | http://localhost:3000/employer  |
+| 3. Employer (Tenant 2)    | sarah.connor@talentbridge.com  | AspireAI@2026 | TalentBridge Staffing Partners  | http://localhost:3000/employer  |
+| 4. Student (Job-Ready)    | pooja.s@example.com            | AspireAI@2026 | NIT Trichy                      | http://localhost:3000/student   |
+| 5. Student (Bridgeable)   | aditya.verma@example.com       | AspireAI@2026 | IIIT                            | http://localhost:3000/student   |
+| 6. Super Administrator    | root@aspire.ai                 | AspireAI@2026 | Aspire Platform Root            | http://localhost:3000/admin     |
++---------------------------+--------------------------------+---------------+---------------------------------+---------------------------------+
 
 * Note: You can also create brand-new student or employer accounts on:
   http://localhost:3000/register
@@ -303,7 +306,116 @@ TEST 9.2: Public Zero-Auth Verification Portal
   - Code Diff / Execution Transcript
 
 ================================================================================
-10. QA ISSUE REPORTING TEMPLATE (FOR YOUR FRIEND TO SUBMIT BUGS)
+10. TEST SUITE 8: REAL-TIME WEBSOCKETS & COLLABORATIVE HIRING PIPELINE
+================================================================================
+
+TEST 8.1: Real-Time WebSocket Connection & Recruiter Presence Tracking
+- Pre-requisites: Backend and Frontend servers running.
+- Steps:
+  1. Window 1 (Standard Chrome / Firefox):
+     - Login at http://localhost:3000/login as Employer:
+       Email: priya.sharma@acme.com | Password: AspireAI@2026 | Org: Acme HyperScale Systems
+     - Navigate to "Applicant Pipeline" tab on http://localhost:3000/employer.
+     - Observe the green live sync badge in the top right of the Kanban header:
+       "● Live Sync Active (1 peer)".
+  2. Window 2 (Incognito / Private Window or Secondary Browser):
+     - Login at http://localhost:3000/login as second Employer:
+       Email: rohit.mehta@acme.com | Password: AspireAI@2026 | Org: Acme HyperScale Systems
+     - Navigate to "Applicant Pipeline" tab on http://localhost:3000/employer.
+- Expected Result:
+  Both Window 1 and Window 2 instantly update in real time without refreshing the page!
+  The status badges in both windows now display:
+  "● Live Sync Active (2 peers)".
+  In DevTools Network tab -> WS -> /ws/hiring/org-acme, you can see the initial handshake
+  and RECRUITER_JOINED / PEER_LIST events.
+
+TEST 8.2: Multi-Recruiter Synchronized Kanban Stage Advancement
+- Steps:
+  1. Position Window 1 (Priya) and Window 2 (Rohit) side by side on your screen.
+  2. In Window 1 (Priya), locate candidate "Aditya Verma" in the "Applied" column.
+  3. Drag the card or click the stage progression button to advance Aditya Verma
+     from "Applied" to "Interview".
+- Expected Result:
+  - In Window 1: Card immediately moves to "Interview" column, and a confirmation toast appears:
+    "Aditya Verma moved to interview".
+  - In Window 2 (Rohit): Without touching the mouse or refreshing the page, Aditya's card
+    instantly moves to the "Interview" column via WebSocket broadcast!
+  - Window 2 receives a live collaborative toast notification:
+    "Aditya Verma moved to interview by Priya Sharma".
+
+TEST 8.3: Automated Candidate Stage Advancement Alert
+- Steps:
+  1. In Window 1, advance candidate Aditya Verma to "Interview" (or "Offer").
+  2. In Window 3 (separate browser profile or incognito), log in as Student:
+     Email: aditya.verma@example.com | Password: AspireAI@2026
+  3. Navigate to Student Dashboard: http://localhost:3000/student
+- Expected Result:
+  Under notifications / alerts, Aditya sees an automated milestone notification:
+  "Congratulations! Acme HyperScale Systems advanced your application to the INTERVIEW stage."
+  (or formal offer extension notification).
+
+TEST 8.4: Multi-Reviewer Scorecards & Automated Team Consensus
+- Steps:
+  1. In Window 1 (Priya), find candidate "Aditya Verma" on the Kanban board and click the
+     "Scorecard" button on the candidate card.
+  2. The Candidate Scorecard & Notes slide-over drawer opens on the right.
+  3. Under the "Submit Scorecard" tab:
+     - Set Technical Rating: 5 / 5
+     - Set Communication Rating: 4 / 5
+     - Set Problem Solving Rating: 4 / 5
+     - Set Culture Add Rating: 5 / 5
+     - Select Recommendation: "Strong Hire"
+     - Add Feedback Notes: "Outstanding system architecture, AST engine design, and problem solving."
+     - Click "Submit Evaluation".
+  4. Notice the Scorecard Summary banner:
+     - Composite Score: 4.5 / 5.0
+     - Total Reviews: 1
+     - Recommendation Breakdown: 1 Strong Hire
+  5. In Window 2 (Rohit), open the Scorecard drawer for "Aditya Verma".
+  6. Submit a second scorecard as Rohit:
+     - Set Technical Rating: 4 / 5
+     - Set Communication Rating: 4 / 5
+     - Set Problem Solving Rating: 4 / 5
+     - Set Culture Add Rating: 4 / 5
+     - Select Recommendation: "Hire"
+     - Add Feedback Notes: "Solid algorithmic depth and crisp communication."
+     - Click "Submit Evaluation".
+- Expected Result:
+  The drawer recalculates team consensus in real time across both reviewers:
+  - Total Reviews: 2
+  - Composite Score: 4.2 / 5.0
+  - Technical Average: 4.5 / 5.0
+  - Recommendation Breakdown: 1 Strong Hire, 1 Hire
+  - Team Alignment Verdict Badge: "CONSENSUS HIRE" (Emerald Green)
+  - Both individual reviewer scorecards are visible with reviewer names, rubric breakdowns, and comments.
+
+TEST 8.5: Private Recruiter Notes Collaboration
+- Steps:
+  1. In the Scorecard drawer for Aditya Verma, switch to the "Recruiter Notes" tab.
+  2. In Window 1 (Priya), type a note in the text box:
+     "Candidate has a competing Google L4 offer expiring Friday. Let's schedule the partner debrief today."
+  3. Check the checkbox: "Private note (visible only to your hiring team)".
+  4. Click "Post Recruiter Note".
+  5. In Window 2 (Rohit), observe the notes thread in Aditya's drawer.
+- Expected Result:
+  The note is posted with Priya's name, avatar, and timestamp.
+  Rohit can view and reply to the note.
+  The note is strictly confidential and is never visible to the candidate.
+
+TEST 8.6: Tenant Isolation & Cross-Organization Security Boundaries
+- Steps:
+  1. Open a new Incognito Window (Window 4).
+  2. Login as Sarah Connor representing a different company:
+     Email: sarah.connor@talentbridge.com | Password: AspireAI@2026 | Org: TalentBridge Staffing Partners
+  3. Navigate to http://localhost:3000/employer.
+  4. In Window 1 (Acme), advance candidates, post scorecards, or add private recruiter notes.
+- Expected Result:
+  - Sarah Connor (TalentBridge) sees ONLY her organization's candidates and requisitions.
+  - No stage move broadcasts, scorecards, or private notes from Acme HyperScale Systems leak into TalentBridge.
+  - WebSocket rooms (/ws/hiring/org-acme vs /ws/hiring/org-talentbridge) are strictly isolated by organization ID.
+
+================================================================================
+11. QA ISSUE REPORTING TEMPLATE (FOR YOUR FRIEND TO SUBMIT BUGS)
 ================================================================================
 
 If any issue, UI bug, or unexpected behavior is found, please copy and fill
