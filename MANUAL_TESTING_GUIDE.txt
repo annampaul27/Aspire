@@ -1,0 +1,330 @@
+================================================================================
+ASPIRE AI — COMPREHENSIVE MANUAL TESTING & QA VERIFICATION GUIDE
+================================================================================
+Project: Aspire AI (Role-Separated Talent Infrastructure & SaaS Platform)
+Target Audience: QA Testers, Peer Reviewers, Evaluation Judges
+Last Updated: October 2026
+Version: 1.0 (Covers Sprints 1 through 5 Features)
+
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+1. LOCAL ENVIRONMENT SETUP & SERVER STARTUP
+2. DEFAULT LOGIN CREDENTIALS & TEST PERSONAS
+3. TEST SUITE 1: AUTHENTICATION, RBAC & TENANT SWITCHING
+4. TEST SUITE 2: ISOLATED CODE EXECUTION SANDBOX & ANTI-CHEATING
+5. TEST SUITE 3: AI ATS RESUME PARSING & INTERVIEW COACH
+6. TEST SUITE 4: DYNAMIC ROADMAPS & MODULAR COURSE EXAMS
+7. TEST SUITE 5: EMPLOYER TALENT RADAR & BLIND DEI EQUALIZER
+8. TEST SUITE 6: SAAS BILLING, DUAL GATEWAYS & USAGE QUOTAS
+9. TEST SUITE 7: CRYPTOGRAPHIC PROOF-OF-WORK VERIFICATION (/verify/[hash])
+10. QA ISSUE REPORTING TEMPLATE
+
+================================================================================
+1. LOCAL ENVIRONMENT SETUP & SERVER STARTUP
+================================================================================
+
+Make sure you have two terminal windows open:
+
+TERMINAL 1: BACKEND (FastAPI - Port 8000)
+----------------------------------------
+1. Navigate to the backend directory:
+   cd backend
+2. Activate Python virtual environment:
+   Windows: .\venv\Scripts\activate
+   Linux/macOS: source venv/bin/activate
+3. Start the FastAPI development server:
+   python run.py
+4. Verify backend health:
+   Open http://localhost:8000/health in browser (Should return: {"status": "healthy"})
+   Interactive Swagger docs: http://localhost:8000/docs
+
+TERMINAL 2: FRONTEND (Next.js 15 - Port 3000)
+---------------------------------------------
+1. Navigate to the frontend directory:
+   cd frontend
+2. Start the Next.js development server:
+   npm run dev
+3. Open http://localhost:3000 in your browser.
+
+================================================================================
+2. DEFAULT LOGIN CREDENTIALS & TEST PERSONAS
+================================================================================
+
+All seeded demo accounts share the standard password:
+PASSWORD FOR ALL ACCOUNTS: AspireAI@2026
+
++----------------------+--------------------------+-----------------------+-----------------------+---------------------+
+| Role Persona         | Email Address            | Password              | Organization / School | Default Portal      |
++----------------------+--------------------------+-----------------------+-----------------------+---------------------+
+| 1. Employer          | priya.sharma@acme.com    | AspireAI@2026         | Acme HyperScale (org) | http://localhost:3000/employer
+| 2. Student (Ready)   | pooja.s@example.com      | AspireAI@2026         | NIT Trichy            | http://localhost:3000/student
+| 3. Student (Bridge)  | aditya.verma@example.com | AspireAI@2026         | IIIT                  | http://localhost:3000/student
+| 4. Super Administrator| root@aspire.ai          | AspireAI@2026         | Aspire Platform Root  | http://localhost:3000/admin
++----------------------+--------------------------+-----------------------+-----------------------+---------------------+
+
+* Note: You can also create brand-new student or employer accounts on:
+  http://localhost:3000/register
+
+================================================================================
+3. TEST SUITE 1: AUTHENTICATION, RBAC & TENANT SWITCHING
+================================================================================
+
+TEST 1.1: Standard Employer Login
+- URL: http://localhost:3000/login
+- Steps:
+  1. Click the "Employer" role tab.
+  2. Enter Email: priya.sharma@acme.com
+  3. Enter Password: AspireAI@2026
+  4. Select Organization: "Acme HyperScale Systems"
+  5. Click "Sign In as Employer".
+- Expected Result:
+  Successfully authenticated, JWT bearer token stored in localStorage,
+  and redirected to /employer dashboard showing company branding and job requisitions.
+
+TEST 1.2: Student Login
+- URL: http://localhost:3000/login
+- Steps:
+  1. Click the "Student" role tab.
+  2. Enter Email: aditya.verma@example.com
+  3. Enter Password: AspireAI@2026
+  4. Click "Sign In as Student".
+- Expected Result:
+  Redirected to /student dashboard showing readiness score (78%), missing competencies,
+  and verified skill badges.
+
+TEST 1.3: Role-Based Access Control (RBAC) Security Barrier
+- Steps:
+  1. While logged in as Student (Aditya), attempt to manually navigate in the URL bar to:
+     http://localhost:3000/employer OR http://localhost:3000/admin
+- Expected Result:
+  Access is strictly denied by RoleGuard; user is redirected back to /student or shown
+  an "Unauthorized Access" toast notice. Horizontal privilege escalation is blocked.
+
+TEST 1.4: Fresh Candidate Registration
+- URL: http://localhost:3000/register
+- Steps:
+  1. Enter Full Name: Test Candidate
+  2. Enter Email: candidate.qa@example.com
+  3. Enter Password: StrongPassword123!
+  4. Enter College: IIT Delhi
+  5. Click "Complete Student Registration".
+- Expected Result:
+  Account is instantly created in the relational users database table and user is
+  automatically logged into /student.
+
+================================================================================
+4. TEST SUITE 2: ISOLATED CODE EXECUTION SANDBOX & ANTI-CHEATING
+================================================================================
+
+TEST 2.1: Valid Production Bug-Fix Execution
+- URL: http://localhost:3000/student OR http://localhost:3000/demo
+- Steps:
+  1. In Zone B or the student challenges section, locate the "Interactive Code Bug-Fixer Sandbox".
+  2. Look at the default buggy code containing synchronous sleep:
+     time.sleep(5)
+  3. Replace the sleep call with non-blocking async code:
+     await asyncio.sleep(0.01)
+  4. Click "Run Tests" or "Evaluate Bug Fix".
+- Expected Result:
+  Tests pass in <20ms; terminal output shows non-blocking event-loop throughput;
+  a green success banner confirms verification gates passed.
+
+TEST 2.2: AST Security Injection Filter (Malicious Code Block)
+- Steps:
+  1. In the sandbox code editor, insert dangerous Python system commands:
+     import os
+     os.system("echo hacked")
+  2. Click "Run Tests".
+- Expected Result:
+  The AST Security Analyzer immediately intercepts the code BEFORE execution.
+  A red security error is returned: "Forbidden import: os is restricted in isolated sandbox."
+  No host process or shell command is executed.
+
+TEST 2.3: Anti-Cheating Comment Bypass Defense
+- Steps:
+  1. In the database optimization challenge, attempt to spoof passing criteria by writing comments:
+     # CREATE INDEX idx_users_email ON users(email);
+  2. Click "Run Tests".
+- Expected Result:
+  The evaluator ignores spoofed comments, parses the genuine AST/DDL syntax,
+  and flags that the actual relational index was not created.
+
+TEST 2.4: 50,000-Row Relational Performance Benchmark (EXPLAIN QUERY PLAN)
+- Steps:
+  1. Open the Database Performance Challenge modal.
+  2. Enter the genuine SQL optimization:
+     CREATE INDEX idx_users_email ON users(email);
+  3. Click "Execute DDL & Benchmark".
+- Expected Result:
+  The backend spins up an ephemeral 50k-row SQLite instance;
+  Telemetry displays real EXPLAIN QUERY PLAN shifting from "SCAN users" to
+  "SEARCH users USING INDEX idx_users_email", recording a 99%+ query latency drop.
+
+================================================================================
+5. TEST SUITE 3: AI ATS RESUME PARSING & INTERVIEW COACH
+================================================================================
+
+TEST 3.1: Unified PDF Resume Ingestion
+- URL: http://localhost:3000/student
+- Steps:
+  1. Click "Upload Tailored Resume" or open ATS Resume Drawer.
+  2. Upload any sample developer PDF resume.
+  3. Click "Analyze & Extract ATS Profile".
+- Expected Result:
+  PDF text layout is extracted via pdfplumber; LLM normalizes skills into
+  structured categories (Core Languages, Frameworks, Tools, Soft Skills);
+  a calculated ATS match score (%) is rendered on screen.
+
+TEST 3.2: AI Interactive Mock Interview Coach
+- URL: http://localhost:3000/student (or click "🎙️ AI Interview Coach" on /demo)
+- Steps:
+  1. Launch the "AI Interview Coach" modal.
+  2. Select target role (e.g. "Backend Systems Engineer") and skill focus (e.g. "FastAPI & Concurrency").
+  3. Review the AI-generated scenario question.
+  4. Type a response detailing event loops, async workers, and connection pooling.
+  5. Click "Submit Answer for Evaluation".
+- Expected Result:
+  Dynamic scorecard displays scores across Clarity (%), Technical Accuracy (%),
+  and Confidence (%); tailored constructive feedback and an ideal production model
+  answer are displayed.
+
+================================================================================
+6. TEST SUITE 4: DYNAMIC ROADMAPS & MODULAR COURSE EXAMS
+================================================================================
+
+TEST 4.1: 90-Day Dynamic Career Roadmap Generation
+- URL: http://localhost:3000/student
+- Steps:
+  1. Scroll to the "Readiness Roadmap" section.
+  2. Click "Generate 90-Day Curriculum".
+- Expected Result:
+  System analyzes candidate's missing competencies and builds a 3-phase roadmap
+  (Fundamentals -> Advanced Implementation -> Production Readiness) referencing
+  real courses from the 13 modular subjects (Python, SQL, AWS, Docker, etc.).
+
+TEST 4.2: Timed Mock Test & Passing Gate (60%)
+- URL: http://localhost:3000/student (Course Catalog)
+- Steps:
+  1. Open any catalog course (e.g., Python or SQL).
+  2. Click "Take 20-Question Proctored Mock Test".
+  3. Answer the questions and submit before the timer expires.
+- Expected Result:
+  Test is scored automatically; scoring >=60% unlocks the course certificate
+  and updates candidate's verified skill profile in the database.
+
+================================================================================
+7. TEST SUITE 5: EMPLOYER TALENT RADAR & BLIND DEI EQUALIZER
+================================================================================
+
+TEST 5.1: Blind DEI Equalizer Mode
+- URL: http://localhost:3000/employer (or Zone A on /demo)
+- Steps:
+  1. Observe candidate profiles displaying names, colleges (IIT, NIT, Tier-3), and avatars.
+  2. Click the "Blind DEI: OFF" toggle button to switch it ON.
+- Expected Result:
+  All candidate names are masked with anonymized IDs (e.g., #CAND-08); photos are replaced
+  with neutral avatar badges; institution names are normalized. Candidates are ranked
+  strictly by verified proof-of-work code scores.
+
+TEST 5.2: 1-Click Targeted Remediation Sprint Dispatch
+- URL: http://localhost:3000/employer
+- Steps:
+  1. In the candidate list, find a "Bridgeable" candidate (Score between 68% and 84%).
+  2. Click "Dispatch Gap Sprint".
+- Expected Result:
+  A targeted 15-minute challenge is assigned to the candidate and persisted in the database.
+  Toast notification confirms sprint dispatch.
+
+================================================================================
+8. TEST SUITE 6: SAAS BILLING, DUAL GATEWAYS & USAGE QUOTAS
+================================================================================
+
+TEST 8.1: Active Subscription Telemetry Banner
+- URL: http://localhost:3000/pricing
+- Steps:
+  1. Ensure you are logged in as an Employer (priya.sharma@acme.com).
+  2. Navigate to /pricing.
+- Expected Result:
+  A top telemetry banner displays the active subscription:
+  Plan: Enterprise | Status: Active | Billing Cycle: Annual | Quota Limits.
+
+TEST 8.2: Dual Payment Gateway Checkout Modal
+- URL: http://localhost:3000/pricing
+- Steps:
+  1. Click "Upgrade Plan" or "Select Plan" on the Growth Tier.
+  2. Step 1 (Configure): Toggle Billing Cycle between "Monthly" and "Annual (Save 20%)".
+  3. Toggle between Payment Gateways:
+     - "Razorpay (Domestic INR ₹)": Price shows in Rupees (e.g. ₹7,999/mo).
+     - "Stripe (International USD $)": Price shows in Dollars (e.g. $99/mo).
+  4. Click "Proceed to Payment".
+  5. Step 2 (Authorize): Live order/session ID is retrieved from backend.
+  6. Click "Authorize Payment (Mock/Test Signature)".
+- Expected Result:
+  Cryptographic signature is verified by the backend (/api/v1/billing/verify-payment);
+  database subscription is updated; success confirmation banner confirms activation.
+
+TEST 8.3: Multi-Tenant Requisition Quota Enforcement (HTTP 402)
+- Steps:
+  1. Register a new employer on /register (which defaults to a free/starter plan with a 3 active jobs limit).
+  2. Create 3 job postings via /employer "Create Job Requisition".
+  3. Attempt to post a 4th job requisition.
+- Expected Result:
+  Backend rejects the request with HTTP 402 Payment Required;
+  Frontend displays a quota limit reached banner advising the employer to upgrade to Growth or Enterprise.
+
+================================================================================
+9. TEST SUITE 7: CRYPTOGRAPHIC PROOF-OF-WORK VERIFICATION (/verify/[hash])
+================================================================================
+
+TEST 9.1: Minting & Live Talent Elevation
+- URL: http://localhost:3000/demo
+- Steps:
+  1. In Zone B, click "Run Tests" to pass the concurrency bug-fix challenge.
+  2. Click "🏆 Mint SHA-256 Micro-Credential".
+- Expected Result:
+  Confetti animation triggers; Web Crypto calculates SHA-256 hash of canonical payload;
+  Candidate jumps from Rank #8 (74% Amber) to Rank #1 (94% Emerald Job-Ready) in real time.
+
+TEST 9.2: Public Zero-Auth Verification Portal
+- Steps:
+  1. Copy the generated SHA-256 credential hash (or use test hash from demo).
+  2. Open an Incognito / Private browsing window (do NOT log in).
+  3. Navigate to:
+     http://localhost:3000/verify/<PASTE_HASH_HERE>
+     Example test hash:
+     http://localhost:3000/verify/a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789abcdef0
+- Expected Result:
+  Verification page loads publicly without requiring login credentials;
+  Displays:
+  - Cryptographic Verification Seal: "VERIFIED TAMPER-PROOF"
+  - Candidate Name, Institution, and Skill Name
+  - Proctoring Integrity Telemetry (0 Tab Blurs, 100% Integrity)
+  - Code Diff / Execution Transcript
+
+================================================================================
+10. QA ISSUE REPORTING TEMPLATE (FOR YOUR FRIEND TO SUBMIT BUGS)
+================================================================================
+
+If any issue, UI bug, or unexpected behavior is found, please copy and fill
+out this template:
+
+--------------------------------------------------------------------------------
+[BUG REPORT]
+Test Case ID: (e.g. TEST 2.2 or TEST 8.2)
+Feature Name: (e.g. Code Sandbox / Stripe Checkout)
+Browser & OS: (e.g. Chrome on Windows 11 / Mac Safari)
+Steps to Reproduce:
+  1.
+  2.
+  3.
+Expected Behavior:
+Actual Behavior:
+Console / Terminal Error (if any):
+Screenshot / Notes:
+Severity: [Low / Medium / High / Critical]
+--------------------------------------------------------------------------------
+
+================================================================================
+END OF MANUAL TESTING GUIDE — ASPIRE AI PLATFORM
+================================================================================
