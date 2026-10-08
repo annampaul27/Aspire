@@ -1,0 +1,11 @@
+# Aspire AI - Multimodal Interview Coach (Standalone Academic Module)
+# Tested on Python 3.10+ / 3.11
+
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic>=2.9.0
+streamlit>=1.39.0
+groq>=0.11.0
+instructor>=1.5.0
+requests>=2.32.0
+pytest>=8.3.0

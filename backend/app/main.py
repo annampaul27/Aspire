@@ -21,6 +21,7 @@ from app.api.v1.courses import router as courses_router
 from app.api.v1.github import router as github_router
 from app.api.v1.billing import router as billing_router
 from app.api.v1.collaboration import router as collaboration_router
+from app.api.v1.interview_coach import router as interview_coach_router
 
 scheduler = AsyncIOScheduler()
 
@@ -91,6 +92,11 @@ app.include_router(github_router, prefix=f"{settings.API_V1_STR}/career-compass/
 app.include_router(billing_router, prefix=settings.API_V1_STR)
 app.include_router(collaboration_router, prefix=settings.API_V1_STR, tags=["Real-Time Collaboration & Hiring Pipeline"])
 app.include_router(collaboration_router, prefix="", tags=["WebSocket Hiring Room"])
+app.include_router(
+    interview_coach_router,
+    prefix=f"{settings.API_V1_STR}/interview-coach",
+    tags=["Multimodal AI Interview Coach"]
+)
 
 # -------------------------------------------------------------------------
 # Backward Compatibility Route Aliases (Frontend & Client SDK Compatibility)
@@ -101,6 +107,7 @@ app.include_router(courses_router, prefix="/api", include_in_schema=False)
 app.include_router(github_router, prefix="/api/github", include_in_schema=False)
 app.include_router(billing_router, prefix="/api", include_in_schema=False)
 app.include_router(collaboration_router, prefix="/api", include_in_schema=False)
+app.include_router(interview_coach_router, prefix="/api/interview-coach", include_in_schema=False)
 
 @app.get("/health", tags=["System Telemetry"])
 async def health_check():
