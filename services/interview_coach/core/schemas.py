@@ -1,6 +1,6 @@
 import datetime
 from typing import List, Dict, Optional, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 class RoleTopicPreset(BaseModel):
     role: str
@@ -59,6 +59,7 @@ class FollowUpProbeResponse(BaseModel):
     hint: Optional[str] = None
 
 class HireabilityEvaluationReport(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
     report_id: str
     candidate_name: str = "Candidate"
     role: str

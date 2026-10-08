@@ -7,7 +7,7 @@
 [![Alembic](https://img.shields.io/badge/Alembic-Migrations-orange.svg)](https://alembic.sqlalchemy.org)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-FF6B6B.svg)](https://trychroma.com)
 [![Groq](https://img.shields.io/badge/Groq-Llama3_Extraction-F55036.svg)](https://groq.com)
-[![Pytest](https://img.shields.io/badge/Pytest-117%20Passed-brightgreen.svg?logo=pytest&logoColor=white)](https://pytest.org)
+[![Pytest](https://img.shields.io/badge/Pytest-142%20Passed-brightgreen.svg?logo=pytest&logoColor=white)](https://pytest.org)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Aspire AI bridges the gap between talent supply (students) and employer demand (corporates, universities, staffing agencies). It combines an AI-powered Applicant Tracking System (ATS), cryptographic proof-of-work credentialing (SHA-256), a dual-tier isolated execution sandbox with AST security filtering, and deterministic deficit-resistance skill matching.
@@ -21,7 +21,7 @@ Aspire AI bridges the gap between talent supply (students) and employer demand (
 | **Nandana** | [@nandana-web520](https://github.com/nandana-web520) | **Feature Architect — Skill Verification & ATS Resume Studio**<br>• Designed & implemented the Skill Verification Engine (**FR-01**)<br>• 20-question, 12-minute timed assessment with automatic grading & multi-tier badge issuance (Bronze, Silver, Gold, Platinum)<br>• ATS-Friendly Tailored Resume Studio (**FR-02**) with AI spatial parsing and real-time schema editing<br>• SQLite persistence layer (`backend/app/db/database.py`) and FastAPI endpoints (`/api/v1/assessments`, `/api/v1/resume`) |
 | **Jayasree A B** | [@JayasreeAB](https://github.com/JayasreeAB) | **Feature Architect — CareerCompass AI Modules & Course Curriculum**<br>• Designed & implemented the 8 CareerCompass feature modules (`backend/features/`)<br>• Dynamic Personalized Roadmap Generator mapping skill gaps to curriculum phases (`personalized_roadmap.py`)<br>• Designed & authored the 13 modular CareerCompass course curricula, structured lessons, and 20-question timed mock exams (`courses/`) across Python, SQL, AWS, LLM, Trees, Arrays, Django, Flask, Pandas, Javascript, HTML, CSS, Excel<br>• Fast dynamic course catalog and interactive mock testing engine (`backend/app/api/v1/courses.py`)<br>• Personalized 90-Day Career Roadmap generator (`career_roadmap.py`)<br>• AI GitHub repository project analyzer & complexity assessor (`github_analysis.py`)<br>• Dynamic mock interview coach & answer evaluation scoring (`interview_coach.py`)<br>• Real-time job market demand classifier (`job_market_analysis.py`)<br>• Automated personal developer portfolio website builder (`portfolio_builder.py`)<br>• Deep resume highlights, strengths & weakness extractor (`resume_analysis.py`)<br>• Multidimensional competency & skill gap analyzer (`skill_gap_analysis.py`) |
 | **Anna M Paul** | [@annampaul27](https://github.com/annampaul27) | **Core Feature Architect — ATS & Dynamic Sandbox Engine**<br>• Designed & implemented the ATS FastAPI microservices (`/api/v1/ats/*`)<br>• Structured LLM parsing pipeline via Groq + Instructor (`ResumeSchema`, `JDSchema`)<br>• ChromaDB persistent vector repository & semantic applicant retrieval<br>• Deterministic skill gap comparison & tier segmentation (**E1, E2, E3, E4, E10**)<br>• Dynamic Code Bug-Fixer Engine & Challenge Generator (`code-bug-fixer-engine/`, `/api/v1/sandbox/*`)<br>• Real-time sandbox test runner with latency metrics & SHA-256 cryptographic proof-of-work minting |
-| **Nikhil Krishna R D** | [@rdnk2004](https://github.com/rdnk2004) | **Lead Full-Stack & SaaS Platform Architect**<br>• Architected the role-separated multi-tenant infrastructure across Student, Employer, Academic Admin, and Public verification personas<br>• Built the complete Next.js 15 App Router frontend tier (17 production routes, dark-mode design system, and reactive global store)<br>• Engineered the Employer Talent Radar, Weighted Deficit Resistance Model, Blind DEI Screening engine, and 5-stage recruitment pipeline Kanban<br>• Designed the immutable SHA-256 cryptographic proof-of-work credential ledger and public zero-auth verification portal (`/verify/[hash]`)<br>• **Sprint 1 Lead (Database Persistence & Hardened RBAC):** Spearheaded migration from in-memory hackathon state to SQLAlchemy 2.0 dual-engine persistence (managed cloud PostgreSQL + SQLite), authored Alembic versioned migrations for multi-tenant organizations & subscriptions, and implemented server-side RBAC dependencies (`require_role`) with automatic Bearer token handling in `client.ts`<br>• **Sprint 2 Lead (Isolated Execution Sandbox):** Eliminated mock regex heuristics in `sandbox.py`; built the static AST security analyzer (`AstSecurityAnalyzer`), the ephemeral in-memory 50,000-row relational database benchmark with authentic `EXPLAIN QUERY PLAN` telemetry, the process-isolated Python runner with 3.0s timeout protection, and the live query plan telemetry UI<br>• **Sprint 3 Lead (Real LLM Orchestration, Unified ATS Parser & Dynamic Career Roadmaps):** Deprecated hardcoded mock PDF parsing heuristics in `/resume/parse` and connected unified `pdfplumber` + Groq/instructor ATS parsing pipeline with automatic schema normalizer; implemented dynamic LLM + semantic rubric evaluation for AI mock interviews scoring clarity, technical depth, and confidence with context-aware feedback; connected CareerCompass roadmaps to genuine 13-course catalog with dynamic 90-day phase generator; enhanced frontend with live rubric scorecards, 1-click curriculum generation, and ATS profile sync<br>• **Sprint 4 Lead (Database Unification, Multi-Tenant Data Persistence & Auth Consolidation):** Unified dual-database architecture onto SQLAlchemy 2.0 ORM session factory (`app.db.session.get_db`); eradicated in-memory `mock_db` persistence and connected user registration, authentication, organization directory, assessments, ATS resume storage, incoming job alerts, and 21-day deadline notifications to relational tables (`users`, `organizations`, `assessments`, `ats_resumes`, `jobs`, `user_notifications`); modernized FastAPI application lifecycle with modern `lifespan` context manager; eliminated all Pydantic/FastAPI deprecations; and engineered end-to-end 360-degree integration test suite achieving 100/100 passing tests (100% pass rate)<br>• **Sprint 5 Lead (SaaS Billing, Metering, Dual Payment Gateways & Subscription Webhooks):** Engineered end-to-end commercial monetization infrastructure with dual payment gateways (Razorpay in INR paise for domestic Indian clients & Stripe in USD cents for global enterprise B2B); built HMAC-SHA256 cryptographic webhook listeners (`/api/v1/billing/webhooks/{provider}`) handling payment success, renewal, and cancellation events; implemented multi-tenant usage metering and automated quota enforcement (`HTTP 402 Payment Required`) guarding active job requisitions and candidate evaluations; replaced mock simulation mode on frontend pricing page with live 3-step checkout, telemetry, and signature verification; and delivered 360-degree integration test suite achieving 109/109 passing tests (100% pass rate)<br>• **Sprint 6 Lead (Repository Hygiene, Deprecated Artifact Pruning & QA Manual Test Specifications):** Spearheaded comprehensive repository audit removing stale binary databases (`skillsetu.db`), legacy in-memory mock databases (`mock_db.py`), hardcoded mock candidate seeders (`seed_fr05_mock_candidate.py`), and unreferenced static frontend assets; authored production manual QA testing runbook (`MANUAL_TESTING_GUIDE.txt`) detailing verified credentials, role-based workflows, dual-gateway payment test scenarios, and sandbox verification<br>• **Sprint 7 Lead (Real-Time WebSockets & Collaborative Hiring Pipeline):** Engineered tenant-isolated WebSocket connection manager (`HiringCollaborationManager`) supporting live peer presence tracking, heartbeats, and room broadcasting (`/ws/hiring/{org_id}`); created relational models (`PipelineStageChange`, `CandidateScorecard`, `RecruiterNote`) with automatic stage progression notifications; implemented REST endpoints for collaborative stage transitions, multi-reviewer scorecards with automated consensus calculations (composite score, recommendation distributions, agreement metrics), and recruiter notes; engineered frontend real-time sync hook (`useCollaborationSocket`), collaborative candidate scorecard drawer, and live badge telemetry on the recruitment pipeline Kanban; built 360-degree integration test suite achieving 117/117 passing tests (100% pass rate) |
+| **Nikhil Krishna R D** | [@rdnk2004](https://github.com/rdnk2004) | **Lead Full-Stack & SaaS Platform Architect**<br>• Architected the role-separated multi-tenant infrastructure across Student, Employer, Academic Admin, and Public verification personas<br>• Built the complete Next.js 15 App Router frontend tier (17 production routes, dark-mode design system, and reactive global store)<br>• Engineered the Employer Talent Radar, Weighted Deficit Resistance Model, Blind DEI Screening engine, and 5-stage recruitment pipeline Kanban<br>• Designed the immutable SHA-256 cryptographic proof-of-work credential ledger and public zero-auth verification portal (`/verify/[hash]`)<br>• **Sprint 1 Lead (Database Persistence & Hardened RBAC):** Spearheaded migration from in-memory hackathon state to SQLAlchemy 2.0 dual-engine persistence (managed cloud PostgreSQL + SQLite), authored Alembic versioned migrations for multi-tenant organizations & subscriptions, and implemented server-side RBAC dependencies (`require_role`) with automatic Bearer token handling in `client.ts`<br>• **Sprint 2 Lead (Isolated Execution Sandbox):** Eliminated mock regex heuristics in `sandbox.py`; built the static AST security analyzer (`AstSecurityAnalyzer`), the ephemeral in-memory 50,000-row relational database benchmark with authentic `EXPLAIN QUERY PLAN` telemetry, the process-isolated Python runner with 3.0s timeout protection, and the live query plan telemetry UI<br>• **Sprint 3 Lead (Real LLM Orchestration, Unified ATS Parser & Dynamic Career Roadmaps):** Deprecated hardcoded mock PDF parsing heuristics in `/resume/parse` and connected unified `pdfplumber` + Groq/instructor ATS parsing pipeline with automatic schema normalizer; implemented dynamic LLM + semantic rubric evaluation for AI mock interviews scoring clarity, technical depth, and confidence with context-aware feedback; connected CareerCompass roadmaps to genuine 13-course catalog with dynamic 90-day phase generator; enhanced frontend with live rubric scorecards, 1-click curriculum generation, and ATS profile sync<br>• **Sprint 4 Lead (Database Unification, Multi-Tenant Data Persistence & Auth Consolidation):** Unified dual-database architecture onto SQLAlchemy 2.0 ORM session factory (`app.db.session.get_db`); eradicated in-memory `mock_db` persistence and connected user registration, authentication, organization directory, assessments, ATS resume storage, incoming job alerts, and 21-day deadline notifications to relational tables (`users`, `organizations`, `assessments`, `ats_resumes`, `jobs`, `user_notifications`); modernized FastAPI application lifecycle with modern `lifespan` context manager; eliminated all Pydantic/FastAPI deprecations; and engineered end-to-end 360-degree integration test suite achieving 100/100 passing tests (100% pass rate)<br>• **Sprint 5 Lead (SaaS Billing, Metering, Dual Payment Gateways & Subscription Webhooks):** Engineered end-to-end commercial monetization infrastructure with dual payment gateways (Razorpay in INR paise for domestic Indian clients & Stripe in USD cents for global enterprise B2B); built HMAC-SHA256 cryptographic webhook listeners (`/api/v1/billing/webhooks/{provider}`) handling payment success, renewal, and cancellation events; implemented multi-tenant usage metering and automated quota enforcement (`HTTP 402 Payment Required`) guarding active job requisitions and candidate evaluations; replaced mock simulation mode on frontend pricing page with live 3-step checkout, telemetry, and signature verification; and delivered 360-degree integration test suite achieving 109/109 passing tests (100% pass rate)<br>• **Sprint 6 Lead (Repository Hygiene, Deprecated Artifact Pruning & QA Manual Test Specifications):** Spearheaded comprehensive repository audit removing stale binary databases (`skillsetu.db`), legacy in-memory mock databases (`mock_db.py`), hardcoded mock candidate seeders (`seed_fr05_mock_candidate.py`), and unreferenced static frontend assets; authored production manual QA testing runbook (`MANUAL_TESTING_GUIDE.txt`) detailing verified credentials, role-based workflows, dual-gateway payment test scenarios, and sandbox verification<br>• **Sprint 7 Lead (Real-Time WebSockets & Collaborative Hiring Pipeline):** Engineered tenant-isolated WebSocket connection manager (`HiringCollaborationManager`) supporting live peer presence tracking, heartbeats, and room broadcasting (`/ws/hiring/{org_id}`); created relational models (`PipelineStageChange`, `CandidateScorecard`, `RecruiterNote`) with automatic stage progression notifications; implemented REST endpoints for collaborative stage transitions, multi-reviewer scorecards with automated consensus calculations (composite score, recommendation distributions, agreement metrics), and recruiter notes; engineered frontend real-time sync hook (`useCollaborationSocket`), collaborative candidate scorecard drawer, and live badge telemetry on the recruitment pipeline Kanban; built 360-degree integration test suite achieving 117/117 passing tests (100% pass rate)<br>• **Sprint 8 Lead (Multimodal AI Interview Coach, Speech/Vision Telemetry & Streamlit Academic Deployment):** Engineered fully autonomous multimodal AI interview coach microservice (`services/interview_coach/`) deployable in dual-mode: 1-click standalone Streamlit application on port 8501 for college viva/academic project review, standalone FastAPI service on port 8005, or mounted directly into the core Aspire AI platform (`/api/v1/interview-coach/*`); authored mathematical Composite Hireability Index (CHI = 0.50 Technical + 0.25 Vocal + 0.25 Non-Verbal) with cadence (WPM) penalties, filler word detection, and gaze/stability tracking; engineered adaptive multi-turn questioning engine with Groq Llama 3.3 70B and deterministic fallback; created Next.js 15 studio (`/interview-coach`) with device check modal and live speech telemetry HUD; authored comprehensive thesis report (`ACADEMIC_PROJECT_REPORT.md`) and viva defense guide (`VIVA_PRESENTATION_GUIDE.md`); expanded test suite to 142/142 passing tests (100% pass rate) |
 
 ---
 
@@ -160,7 +160,34 @@ Following the [Full-Stack & SaaS Architectural Audit](SkillSetu_AI_SaaS_Architec
 
 ---
 
-### 🔮 Sprint 8: Advanced Telemetry, Observability & Analytics Dashboard (Future Roadmap)
+### ✅ Sprint 8: Multimodal AI Interview Coach with Video & Audio Telemetry (Completed)
+- **Branch:** `feat/sprint-8-multimodal-ai-interview-coach`
+- **7 Atomic Commits (`c220355` → `885f742`)**:
+  1. `docs(plans): add sprint 8 multimodal ai interview coach and streamlit academic deployment plan`
+  2. `feat(interview-coach): scaffold standalone module with mathematical scoring algorithms`
+  3. `feat(interview-coach): implement speech acoustics and vision telemetry analyzers`
+  4. `feat(interview-coach): add adaptive multi-turn questioning and follow-up trap logic`
+  5. `feat(interview-coach): build standalone fastAPI microservice, streamlit app, and zero-dependency web interface`
+  6. `feat(backend): mount standalone interview coach microservice into core aspire API`
+  7. `feat(frontend): build interactive interview coach studio with live audio/video telemetry HUD`
+  8. `docs(academic): add comprehensive academic project report and viva presentation guide`
+- **Key Deliverables:**
+  - **Decoupled Autonomous Architecture (`services/interview_coach/`)**: Engineered a self-contained, modular interview coaching subsystem capable of running independently for college viva evaluations or seamlessly mounted inside the Aspire AI platform (`/api/v1/interview-coach/*`).
+  - **1-Click Standalone Streamlit Academic App (`streamlit_app.py`)**: Authored an interactive Streamlit application with native audio recording, camera input, role presets (Backend, Frontend, DevOps, Full-Stack, System Design), real-time speech telemetry sliders (WPM, filler words, pause duration), computer vision telemetry (eye-contact ratio, head stability), and comprehensive hireability scorecard visualization.
+  - **Mathematical Composite Hireability Index (CHI)**:
+    $$\text{CHI} = 0.50 \cdot S_{\text{tech}} + 0.25 \cdot S_{\text{vocal}} + 0.25 \cdot S_{\text{nonverbal}}$$
+    - $S_{\text{tech}}$ ($0 - 100$): Semantic accuracy and architectural trade-off reasoning.
+    - $S_{\text{vocal}}$ ($0 - 100$): Penalizes deviation from optimal speech cadence ($120 \le \text{WPM} \le 165$) by $0.45\text{ pts/WPM}$ and filler words by $4.0\text{ pts}$ each.
+    - $S_{\text{nonverbal}}$ ($0 - 100$): Weighted formula on gaze tracking ($60\%$) and head movement stability index ($40\%$).
+    - Automated committee verdict tiers: **Strong Hire** ($\ge 85$), **Hire** ($\ge 70$), **Leaning Hire** ($\ge 55$), **Needs Improvement** ($\ge 40$), **Do Not Hire** ($< 40$).
+  - **Adaptive Multi-Turn Interviewer Engine (`AdaptiveInterviewerEngine`)**: Generates production-grade failure scenarios, listens to candidate answers, and fires counter-grill follow-up probes targeting missing edge cases. Powered by Groq Llama 3.3 70B with robust deterministic rubric fallback (NF2).
+  - **Interactive Next.js 15 Stage (`frontend/src/app/interview-coach/page.tsx`)**: Built a full interview studio with device pre-flight check modal (camera/mic permissions), live audio waveform telemetry HUD, dynamic follow-up counter-probes, and multi-dimensional radar hireability scorecard modal.
+  - **Academic Documentation & Viva Prep**: Published full thesis paper (`ACADEMIC_PROJECT_REPORT.md`) and examiner defense guide (`VIVA_PRESENTATION_GUIDE.md`) with top 10 viva questions, defenses, and 5-minute live demo scripts.
+  - **Expanded 360-Degree Regression Test Suite**: Added 25 new tests across scoring math, speech acoustics, vision telemetry, adaptive questioning, and API endpoints, bringing the total platform test count to **142/142 tests passing with 100% pass rate**.
+
+---
+
+### 🔮 Sprint 9: Advanced Telemetry, Observability & Analytics Dashboard (Future Roadmap)
 - **Target Deliverables:**
   1. **Prometheus & OpenTelemetry Metrics**: Instrument request latencies, active WebSocket connections, AST sandbox execution times, and payment throughput.
   2. **Recruitment Funnel Velocity & Analytics**: Automated conversion rate tracking, time-in-stage metrics, and recruiter response velocity dashboards.
@@ -228,6 +255,26 @@ AI-Skill/
 │   ├── test_sprint7_collaboration_and_websockets.py # WebSockets, live pipeline & scorecard suite
 │   └── run.py                   # Local dev server launcher (Port 8000)
 │
+├── services/
+│   └── interview_coach/         # Autonomous Multimodal Interview Coach Module
+│       ├── api/routes.py        # Microservice endpoints (/question, /follow-up, /evaluate)
+│       ├── core/                # Config, Pydantic schemas, and mathematical scoring algorithms
+│       │   ├── config.py        # Environment variables & Groq credentials
+│       │   ├── schemas.py       # Speech/vision telemetry and evaluation contracts
+│       │   └── scoring.py       # Composite Hireability Index (CHI) calculation engine
+│       ├── engine/              # Telemetry extraction & adaptive interviewing logic
+│       │   ├── audio_analyzer.py # Speech acoustics, cadence WPM & filler word detection
+│       │   ├── vision_analyzer.py# Gaze tracking, eye-contact ratio & posture stability
+│       │   └── interviewer.py   # Adaptive multi-turn questioning & Groq/heuristic fallback
+│       ├── static/              # Zero-dependency HTML5/JS/CSS web application
+│       ├── tests/               # Dedicated unit & integration tests (20 test cases)
+│       ├── streamlit_app.py     # 1-Click Streamlit app for academic project review (Port 8501)
+│       ├── standalone_app.py    # Independent FastAPI microservice launcher (Port 8005)
+│       ├── ACADEMIC_PROJECT_REPORT.md # Thesis report with mathematical formulations
+│       ├── VIVA_PRESENTATION_GUIDE.md # Viva Voce examiner Q&A defense & demo script
+│       ├── run_streamlit.bat    # Windows 1-click batch launcher
+│       └── requirements.txt     # Standalone dependencies for isolated deployment
+│
 ├── frontend/
 │   ├── src/
 │   │   ├── app/
@@ -235,13 +282,16 @@ AI-Skill/
 │   │   │   ├── student/page.tsx  # Skill Gap Radar & Micro-Learning Sprints
 │   │   │   ├── admin/page.tsx    # Multi-tenant oversight & credential ledger
 │   │   │   ├── pricing/page.tsx  # B2B / B2C SaaS pricing tiers & ROI calculator
+│   │   │   ├── interview-coach/page.tsx # Multimodal Live Interview Studio & Telemetry HUD
 │   │   │   └── login/page.tsx    # Role-separated authentication with token storage
 │   │   ├── components/
 │   │   │   ├── employer/         # CandidateDrawer, JobCreatorModal, TalentRadar
 │   │   │   ├── student/          # DynamicSandboxModal, AIInterviewerModal, ResumeDrawer
+│   │   │   ├── interview/        # DeviceCheckModal, SpeechTelemetryHUD, EvaluationReportModal
 │   │   │   └── layout/Navbar.tsx # Contributor credits & navigation
 │   │   ├── lib/
 │   │   │   ├── api/client.ts     # Resilient HTTP client with automatic Bearer token injection
+│   │   │   ├── api/interviewCoach.ts # Multimodal interview coach API client
 │   │   │   └── store.ts          # Reactive client state store
 │   │   └── types/index.ts        # TypeScript data contracts
 │   └── package.json
@@ -249,7 +299,8 @@ AI-Skill/
     └── plans/                   # Architectural sprint implementation plans
         ├── 2026-09-27-sprint-1-database-persistence-and-hardened-rbac.md
         ├── 2026-09-28-sprint-2-isolated-code-execution-sandbox.md
-        └── 2026-09-29-sprint-3-real-llm-orchestration-and-evaluation.md
+        ├── 2026-09-29-sprint-3-real-llm-orchestration-and-evaluation.md
+        └── 2026-10-08-sprint-8-multimodal-ai-interview-coach.md
 ```
 
 ---
@@ -279,36 +330,63 @@ npm install
 npm run dev
 ```
 * **Frontend Application**: [http://localhost:3000](http://localhost:3000)
+* **Multimodal Interview Studio**: [http://localhost:3000/interview-coach](http://localhost:3000/interview-coach)
+
+### 3. Standalone Multimodal Interview Coach (Streamlit Academic Deployment)
+For standalone deployment or college viva presentation, run the self-contained module:
+```bash
+cd services/interview_coach
+pip install -r requirements.txt
+
+# Run Streamlit App on port 8501:
+streamlit run streamlit_app.py --server.port=8501
+
+# Or run with the 1-click batch launcher on Windows:
+# run_streamlit.bat
+
+# Or run as autonomous microservice on port 8005:
+# python standalone_app.py --port=8005
+```
+* **Streamlit Academic Interface**: [http://localhost:8501](http://localhost:8501)
+* **Standalone Microservice Docs**: [http://localhost:8005/docs](http://localhost:8005/docs)
 
 ---
 
 ## 🧪 Automated Test Suites
 
-Run the complete backend test suite (**109 tests passing with 0 regressions across 17 suites**):
+Run the complete platform test suite (**142 tests passing with 0 regressions across all suites**):
 ```bash
-cd backend
-python -m pytest -v
+# Run all suites from repository root:
+$env:PYTHONPATH="." ; pytest backend/ services/interview_coach/tests/ -v
+# On Linux/macOS:
+# PYTHONPATH="." pytest backend/ services/interview_coach/tests/ -v
 ```
 
 Run specific subsystem test suites:
 ```bash
 # Test Sprint 1 (RBAC, Multi-Tenancy & Database Persistence)
-pytest -v test_sprint1_rbac_and_persistence.py
+pytest -v backend/test_sprint1_rbac_and_persistence.py
 
 # Test Sprint 2 (AST Security, Ephemeral 50k DB Sandbox & Timeout Runner)
-pytest -v test_sandbox_security.py test_sandbox_python_runner.py test_sandbox_database_runner.py test_sandbox_suite.py
+pytest -v backend/test_sandbox_security.py backend/test_sandbox_python_runner.py backend/test_sandbox_database_runner.py backend/test_sandbox_suite.py
 
 # Test Sprint 3 (ATS Parser, Dynamic Interview Rubric & Personalized Roadmap)
-pytest -v test_resume_parser_unified.py test_interview_evaluator.py test_dynamic_roadmap.py test_assessments_resume_suite.py test_features_suite.py
+pytest -v backend/test_resume_parser_unified.py backend/test_interview_evaluator.py backend/test_dynamic_roadmap.py backend/test_assessments_resume_suite.py backend/test_features_suite.py
 
 # Test Sprint 4 (Database Unification, Auth Persistence & Multi-Tenant Scoping)
-pytest -v test_sprint4_unification_and_persistence.py
+pytest -v backend/test_sprint4_unification_and_persistence.py
 
 # Test Sprint 5 (SaaS Billing, Dual Gateways, Webhooks & Metering Quotas)
-pytest -v test_sprint5_billing_and_metering.py
+pytest -v backend/test_sprint5_billing_and_metering.py
+
+# Test Sprint 7 (Real-Time WebSockets, Collaborative Kanban & Team Consensus Scorecards)
+pytest -v backend/test_sprint7_collaboration_and_websockets.py
+
+# Test Sprint 8 (Multimodal AI Interview Coach, Speech Acoustics, Vision Telemetry & CHI Algorithms)
+pytest -v services/interview_coach/tests/ backend/test_interview_coach_integration.py
 
 # Test ATS Engine & ChromaDB Semantic Matching
-pytest -v test_ats_suite.py
+pytest -v backend/test_ats_suite.py
 ```
 
 Run frontend code quality linting & production build:

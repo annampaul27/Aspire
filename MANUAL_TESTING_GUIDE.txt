@@ -4,7 +4,7 @@ ASPIRE AI — COMPREHENSIVE MANUAL TESTING & QA VERIFICATION GUIDE
 Project: Aspire AI (Role-Separated Talent Infrastructure & SaaS Platform)
 Target Audience: QA Testers, Peer Reviewers, Evaluation Judges
 Last Updated: October 2026
-Version: 1.1 (Covers Sprints 1 through 7 Features)
+Version: 1.2 (Covers Sprints 1 through 8 Features)
 
 --------------------------------------------------------------------------------
 TABLE OF CONTENTS
@@ -19,13 +19,14 @@ TABLE OF CONTENTS
 8. TEST SUITE 6: SAAS BILLING, DUAL GATEWAYS & USAGE QUOTAS
 9. TEST SUITE 7: CRYPTOGRAPHIC PROOF-OF-WORK VERIFICATION (/verify/[hash])
 10. TEST SUITE 8: REAL-TIME WEBSOCKETS & COLLABORATIVE HIRING PIPELINE
-11. QA ISSUE REPORTING TEMPLATE
+11. TEST SUITE 9: MULTIMODAL AI INTERVIEW COACH (STREAMLIT & NEXT.JS)
+12. QA ISSUE REPORTING TEMPLATE
 
 ================================================================================
 1. LOCAL ENVIRONMENT SETUP & SERVER STARTUP
 ================================================================================
 
-Make sure you have two terminal windows open:
+Make sure you have your terminal windows open:
 
 TERMINAL 1: BACKEND (FastAPI - Port 8000)
 ----------------------------------------
@@ -47,6 +48,16 @@ TERMINAL 2: FRONTEND (Next.js 15 - Port 3000)
 2. Start the Next.js development server:
    npm run dev
 3. Open http://localhost:3000 in your browser.
+
+TERMINAL 3: STANDALONE STREAMLIT AI INTERVIEW COACH (Port 8501)
+--------------------------------------------------------------
+* Note: For standalone academic project demonstration or viva evaluation:
+1. Navigate to the interview coach directory:
+   cd services/interview_coach
+2. Start the Streamlit application:
+   streamlit run streamlit_app.py --server.port=8501
+   (Or on Windows, simply double-click run_streamlit.bat)
+3. Open http://localhost:8501 in your browser.
 
 ================================================================================
 2. DEFAULT LOGIN CREDENTIALS & TEST PERSONAS
@@ -415,8 +426,90 @@ TEST 8.6: Tenant Isolation & Cross-Organization Security Boundaries
   - WebSocket rooms (/ws/hiring/org-acme vs /ws/hiring/org-talentbridge) are strictly isolated by organization ID.
 
 ================================================================================
-11. QA ISSUE REPORTING TEMPLATE (FOR YOUR FRIEND TO SUBMIT BUGS)
+11. TEST SUITE 9: MULTIMODAL AI INTERVIEW COACH (STREAMLIT & NEXT.JS)
 ================================================================================
+
+TEST 9.1: Standalone Streamlit Academic App Launch & Preset Selection
+- URL: http://localhost:8501
+- Prerequisites: Start Terminal 3 (`cd services/interview_coach && streamlit run streamlit_app.py --server.port=8501`)
+- Steps:
+  1. Open http://localhost:8501 in your browser.
+  2. Verify the header: "🎓 Multimodal AI Interview Coach — Academic Project Demonstration".
+  3. Check the left sidebar:
+     - Notice "Active Engine Mode" indicator (Groq Llama-3.3 70B or Resilient Deterministic Rubric).
+     - Under "Select Role Preset", select "Backend Engineer (Senior)".
+     - Select Topic: "Distributed Caching (Redis/Kafka)".
+     - Select Difficulty: "Senior".
+- Expected Result:
+  The preset inputs populate smoothly. The telemetry formula banner confirms:
+  CHI = 0.50 * Technical + 0.25 * Vocal + 0.25 * Non-Verbal.
+
+TEST 9.2: Real-Time Dynamic Scenario Generation & Audio/Video Telemetry
+- Steps:
+  1. On http://localhost:8501, click the primary button: "Generate Real-Time Question".
+  2. Observe the generated question card:
+     - Question Text: An architectural scenario regarding distributed cache invalidation, stampedes, and CAP trade-offs.
+     - Expected Competencies pills: Cache Invalidation, Thundering Herd, Split-Brain.
+  3. Under "Step 2: Candidate Verbal Articulation & Answer":
+     - Enter answer text (or record voice audio if microphone enabled):
+       "To avoid cache stampedes, we implement mutual exclusion with Redis locks and probabilistic early expiration. For cross-region cache invalidation, we publish CDC change streams via Kafka to distributed consumer workers."
+  4. Under "Simulated Speech & Video Telemetry":
+     - Adjust Words Per Minute (WPM): 145 (Optimal: 120-165 WPM).
+     - Set Filler Words Count: 1.
+     - Set Eye Contact Ratio: 85%.
+     - Set Head Stability Score: 90.
+- Expected Result:
+  The audio and vision sliders immediately display live feedback:
+  - Cadence: "Optimal"
+  - Eye Contact: "High Focus"
+  - Composure: "Solid Composure"
+
+TEST 9.3: Adaptive Follow-Up Counter-Grill Probe
+- Steps:
+  1. Click "Analyze Answer & Trigger Follow-Up".
+  2. Observe the AI Interviewer response box:
+     - "Follow-Up Counter-Probe Triggered" banner appears.
+     - Follow-Up Question: The AI probes the exact weak spot or failure condition (e.g. "How does your Kafka consumer worker handle out-of-order replication lags?").
+- Expected Result:
+  The interviewer dynamic follow-up probe simulates an Amazon/Google Bar-Raiser counter-questioning the candidate's initial answer.
+
+TEST 9.4: Multimodal Evaluation Report & Composite Hireability Index (CHI)
+- Steps:
+  1. Provide a response to the follow-up question.
+  2. Click "Generate Comprehensive Hireability Evaluation".
+  3. Inspect the Hireability Scorecard:
+     - Overall Score: Displays CHI value (e.g. 82.5 / 100.0).
+     - Committee Verdict Badge: "Hire" or "Strong Hire" (Green).
+     - Metric Breakdown Cards: Technical Score (85%), Vocal Score (86%), Non-Verbal Score (87%).
+     - What Went Well bullet points.
+     - Specific Improvement Areas bullet points.
+     - Ideal Senior / Staff Engineer Answer reference model.
+- Expected Result:
+  A complete, bias-free, mathematically verified evaluation report is rendered with 0 errors.
+
+TEST 9.5: Next.js Studio Integration & Device Pre-Flight Check
+- URL: http://localhost:3000/interview-coach
+- Prerequisites: Backend (Port 8000) and Frontend (Port 3000) running.
+- Steps:
+  1. Log in as student: aditya.verma@example.com (Password: AspireAI@2026).
+  2. On the student dashboard, click the "AI Interview Coach" navigation card or navigate to http://localhost:3000/interview-coach.
+  3. Observe the "Pre-Flight Device Check" modal:
+     - Click "Run Device Diagnostics".
+     - Allow microphone/camera permissions in your browser.
+     - Verify green checkmarks for Camera, Microphone, and Audio Output.
+     - Click "Enter Interview Studio".
+  4. Select Role "Backend Engineer" and click "Start Live Interview".
+  5. Inspect the Live HUD:
+     - Candidate video feed preview window.
+     - Speech Telemetry HUD: Real-time audio waveform equalizer, live WPM indicator, filler word counter.
+     - Dynamic Question display.
+  6. Type or speak an answer, click "Submit & Check Follow-Up", and conclude the session to view the interactive radar chart evaluation modal.
+- Expected Result:
+  Seamless end-to-end multimodal interview stage loads with zero console errors.
+
+===============================================================================
+12. QA ISSUE REPORTING TEMPLATE (FOR YOUR FRIEND TO SUBMIT BUGS)
+===============================================================================
 
 If any issue, UI bug, or unexpected behavior is found, please copy and fill
 out this template:
