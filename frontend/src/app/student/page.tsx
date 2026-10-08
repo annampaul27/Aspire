@@ -29,6 +29,7 @@ import {
   AlertTriangle,
   ArrowRight,
   Bot,
+  Video,
 } from "lucide-react";
 import GithubIcon from "@/components/icons/GithubIcon";
 import Link from "next/link";
@@ -154,13 +155,23 @@ export default function StudentPage() {
             <span>Bug-Fix Sandbox</span>
           </button>
 
+          <Link
+            id="btn-open-ai-interview-studio"
+            href="/interview-coach"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white transition-all shadow-sm border border-emerald-500/40"
+            title="Launch Real-Time Multimodal AI Interview Coach with Video & Audio Telemetry"
+          >
+            <Video className="w-3.5 h-3.5 text-emerald-200" />
+            <span>🎙️ Video/Audio Interview Coach</span>
+          </Link>
+
           <button
             id="btn-open-ai-interview-coach"
             onClick={() => setIsAIInterviewerOpen(true)}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white transition-all shadow-sm"
           >
             <Bot className="w-3.5 h-3.5" />
-            <span>AI Interview Coach</span>
+            <span>AI Quick Grill</span>
           </button>
 
           <button
