@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aspire AI — Multimodal Interview Coach</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="header-left">
+        <span class="badge">🎙️ ACADEMIC MODULE</span>
+        <h1>Aspire AI Interview Coach</h1>
+        <p>Real-Time Multimodal Video Gaze, Speech Pacing & Adaptive Follow-up Grill</p>
+      </div>
+      <div class="header-right">
+        <div id="connectionStatus" class="status-indicator online">Service Online</div>
+      </div>
+    </header>
+
+    <div class="main-grid">
+      <!-- Left Column: Controls and Interview Stage -->
+      <section class="card stage-card">
+        <div class="card-header">
+          <h2>1. Interview Scenario Setup</h2>
+        </div>
+        <div class="controls-row">
+          <div class="form-group">
+            <label for="roleSelect">Target Role:</label>
+            <select id="roleSelect" class="input-select">
+              <option value="Senior Backend Engineer">Senior Backend Engineer</option>
+              <option value="Senior Full-Stack Architect">Senior Full-Stack Architect</option>
+              <option value="Cloud DevOps Engineer">Cloud DevOps Engineer</option>
+              <option value="AI/RAG Systems Engineer">AI/RAG Systems Engineer</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="difficultySelect">Seniority:</label>
+            <select id="difficultySelect" class="input-select">
+              <option value="senior">Senior</option>
+              <option value="principal">Principal</option>
+              <option value="mid">Mid-Level</option>
+              <option value="junior">Junior</option>
+            </select>
+          </div>
+          <button id="btnGenerateQuestion" class="btn btn-primary">Generate Question</button>
+        </div>
+
+        <div id="questionBox" class="question-box hidden">
+          <div class="question-header">
+            <span class="question-tag">Technical Scenario</span>
+            <button id="btnSpeakQuestion" class="btn-icon" title="Listen to Question">🔊 Speak</button>
+          </div>
+          <p id="questionText" class="question-text"></p>
+          <div id="hintsContainer" class="hints-box"></div>
+        </div>
+
+        <div class="card-header" style="margin-top: 24px;">
+          <h2>2. Verbal Response Recording</h2>
+        </div>
+
+        <div class="response-container">
+          <div class="speech-controls">
+            <button id="btnRecordToggle" class="btn btn-record" disabled>🎙️ Start Answering</button>
+            <span id="recordingStatus" class="record-status">Idle</span>
+            <span id="timerDisplay" class="timer">00:00</span>
+          </div>
+
+          <textarea id="transcriptInput" class="transcript-textarea" placeholder="Speak your answer (transcription will appear here in real-time) or type here..."></textarea>
+          
+          <div class="action-buttons">
+            <button id="btnTriggerFollowUp" class="btn btn-secondary" disabled>⚡ Trigger Follow-Up Grill</button>
+            <button id="btnEvaluateAnswer" class="btn btn-success" disabled>🏆 Submit & Evaluate</button>
+          </div>
+
+          <div id="followUpBox" class="follow-up-box hidden">
+            <h4>🚨 Adaptive Follow-Up Question:</h4>
+            <p id="followUpText"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Video Telemetry HUD & Live Metrics -->
+      <section class="card telemetry-card">
+        <div class="card-header">
+          <h2>Live Multimodal Telemetry HUD</h2>
+        </div>
+
+        <div class="video-preview-wrapper">
+          <video id="webcamPreview" autoplay playsinline muted></video>
+          <div class="hud-overlay">
+            <div id="gazeIndicator" class="hud-badge gaze-steady">👁️ Eye Contact: Tracking</div>
+            <div id="cadenceIndicator" class="hud-badge cadence-optimal">⚡ Pacing: Optimal</div>
+          </div>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-box">
+            <span class="metric-label">Speaking Rate</span>
+            <span id="metricWpm" class="metric-val">0 WPM</span>
+            <small id="metricCadenceLabel">Target: 120-165 WPM</small>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Filler Words</span>
+            <span id="metricFillers" class="metric-val">0</span>
+            <small id="metricFillerTics">None detected</small>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Eye Contact Ratio</span>
+            <span id="metricEyeContact" class="metric-val">85%</span>
+            <small>Steady Gaze</small>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Head Stability</span>
+            <span id="metricStability" class="metric-val">90 / 100</span>
+            <small>Composed</small>
+          </div>
+        </div>
+
+        <div id="evaluationSection" class="evaluation-section hidden">
+          <div class="card-header" style="padding-top: 16px;">
+            <h2>Evaluation Scorecard</h2>
+          </div>
+          <div class="chi-banner">
+            <div class="chi-score-box">
+              <span class="chi-number" id="chiScore">--</span>
+              <span class="chi-label">Composite Hireability (CHI)</span>
+            </div>
+            <div class="verdict-box" id="verdictBadge">Pending</div>
+          </div>
+
+          <div class="score-breakdown">
+            <div class="subscore">
+              <span>Technical Depth:</span>
+              <strong id="techScore">--</strong>
+            </div>
+            <div class="subscore">
+              <span>Vocal Delivery:</span>
+              <strong id="vocalScore">--</strong>
+            </div>
+            <div class="subscore">
+              <span>Non-Verbal Composure:</span>
+              <strong id="nonverbalScore">--</strong>
+            </div>
+          </div>
+
+          <div class="feedback-lists">
+            <h4>🏆 What Went Well:</h4>
+            <ul id="whatWentWellList"></ul>
+            <h4>🎯 Actionable Improvements:</h4>
+            <ul id="whatToImproveList"></ul>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
