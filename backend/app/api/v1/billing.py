@@ -1,20 +1,17 @@
 import json
 import uuid
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 from datetime import datetime
-from fastapi import APIRouter, HTTPException, status, Query, Body, Request, Depends, Header
+from fastapi import APIRouter, HTTPException, status, Query, Request, Depends, Header
 from sqlalchemy.orm import Session
 from sqlalchemy import select, and_, func
 
-from app.core.config import settings
 from app.db.session import get_db
-from app.api.deps import get_current_user, get_optional_user
-from app.models.entities import User, Organization, Subscription, Job, AtsResume
+from app.api.deps import get_current_user
+from app.models.entities import Organization, Subscription, Job, AtsResume
 from app.services.billing.catalog import (
-    SAAS_PLANS,
     get_plan_by_id,
     list_all_plans,
-    PlanDefinition,
 )
 from app.services.billing.gateway import gateway_service
 from pydantic import BaseModel, Field

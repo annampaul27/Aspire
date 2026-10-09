@@ -1,4 +1,3 @@
-import pytest
 from services.interview_coach.engine.interviewer import AdaptiveInterviewerEngine
 from services.interview_coach.core.schemas import (
     InterviewQuestionResponse,

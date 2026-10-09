@@ -1,7 +1,7 @@
 import os
 import re
 import uuid
-from typing import Optional, List, Dict, Any
+from typing import Optional
 from app.core.config import settings
 from app.services.interview.schemas import (
     InterviewQuestionSchema,
@@ -136,7 +136,7 @@ class InterviewCoachEvaluator:
         elif any(k in topic_lower for k in ["postgres", "database", "sql", "index", "mvcc", "query"]):
             return InterviewQuestionSchema(
                 question_id="q-db-01",
-                question_text=f"How do you diagnose and resolve a severe slow-query regression in a high-concurrency PostgreSQL cluster without causing blocking table locks?",
+                question_text="How do you diagnose and resolve a severe slow-query regression in a high-concurrency PostgreSQL cluster without causing blocking table locks?",
                 expected_keywords=["EXPLAIN ANALYZE", "B-Tree vs GIN index", "MVCC bloat", "CONCURRENTLY", "connection pooling"],
                 hints=[
                     "Analyze buffer cache hit ratios and sequential scan penalties on large tables.",
@@ -160,7 +160,7 @@ class InterviewCoachEvaluator:
         elif any(k in topic_lower for k in ["ai", "rag", "llm", "vector", "embedding"]):
             return InterviewQuestionSchema(
                 question_id="q-rag-01",
-                question_text=f"How would you optimize vector retrieval latency and recall for an enterprise RAG assistant serving millions of technical documents?",
+                question_text="How would you optimize vector retrieval latency and recall for an enterprise RAG assistant serving millions of technical documents?",
                 expected_keywords=["HNSW indexing", "hybrid sparse-dense search", "chunking strategy", "re-ranking", "context window budget"],
                 hints=[
                     "Discuss trade-offs between precision, latency, and index memory footprint with HNSW versus IVFFlat.",
@@ -172,7 +172,7 @@ class InterviewCoachEvaluator:
         elif any(k in topic_lower or k in role_lower for k in ["react", "next", "frontend"]):
             return InterviewQuestionSchema(
                 question_id="q-fe-01",
-                question_text=f"How do you optimize initial page load (LCP) and avoid hydration mismatches in Next.js Server Components for a data-dense dashboard?",
+                question_text="How do you optimize initial page load (LCP) and avoid hydration mismatches in Next.js Server Components for a data-dense dashboard?",
                 expected_keywords=["Server Components", "Streaming SSR", "Suspense boundary", "Hydration mismatch", "Bundle splitting"],
                 hints=[
                     "Contrast client-side state hooks with async server component data fetching.",

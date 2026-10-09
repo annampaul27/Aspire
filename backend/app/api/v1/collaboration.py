@@ -12,14 +12,12 @@ from fastapi import (
 )
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from sqlalchemy import func
 
 from app.db.session import get_db
-from app.api.deps import get_current_user, require_role
+from app.api.deps import require_role
 from app.core.security import decode_access_token
 from app.models.entities import (
     User,
-    Organization,
     Job,
     PipelineStageChange,
     CandidateScorecard,

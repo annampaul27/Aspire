@@ -1,6 +1,6 @@
 from typing import List, Dict, Any
 from pydantic import BaseModel
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
 
 from services.interview_coach.core.config import settings
 from services.interview_coach.core.schemas import (

@@ -1,6 +1,4 @@
 import os
-import json
-import datetime
 import streamlit as st
 
 # Ensure local imports work whether run from repo root or module root
@@ -12,13 +10,9 @@ if current_dir not in sys.path:
 if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
-from services.interview_coach.core.config import settings
-from services.interview_coach.core.schemas import (
-    QuestionGenerationRequest,
-    AnswerSubmissionRequest,
-)
-from services.interview_coach.engine.interviewer import AdaptiveInterviewerEngine
-from services.interview_coach.api.routes import PRESET_ROLES
+from services.interview_coach.core.schemas import AnswerSubmissionRequest  # noqa: E402
+from services.interview_coach.engine.interviewer import AdaptiveInterviewerEngine  # noqa: E402
+from services.interview_coach.api.routes import PRESET_ROLES  # noqa: E402
 
 # Page Setup
 st.set_page_config(

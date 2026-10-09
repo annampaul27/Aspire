@@ -1,7 +1,7 @@
 import os
 from typing import Generator
 from contextlib import contextmanager
-from sqlalchemy import create_engine, event, Engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, Session
 from app.core.config import settings
 

@@ -3,7 +3,6 @@ Unit & Integration Test Suite for CareerCompass Feature Modules
 Authored by Jayasree A B (branch: features)
 """
 
-import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 
@@ -216,20 +215,30 @@ def test_career_compass_fastapi_endpoints():
 
 
 def test_deduplicated_github_endpoints():
-    # Canonical /api/v1/github/repos
-    resp1 = client.get("/api/v1/github/repos?username=aaravsharma-dev")
-    assert resp1.status_code == 200
-    repos1 = resp1.json()
-    assert isinstance(repos1, list)
-    assert len(repos1) > 0
+    from unittest.mock import patch, AsyncMock
+    from features.github_analysis import github_service
 
-    # Routed /api/v1/career-compass/github/repos
-    resp2 = client.get("/api/v1/career-compass/github/repos?username=aaravsharma-dev")
-    assert resp2.status_code == 200
-    repos2 = resp2.json()
-    assert isinstance(repos2, list)
-    assert len(repos2) == len(repos1)
-    assert repos1[0]["name"] == repos2[0]["name"]
+    mock_repos = [
+        {"id": 101, "name": "hyper-distributed-cache", "full_name": "aaravsharma-dev/hyper-distributed-cache"},
+        {"id": 102, "name": "fastapi-order-saga", "full_name": "aaravsharma-dev/fastapi-order-saga"},
+    ]
+    with patch.object(github_service, "get_all_repos", new_callable=AsyncMock) as mock_get:
+        mock_get.return_value = mock_repos
+
+        # Canonical /api/v1/github/repos
+        resp1 = client.get("/api/v1/github/repos?username=aaravsharma-dev")
+        assert resp1.status_code == 200
+        repos1 = resp1.json()
+        assert isinstance(repos1, list)
+        assert len(repos1) == 2
+
+        # Routed /api/v1/career-compass/github/repos
+        resp2 = client.get("/api/v1/career-compass/github/repos?username=aaravsharma-dev")
+        assert resp2.status_code == 200
+        repos2 = resp2.json()
+        assert isinstance(repos2, list)
+        assert len(repos2) == len(repos1)
+        assert repos1[0]["name"] == repos2[0]["name"]
 
 
 def test_personalized_roadmap_module():

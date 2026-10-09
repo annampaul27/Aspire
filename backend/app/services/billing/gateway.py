@@ -6,7 +6,7 @@ from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
 
 from app.core.config import settings
-from app.services.billing.catalog import get_plan_by_id, PlanDefinition
+from app.services.billing.catalog import get_plan_by_id
 
 class PaymentGatewayService:
     """

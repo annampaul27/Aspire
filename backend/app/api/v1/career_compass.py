@@ -21,12 +21,11 @@ from features.interview_coach import (
 )
 from features.job_market_analysis import (
     prepare_job_market_analysis,
-    classify_demand,
     build_market_result,
 )
 from features.portfolio_builder import prepare_portfolio
-from features.resume_analysis import prepare_resume_analysis, get_resume_analysis_requirements
-from features.skill_gap_analysis import prepare_skill_gap_analysis, build_competency_area
+from features.resume_analysis import prepare_resume_analysis
+from features.skill_gap_analysis import prepare_skill_gap_analysis
 from app.services.interview.evaluator import InterviewCoachEvaluator
 
 router = APIRouter()
@@ -267,11 +266,6 @@ def prepare_skill_gap(req: SkillGapPrepRequest):
 # -------------------------------------------------------------
 # 8. Personalized Roadmap Generation
 # -------------------------------------------------------------
-from features.personalized_roadmap import (
-    generate_personalized_roadmap,
-    create_roadmap_from_skill_gap_result,
-)
-
 class PersonalizedRoadmapRequest(BaseModel):
     skill_gaps: List[Any] = Field(
         ...,

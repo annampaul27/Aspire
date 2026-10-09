@@ -5,7 +5,8 @@ import time
 import tempfile
 import asyncio
 import subprocess
-from typing import Optional, Dict, Any, List
+import textwrap
+from typing import Dict, Any
 
 from app.services.sandbox.base import BaseSandboxRunner
 from app.services.sandbox.schemas import (
@@ -179,8 +180,6 @@ def main():
 if __name__ == '__main__':
     main()
 """
-
-import textwrap
 
 GENERAL_HARNESS_TEMPLATE = """
 import sys

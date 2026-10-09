@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.core.config import settings
 from app.db.session import get_db_session
-from app.models.entities import Subscription, Organization, Job, User
+from app.models.entities import Subscription, Organization, User
 from app.services.billing.metering import QuotaEnforcementService
 from app.core.security import get_password_hash, create_access_token
 from fastapi import HTTPException

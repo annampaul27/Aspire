@@ -1,7 +1,7 @@
 import time
 import sqlite3
 import asyncio
-from typing import Optional, List, Tuple
+from typing import List
 
 from app.services.sandbox.base import BaseSandboxRunner
 from app.services.sandbox.schemas import (
@@ -180,7 +180,7 @@ class EphemeralDatabaseRunner(BaseSandboxRunner):
                         name="Execution Plan EXPLAIN (ANALYZE)",
                         status="PASS",
                         latency_metric=latency_summary,
-                        details=f"Sequential table scan successfully converted to: {post_plan_str}",
+                        details=f"Scan ({baseline_plan_str or 'SCAN'}) successfully converted to: {post_plan_str}",
                         query_plan=f"EXPLAIN: {post_plan_str}"
                     )
                 )

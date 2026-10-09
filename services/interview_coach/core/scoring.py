@@ -1,5 +1,3 @@
-import math
-from typing import Dict, Any
 from services.interview_coach.core.schemas import (
     SpeechAcousticsMetrics,
     VisionTelemetryMetrics,

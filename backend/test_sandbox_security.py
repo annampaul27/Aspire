@@ -1,5 +1,4 @@
-import pytest
-from app.services.sandbox.security import AstSecurityAnalyzer, SecurityViolationError
+from app.services.sandbox.security import AstSecurityAnalyzer
 
 
 def test_safe_python_code_passes():

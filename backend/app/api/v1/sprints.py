@@ -2,10 +2,9 @@ import uuid
 import json
 import hashlib
 from datetime import datetime, timezone
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from typing import Dict, Any, List
 from sqlalchemy.orm import Session
-from sqlalchemy import func
 
 from app.models.sprints import (
     SprintDispatchRequest,

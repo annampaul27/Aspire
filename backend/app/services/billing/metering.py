@@ -1,9 +1,9 @@
-from typing import Optional, Dict, Any
+from typing import Optional
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import select, and_, func
 
-from app.models.entities import Subscription, Job, Organization
+from app.models.entities import Subscription, Job
 from app.services.billing.catalog import get_plan_by_id
 
 class QuotaEnforcementService:
