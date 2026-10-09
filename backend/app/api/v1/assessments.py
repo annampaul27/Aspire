@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from typing import Dict, Any, List, Optional
 import uuid
@@ -247,10 +247,10 @@ DEFAULT_QUESTIONS: List[Dict[str, Any]] = [
         "id": f"gen_q{i}",
         "question": f"Question {i}: Advanced System Design & Architecture scenario analysis. Select the optimal production approach:",
         "options": [
-            f"Option A: Implement event-driven decoupling with bounded idempotent consumers.",
-            f"Option B: Rely exclusively on synchronous distributed transactions without retries.",
-            f"Option C: Store intermediate state in unbounded in-memory volatile variables.",
-            f"Option D: Bypass schema validation and rely on ad-hoc unstructured casting."
+            "Option A: Implement event-driven decoupling with bounded idempotent consumers.",
+            "Option B: Rely exclusively on synchronous distributed transactions without retries.",
+            "Option C: Store intermediate state in unbounded in-memory volatile variables.",
+            "Option D: Bypass schema validation and rely on ad-hoc unstructured casting."
         ],
         "correct_option_index": 0,
         "explanation": "Idempotent event-driven consumers guarantee fault tolerance and prevent inconsistent state across distributed boundaries."

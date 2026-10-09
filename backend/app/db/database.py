@@ -1,8 +1,7 @@
 import sqlite3
 import os
 import json
-from datetime import datetime
-from typing import Optional, Dict, Any, List
+from typing import Dict, Any, List
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "aspire.db")
 

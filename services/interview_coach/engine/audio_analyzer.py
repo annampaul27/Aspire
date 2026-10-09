@@ -1,5 +1,5 @@
 import re
-from typing import List, Tuple
+from typing import List
 from services.interview_coach.core.config import settings
 from services.interview_coach.core.schemas import SpeechAcousticsMetrics
 

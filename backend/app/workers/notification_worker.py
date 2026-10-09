@@ -3,7 +3,7 @@ import os
 import uuid
 import logging
 from datetime import datetime, timedelta, date
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 
 # Ensure parent directory is in python path when run as script
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -11,9 +11,9 @@ backend_dir = os.path.abspath(os.path.join(current_dir, "..", ".."))
 if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
-from sqlalchemy import select, func, or_
-from app.db.session import SessionLocal
-from app.models.entities import SavedJob, Job, User, UserNotification
+from sqlalchemy import select, func, or_  # noqa: E402
+from app.db.session import SessionLocal  # noqa: E402
+from app.models.entities import SavedJob, Job, User, UserNotification  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("notification_worker")

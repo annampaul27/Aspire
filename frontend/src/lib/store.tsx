@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import {
   RoleType,
   Organization,
@@ -185,10 +185,16 @@ function createRegisteredCandidate(studentData: {
   return newCandidate;
 }
 
+const DEFAULT_USER = {
+  name: "Priya Sharma",
+  email: "priya.sharma@acme.com",
+  role: "employer" as RoleType,
+  orgName: "Acme HyperScale Systems",
+  avatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+};
+
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [role, setRole] = useState<RoleType>(() => {
-    return getSavedSession()?.role || "employer";
-  });
+  const [role, setRole] = useState<RoleType>("employer");
   const [organizations, setOrganizations] = useState<Organization[]>(INITIAL_ORGS);
   const [currentOrg, setCurrentOrg] = useState<Organization>(INITIAL_ORGS[0]);
   const [jobs, setJobs] = useState<JobOpening[]>(INITIAL_JOBS);
@@ -202,31 +208,41 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [toasts, setToasts] = useState<ToastNotification[]>([]);
 
   // The logged-in student persona defaults to cand-1 ("Aditya Verma", Bridgeable at 78%)
-  const [currentStudentId, setCurrentStudentId] = useState<string>(() => {
-    return getSavedSession()?.currentStudentId || "cand-1";
-  });
+  const [currentStudentId, setCurrentStudentId] = useState<string>("cand-1");
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    const session = getSavedSession();
-    return session?.isAuthenticated !== undefined ? session.isAuthenticated : true;
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   const [currentUser, setCurrentUser] = useState<{
     name: string;
     email: string;
     role: RoleType;
     avatarUrl?: string;
     orgName?: string;
-  } | null>(() => {
-    const session = getSavedSession();
-    if (session?.currentUser) return session.currentUser;
-    return {
-      name: "Priya Sharma",
-      email: "priya.sharma@acme.com",
-      role: "employer",
-      orgName: "Acme HyperScale Systems",
-      avatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
-    };
-  });
+  } | null>(DEFAULT_USER);
+
+  // Restore saved session from localStorage on client mount (prevents SSR hydration mismatch)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const session = getSavedSession();
+      if (session) {
+        if (session.role) setRole(session.role);
+        if (session.currentStudentId) setCurrentStudentId(session.currentStudentId);
+        if (session.isAuthenticated !== undefined) {
+          setIsAuthenticated(session.isAuthenticated);
+          if (!session.isAuthenticated) {
+            setCurrentUser(null);
+          }
+        }
+        if (session.currentUser) {
+          setCurrentUser(session.currentUser);
+          if (session.currentUser.orgName) {
+            const matchedOrg = organizations.find((o) => o.name === session.currentUser.orgName);
+            if (matchedOrg) setCurrentOrg(matchedOrg);
+          }
+        }
+      }
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [organizations]);
 
   const persistSession = (
     savedRole: RoleType,
@@ -312,7 +328,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setCurrentUser(null);
     clearAuthToken();
     try {
-      localStorage.removeItem("aspireai_auth_session");
+      localStorage.setItem(
+        "aspireai_auth_session",
+        JSON.stringify({
+          role: "employer",
+          currentUser: null,
+          isAuthenticated: false,
+          currentStudentId: "cand-1",
+        })
+      );
     } catch {}
     addToast({
       type: "info",

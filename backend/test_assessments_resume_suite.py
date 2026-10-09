@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
-from app.db.database import init_db, get_db_connection
+from app.db.database import init_db
 import io
 
 client = TestClient(app)
@@ -44,6 +44,7 @@ def test_submit_assessment_pass_gold():
     # First get question IDs
     q_res = client.get("/api/v1/assessments/postgresql/questions")
     questions = q_res.json()["questions"]
+    assert len(questions) > 0
     
     from app.api.v1.assessments import SKILL_QUESTION_BANKS
     bank = SKILL_QUESTION_BANKS["postgresql"]

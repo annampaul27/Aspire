@@ -21,7 +21,6 @@ import {
   CreditCard,
   Lock,
   RefreshCw,
-  AlertCircle,
   CheckCircle,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
@@ -62,7 +61,6 @@ export default function PricingRevenuePage() {
 
   // Live Subscription Telemetry & Gateway State
   const [currentSubscription, setCurrentSubscription] = useState<UserSubscription | null>(null);
-  const [isLoadingSub, setIsLoadingSub] = useState(false);
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
   const [paymentProvider, setPaymentProvider] = useState<"razorpay" | "stripe">("razorpay");
   const [checkoutSession, setCheckoutSession] = useState<CheckoutResponse | null>(null);
@@ -71,14 +69,11 @@ export default function PricingRevenuePage() {
 
   useEffect(() => {
     async function loadCurrentSubscription() {
-      setIsLoadingSub(true);
       try {
         const sub = await billingApi.getCurrentSubscription();
         setCurrentSubscription(sub);
       } catch (err) {
         console.warn("Could not load current subscription:", err);
-      } finally {
-        setIsLoadingSub(false);
       }
     }
     loadCurrentSubscription();
@@ -96,11 +91,12 @@ export default function PricingRevenuePage() {
       });
       setCheckoutSession(session);
       setCheckoutStep("ready");
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Could not connect to payment gateway";
       addToast({
         type: "warning",
         title: "Checkout Initialization Failed",
-        message: err.message || "Could not connect to payment gateway",
+        message,
       });
     } finally {
       setIsProcessingCheckout(false);
@@ -147,11 +143,12 @@ export default function PricingRevenuePage() {
         message: `Plan ${selectedPlanModal.name} (${billingCycle}) is active. Live quotas provisioned!`,
       });
       setCheckoutStep("success");
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to confirm payment signature";
       addToast({
         type: "warning",
         title: "Payment Verification Failed",
-        message: err.message || "Failed to confirm payment signature",
+        message,
       });
     } finally {
       setIsProcessingCheckout(false);
@@ -175,11 +172,12 @@ export default function PricingRevenuePage() {
         title: "Subscription Cancelled",
         message: res.message || "Your subscription has been scheduled for cancellation.",
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Could not cancel subscription";
       addToast({
         type: "warning",
         title: "Cancellation Error",
-        message: err.message || "Could not cancel subscription",
+        message,
       });
     }
   };

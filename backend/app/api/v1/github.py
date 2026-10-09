@@ -4,9 +4,9 @@ Author: Career-OS Security & GitHub Engineering
 """
 
 from fastapi import APIRouter, HTTPException, Query
-from typing import List, Dict, Any, Optional
+from typing import Optional
 from features.github_analysis import github_service
-from app.models.github import GithubRepo, RepoScan, RemediationRequest, ScanRequest
+from app.models.github import RemediationRequest, ScanRequest
 
 router = APIRouter()
 

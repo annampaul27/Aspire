@@ -4,7 +4,6 @@ from typing import List, Optional
 from app.services.sandbox.schemas import (
     ExecutionRequest,
     ExecutionResult,
-    ExecutionStatus,
     ExecutionTestCase,
 )
 

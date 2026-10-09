@@ -1,7 +1,7 @@
 import io
 import os
 import re
-from typing import Optional, List, Dict, Any
+from typing import Dict, Any
 import pdfplumber
 import docx
 from app.models.ats import ResumeSchema, JDSchema, WorkExperience
@@ -202,7 +202,7 @@ def _fallback_parse_jd(raw_text: str) -> JDSchema:
     Categorizes skills into Critical (Mandatory, weight=3.0) and Optional (Nice-to-have, weight=1.0).
     """
     title = "Senior Full-Stack Engineer"
-    first_lines = [l.strip() for l in raw_text.splitlines() if l.strip()][:3]
+    first_lines = [line_item.strip() for line_item in raw_text.splitlines() if line_item.strip()][:3]
     for line in first_lines:
         if any(keyword in line.lower() for keyword in ["engineer", "architect", "developer", "lead", "specialist"]):
             title = line

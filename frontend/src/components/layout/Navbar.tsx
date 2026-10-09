@@ -28,9 +28,11 @@ import {
 } from "lucide-react";
 import GithubIcon from "@/components/icons/GithubIcon";
 import { RoleType } from "@/types";
+import { useMounted } from "@/lib/useMounted";
 import NotificationCenter from "./NotificationCenter";
 
 export default function Navbar() {
+  const mounted = useMounted();
   const pathname = usePathname();
   const router = useRouter();
   const {
@@ -81,17 +83,21 @@ export default function Navbar() {
     credentials[0]?.hash ||
     "a4f89d3810c92bf2234e405e6081297e68cfb939e6a0d0a52479e0237d45f3ba";
 
-  // STRICT RBAC:
-  // If the user is logged in, their role is SOLELY dictated by their authenticated session.
-  // A student never becomes an employer just by navigating to an employer URL or /hub.
-  const effectiveRole: RoleType =
-    isAuthenticated && currentUser
-      ? currentUser.role
-      : pathname.startsWith("/employer")
+  // STRICT RBAC & HYDRATION SAFETY:
+  // When mounted on the client with an active authenticated session, the user's role is dictated
+  // by their session. During SSR and initial hydration (before mount), derive role from the route
+  // so server-rendered HTML and client initial hydration match the URL exactly.
+  const routeRole: RoleType =
+    pathname.startsWith("/employer") || pathname === "/demo"
       ? "employer"
       : pathname.startsWith("/admin")
       ? "admin"
       : "student";
+
+  const effectiveRole: RoleType =
+    mounted && isAuthenticated && currentUser
+      ? currentUser.role
+      : routeRole;
 
   const isPublicLanding = pathname === "/" && !isAuthenticated;
 
@@ -454,7 +460,7 @@ export default function Navbar() {
           <NotificationCenter userId={effectiveRole === "student" ? "cand-1" : "emp-1"} />
 
           {/* Authenticated User Menu (STRICT ROLE PROFILE - NO ACCIDENTAL ROLE SWITCHER) */}
-          {isAuthenticated && currentUser ? (
+          {mounted && isAuthenticated && currentUser ? (
             <div className="relative" ref={userRef}>
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
@@ -582,7 +588,7 @@ export default function Navbar() {
                 </div>
               )}
             </div>
-          ) : (
+          ) : mounted ? (
             <Link
               href="/login"
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 text-white font-semibold text-xs shadow-md shadow-purple-950/40 transition-all"
@@ -590,6 +596,8 @@ export default function Navbar() {
               <LogIn className="w-3.5 h-3.5" />
               <span>Sign In</span>
             </Link>
+          ) : (
+            <div className="h-8 w-24 rounded-xl bg-slate-900/60 border border-slate-800 animate-pulse" />
           )}
 
           {/* Mobile Menu Hamburger */}
@@ -703,7 +711,7 @@ export default function Navbar() {
                 <ChevronDown className="w-4 h-4 -rotate-90" />
               </Link>
             )}
-            {isAuthenticated ? (
+            {mounted && isAuthenticated ? (
               <Link
                 href={profileUrl}
                 className="flex items-center justify-between p-2 rounded-lg text-slate-300 hover:bg-slate-900"
@@ -711,7 +719,7 @@ export default function Navbar() {
                 <span>👤 My Profile & Settings</span>
                 <ChevronDown className="w-4 h-4 -rotate-90 text-slate-600" />
               </Link>
-            ) : (
+            ) : mounted ? (
               <Link
                 href="/login"
                 className="flex items-center justify-between p-2 rounded-lg bg-purple-600 text-white font-semibold"
@@ -719,7 +727,7 @@ export default function Navbar() {
                 <span>🔑 Sign In / Register</span>
                 <ChevronDown className="w-4 h-4 -rotate-90" />
               </Link>
-            )}
+            ) : null}
           </div>
         </div>
       )}

@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useStore } from "@/lib/store";
+import { useMounted } from "@/lib/useMounted";
 import {
   Briefcase,
   GraduationCap,
@@ -18,6 +19,7 @@ import {
 
 export default function HomePage() {
   const { credentials, isAuthenticated, currentUser } = useStore();
+  const mounted = useMounted();
 
   const sampleHash =
     credentials[0]?.hash ||
@@ -47,7 +49,7 @@ export default function HomePage() {
 
           {/* Role-Aware Primary Action Buttons */}
           <div className="pt-2 flex flex-wrap items-center gap-3">
-            {isAuthenticated && currentUser?.role === "student" ? (
+            {mounted && isAuthenticated && currentUser?.role === "student" ? (
               <>
                 <Link
                   href="/student"
@@ -74,7 +76,7 @@ export default function HomePage() {
                   <span>13 Courses & Labs</span>
                 </Link>
               </>
-            ) : isAuthenticated && currentUser?.role === "employer" ? (
+            ) : mounted && isAuthenticated && currentUser?.role === "employer" ? (
               <>
                 <Link
                   href="/employer"
@@ -99,7 +101,7 @@ export default function HomePage() {
                   <span>⚡ Live Evaluation</span>
                 </Link>
               </>
-            ) : isAuthenticated && currentUser?.role === "admin" ? (
+            ) : mounted && isAuthenticated && currentUser?.role === "admin" ? (
               <>
                 <Link
                   href="/admin"

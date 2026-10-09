@@ -1,5 +1,5 @@
 import datetime
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional
 from pydantic import BaseModel, Field, ConfigDict
 
 class RoleTopicPreset(BaseModel):

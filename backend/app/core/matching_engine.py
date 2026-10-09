@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Set, Tuple
+from typing import List, Dict, Any, Set
 import re
 
 # Comprehensive canonical taxonomy mapping

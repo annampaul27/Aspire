@@ -1,4 +1,3 @@
-import pytest
 from services.interview_coach.engine.audio_analyzer import AudioAcousticsAnalyzer
 from services.interview_coach.engine.vision_analyzer import VisionTelemetryAnalyzer
 

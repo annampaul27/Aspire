@@ -7,8 +7,8 @@ import { useStore } from "@/lib/store";
 export interface UseCollaborationSocketOptions {
   orgId?: string;
   onStageChanged?: (event: PipelineStageEvent) => void;
-  onScorecardSubmitted?: (data: any) => void;
-  onNoteAdded?: (data: any) => void;
+  onScorecardSubmitted?: (data: Record<string, unknown>) => void;
+  onNoteAdded?: (data: Record<string, unknown>) => void;
 }
 
 export function useCollaborationSocket({
@@ -20,11 +20,12 @@ export function useCollaborationSocket({
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [peerCount, setPeerCount] = useState<number>(1);
   const [activeCollaborators, setActiveCollaborators] = useState<CollaboratorPresence[]>([]);
-  const [lastEvent, setLastEvent] = useState<any>(null);
+  const [lastEvent, setLastEvent] = useState<Record<string, unknown> | null>(null);
 
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const heartbeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const connectRef = useRef<() => void>(() => {});
 
   const { updateCandidatePipelineStatus, addToast } = useStore();
 
@@ -63,7 +64,7 @@ export function useCollaborationSocket({
         try {
           const payload = JSON.parse(event.data);
           const { event: eventType, data } = payload;
-          setLastEvent(payload);
+          setLastEvent(payload as Record<string, unknown>);
 
           switch (eventType) {
             case "RECRUITER_JOINED":
@@ -100,7 +101,7 @@ export function useCollaborationSocket({
 
             case "SCORECARD_SUBMITTED":
               if (onScorecardSubmitted) {
-                onScorecardSubmitted(data);
+                onScorecardSubmitted(data as Record<string, unknown>);
               }
               addToast({
                 type: "info",
@@ -111,7 +112,7 @@ export function useCollaborationSocket({
 
             case "NOTE_ADDED":
               if (onNoteAdded) {
-                onNoteAdded(data);
+                onNoteAdded(data as Record<string, unknown>);
               }
               addToast({
                 type: "info",
@@ -131,9 +132,9 @@ export function useCollaborationSocket({
       ws.onclose = () => {
         setIsConnected(false);
         if (heartbeatIntervalRef.current) clearInterval(heartbeatIntervalRef.current);
-        // Attempt reconnect in 3.5 seconds
+        // Attempt reconnect in 3.5 seconds using connectRef to avoid TDZ
         reconnectTimeoutRef.current = setTimeout(() => {
-          connect();
+          connectRef.current();
         }, 3500);
       };
 
@@ -143,10 +144,15 @@ export function useCollaborationSocket({
     } catch (e) {
       console.warn("WebSocket connection failure:", e);
       reconnectTimeoutRef.current = setTimeout(() => {
-        connect();
+        connectRef.current();
       }, 5000);
     }
   }, [orgId, updateCandidatePipelineStatus, onStageChanged, onScorecardSubmitted, onNoteAdded, addToast]);
+
+  // Keep connectRef synced with latest connect instance
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   useEffect(() => {
     connect();

@@ -1,11 +1,7 @@
-import datetime
 from sqlalchemy.orm import Session
 from app.db.session import engine, SessionLocal
-import app.models.entities
 from app.models.entities import (
-    Base, Organization, User, Skill, Job, Subscription,
-    DispatchedSprint, VerifiedCredential, Assessment, AtsResume, SavedJob, UserNotification,
-    PipelineStageChange, CandidateScorecard, RecruiterNote
+    Base, Organization, User, Subscription
 )
 from app.core.security import get_password_hash
 

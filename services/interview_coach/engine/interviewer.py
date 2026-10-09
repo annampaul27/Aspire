@@ -1,15 +1,12 @@
-import os
 import uuid
 import re
-from typing import Optional, List, Dict, Any
+from typing import Optional, Dict, Any
 from services.interview_coach.core.config import settings
 from services.interview_coach.core.schemas import (
     InterviewQuestionResponse,
     FollowUpProbeResponse,
     HireabilityEvaluationReport,
     AnswerSubmissionRequest,
-    SpeechAcousticsMetrics,
-    VisionTelemetryMetrics,
 )
 from services.interview_coach.core.scoring import (
     calculate_technical_score,

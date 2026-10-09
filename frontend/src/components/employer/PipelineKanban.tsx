@@ -6,7 +6,7 @@ import { useStore } from "@/lib/store";
 import { useCollaborationSocket } from "@/lib/useCollaborationSocket";
 import { collaborationApi } from "@/lib/api/collaboration";
 import CandidateScorecardDrawer from "./CandidateScorecardDrawer";
-import { ShieldCheck, Users, Star, ArrowRight, ArrowLeft } from "lucide-react";
+import { ShieldCheck, Star, ArrowRight, ArrowLeft } from "lucide-react";
 
 interface PipelineKanbanProps {
   onSelectCandidate: (candidate: Candidate) => void;

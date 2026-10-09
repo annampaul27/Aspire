@@ -1,7 +1,6 @@
 import sys
 import os
 from logging.config import fileConfig
-from sqlalchemy import pool
 from alembic import context
 
 # Add backend directory to sys.path

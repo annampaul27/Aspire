@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Query, Body, Depends
-from typing import Optional, List, Dict, Any
-from datetime import datetime, timedelta, date
+from typing import Optional, Dict, Any
+from datetime import datetime, timedelta
 import uuid
 import json
 from sqlalchemy.orm import Session

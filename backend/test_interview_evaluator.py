@@ -1,4 +1,3 @@
-import pytest
 from app.services.interview.evaluator import InterviewCoachEvaluator
 from app.services.interview.schemas import InterviewQuestionSchema, InterviewEvaluationRubric
 
