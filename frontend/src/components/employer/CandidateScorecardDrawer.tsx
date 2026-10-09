@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Candidate, CandidateScorecard, ScorecardSummary, RecruiterNote } from "@/types";
 import { collaborationApi } from "@/lib/api/collaboration";
 import { useStore } from "@/lib/store";
@@ -12,8 +12,6 @@ import {
   MessageSquare,
   History,
   CheckCircle2,
-  Clock,
-  ShieldCheck,
   Send,
   Lock,
 } from "lucide-react";
@@ -22,6 +20,15 @@ interface CandidateScorecardDrawerProps {
   candidate: Candidate | null;
   isOpen: boolean;
   onClose: () => void;
+}
+
+interface PipelineHistoryItem {
+  id: string;
+  from_stage: string;
+  to_stage: string;
+  changed_by: string;
+  reason?: string;
+  created_at: string;
 }
 
 export default function CandidateScorecardDrawer({
@@ -35,7 +42,6 @@ export default function CandidateScorecardDrawer({
   // Scorecards State
   const [scorecards, setScorecards] = useState<CandidateScorecard[]>([]);
   const [summary, setSummary] = useState<ScorecardSummary | null>(null);
-  const [isLoadingScorecards, setIsLoadingScorecards] = useState<boolean>(false);
 
   // Form State
   const [techRating, setTechRating] = useState<number>(4);
@@ -52,40 +58,39 @@ export default function CandidateScorecardDrawer({
   const [isSubmittingNote, setIsSubmittingNote] = useState<boolean>(false);
 
   // History State
-  const [history, setHistory] = useState<any[]>([]);
-
-  const fetchScorecardsAndNotes = useCallback(async () => {
-    if (!candidate) return;
-    setIsLoadingScorecards(true);
-    try {
-      const [scRes, notesRes, histRes] = await Promise.all([
-        collaborationApi.getScorecards(candidate.id).catch(() => null),
-        collaborationApi.getNotes(candidate.id).catch(() => null),
-        collaborationApi.getPipelineHistory(candidate.id).catch(() => null),
-      ]);
-
-      if (scRes) {
-        setScorecards(scRes.scorecards || []);
-        setSummary(scRes.summary || null);
-      }
-      if (notesRes) {
-        setNotes(notesRes.notes || []);
-      }
-      if (histRes) {
-        setHistory(histRes.history || []);
-      }
-    } catch (e) {
-      console.warn("Failed to load collaboration details:", e);
-    } finally {
-      setIsLoadingScorecards(false);
-    }
-  }, [candidate]);
+  const [history, setHistory] = useState<PipelineHistoryItem[]>([]);
 
   useEffect(() => {
+    let isCancelled = false;
     if (isOpen && candidate) {
-      fetchScorecardsAndNotes();
+      const loadData = async () => {
+        try {
+          const [scRes, notesRes, histRes] = await Promise.all([
+            collaborationApi.getScorecards(candidate.id).catch(() => null),
+            collaborationApi.getNotes(candidate.id).catch(() => null),
+            collaborationApi.getPipelineHistory(candidate.id).catch(() => null),
+          ]);
+          if (isCancelled) return;
+          if (scRes) {
+            setScorecards(scRes.scorecards || []);
+            setSummary(scRes.summary || null);
+          }
+          if (notesRes) {
+            setNotes(notesRes.notes || []);
+          }
+          if (histRes) {
+            setHistory(histRes.history || []);
+          }
+        } catch (e) {
+          console.warn("Failed to load collaboration details:", e);
+        }
+      };
+      loadData();
     }
-  }, [isOpen, candidate, fetchScorecardsAndNotes]);
+    return () => {
+      isCancelled = true;
+    };
+  }, [isOpen, candidate]);
 
   if (!isOpen || !candidate) return null;
 
@@ -111,11 +116,12 @@ export default function CandidateScorecardDrawer({
         message: `Recommendation logged: ${recommendation.toUpperCase()}. Team consensus updated.`,
       });
       setActiveTab("team_reviews");
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to submit scorecard.";
       addToast({
         type: "warning",
         title: "Evaluation Failed",
-        message: err.message || "Failed to submit scorecard.",
+        message,
       });
     } finally {
       setIsSubmitting(false);
@@ -135,11 +141,12 @@ export default function CandidateScorecardDrawer({
         title: "Note Shared",
         message: "Private note added and broadcasted to team.",
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to post note.";
       addToast({
         type: "warning",
         title: "Error",
-        message: err.message || "Failed to post note.",
+        message,
       });
     } finally {
       setIsSubmittingNote(false);
@@ -332,16 +339,18 @@ export default function CandidateScorecardDrawer({
                   Overall Recommendation
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { id: "strong_hire", label: "Strong Hire", color: "border-emerald-600 bg-emerald-950/40 text-emerald-300" },
-                    { id: "hire", label: "Hire", color: "border-blue-600 bg-blue-950/40 text-blue-300" },
-                    { id: "neutral", label: "Neutral / Inconclusive", color: "border-amber-600 bg-amber-950/40 text-amber-300" },
-                    { id: "reject", label: "Do Not Hire", color: "border-red-600 bg-red-950/40 text-red-300" },
-                  ].map((opt) => (
+                  {(
+                    [
+                      { id: "strong_hire", label: "Strong Hire", color: "border-emerald-600 bg-emerald-950/40 text-emerald-300" },
+                      { id: "hire", label: "Hire", color: "border-blue-600 bg-blue-950/40 text-blue-300" },
+                      { id: "neutral", label: "Neutral / Inconclusive", color: "border-amber-600 bg-amber-950/40 text-amber-300" },
+                      { id: "reject", label: "Do Not Hire", color: "border-red-600 bg-red-950/40 text-red-300" },
+                    ] as const
+                  ).map((opt) => (
                     <button
                       key={opt.id}
                       type="button"
-                      onClick={() => setRecommendation(opt.id as any)}
+                      onClick={() => setRecommendation(opt.id)}
                       className={`p-2.5 rounded-lg border text-xs font-semibold transition-all text-left flex items-center justify-between ${
                         recommendation === opt.id
                           ? opt.color + " ring-1 ring-white/20 shadow-md"

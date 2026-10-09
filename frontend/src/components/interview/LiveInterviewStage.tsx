@@ -1,16 +1,14 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Volume2,
   Mic,
   Square,
   Sparkles,
   Zap,
-  CheckCircle,
   AlertCircle,
   HelpCircle,
-  RefreshCw,
   Send,
   Camera,
 } from "lucide-react";
@@ -24,6 +22,31 @@ import {
 import SpeechTelemetryHUD from "./SpeechTelemetryHUD";
 import EvaluationReportModal from "./EvaluationReportModal";
 import DeviceCheckModal from "./DeviceCheckModal";
+
+interface SpeechRecognitionResultItem {
+  transcript: string;
+}
+
+interface SpeechRecognitionResultList {
+  [index: number]: {
+    [index: number]: SpeechRecognitionResultItem;
+  };
+  length: number;
+}
+
+interface SpeechRecognitionEventLike {
+  resultIndex: number;
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionInstance {
+  continuous: boolean;
+  interimResults: boolean;
+  onresult: (event: SpeechRecognitionEventLike) => void;
+  onerror: (event: unknown) => void;
+  start: () => void;
+  stop: () => void;
+}
 
 export default function LiveInterviewStage() {
   const [presets, setPresets] = useState<RoleTopicPreset[]>([]);
@@ -45,7 +68,7 @@ export default function LiveInterviewStage() {
   const [transcript, setTranscript] = useState("");
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
 
   // Live telemetry estimates
   const [wpm, setWpm] = useState(0);
@@ -61,6 +84,34 @@ export default function LiveInterviewStage() {
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [evaluationReport, setEvaluationReport] = useState<HireabilityEvaluationReport | null>(null);
   const [isReportOpen, setIsReportOpen] = useState(false);
+
+  // Compute live telemetry (WPM, Fillers) - Hoisted before useEffect
+  const computeLiveTelemetry = useCallback((text: string, seconds: number) => {
+    const words = text.trim().split(/\s+/).filter((w) => w.length > 0);
+    const count = words.length;
+    const safeSecs = Math.max(1, seconds);
+    const calcWpm = Math.round((count / safeSecs) * 60);
+    setWpm(calcWpm);
+
+    if (calcWpm < 110) setCadenceRating("Too Slow");
+    else if (calcWpm < 125) setCadenceRating("Slightly Slow");
+    else if (calcWpm <= 165) setCadenceRating("Optimal");
+    else if (calcWpm <= 190) setCadenceRating("Slightly Fast");
+    else setCadenceRating("Too Fast");
+
+    const fillers = ["um", "uh", "like", "actually", "basically", "you know", "literally", "right"];
+    let detectedCount = 0;
+    const found: string[] = [];
+    words.forEach((w) => {
+      const clean = w.toLowerCase().replace(/[^a-z]/g, "");
+      if (fillers.includes(clean)) {
+        detectedCount++;
+        if (!found.includes(clean)) found.push(clean);
+      }
+    });
+    setFillerCount(detectedCount);
+    setDetectedFillers(found);
+  }, []);
 
   // 1. Fetch Presets
   useEffect(() => {
@@ -89,14 +140,17 @@ export default function LiveInterviewStage() {
   // 3. Setup Web Speech Recognition
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const SpeechRecognition =
-        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const win = window as unknown as {
+        SpeechRecognition?: new () => SpeechRecognitionInstance;
+        webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+      };
+      const SpeechRecognition = win.SpeechRecognition || win.webkitSpeechRecognition;
       if (SpeechRecognition) {
         const recog = new SpeechRecognition();
         recog.continuous = true;
         recog.interimResults = true;
 
-        recog.onresult = (event: any) => {
+        recog.onresult = (event: SpeechRecognitionEventLike) => {
           let currentText = "";
           for (let i = event.resultIndex; i < event.results.length; ++i) {
             currentText += event.results[i][0].transcript;
@@ -105,42 +159,14 @@ export default function LiveInterviewStage() {
           computeLiveTelemetry(currentText, elapsedSeconds);
         };
 
-        recog.onerror = (e: any) => {
+        recog.onerror = (e: unknown) => {
           console.warn("Speech recognition error:", e);
         };
 
         recognitionRef.current = recog;
       }
     }
-  }, [elapsedSeconds]);
-
-  // Compute live telemetry (WPM, Fillers)
-  const computeLiveTelemetry = (text: string, seconds: number) => {
-    const words = text.trim().split(/\s+/).filter((w) => w.length > 0);
-    const count = words.length;
-    const safeSecs = Math.max(1, seconds);
-    const calcWpm = Math.round((count / safeSecs) * 60);
-    setWpm(calcWpm);
-
-    if (calcWpm < 110) setCadenceRating("Too Slow");
-    else if (calcWpm < 125) setCadenceRating("Slightly Slow");
-    else if (calcWpm <= 165) setCadenceRating("Optimal");
-    else if (calcWpm <= 190) setCadenceRating("Slightly Fast");
-    else setCadenceRating("Too Fast");
-
-    const fillers = ["um", "uh", "like", "actually", "basically", "you know", "literally", "right"];
-    let detectedCount = 0;
-    const found: string[] = [];
-    words.forEach((w) => {
-      const clean = w.toLowerCase().replace(/[^a-z]/g, "");
-      if (fillers.includes(clean)) {
-        detectedCount++;
-        if (!found.includes(clean)) found.push(clean);
-      }
-    });
-    setFillerCount(detectedCount);
-    setDetectedFillers(found);
-  };
+  }, [elapsedSeconds, computeLiveTelemetry]);
 
   // 4. Generate Question
   const handleGenerateQuestion = async () => {
@@ -157,8 +183,9 @@ export default function LiveInterviewStage() {
         difficulty,
       });
       setQuestion(res);
-    } catch (err: any) {
-      alert("Failed to generate question: " + err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      alert("Failed to generate question: " + msg);
     } finally {
       setIsLoadingQuestion(false);
     }
@@ -220,8 +247,9 @@ export default function LiveInterviewStage() {
       );
       setFollowUp(res);
       handleSpeakQuestion(res.probe_question);
-    } catch (err: any) {
-      alert("Failed to generate follow-up: " + err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      alert("Failed to generate follow-up: " + msg);
     } finally {
       setIsLoadingFollowUp(false);
     }
@@ -244,8 +272,9 @@ export default function LiveInterviewStage() {
       });
       setEvaluationReport(res);
       setIsReportOpen(true);
-    } catch (err: any) {
-      alert("Evaluation failed: " + err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      alert("Evaluation failed: " + msg);
     } finally {
       setIsEvaluating(false);
     }
@@ -391,7 +420,7 @@ export default function LiveInterviewStage() {
             ) : (
               <div className="py-8 text-center text-gray-500">
                 <HelpCircle className="h-10 w-10 mx-auto mb-2 opacity-40 text-emerald-400" />
-                <p className="text-sm">Click "Generate Question" above to begin your live AI mock interview.</p>
+                <p className="text-sm">Click &quot;Generate Question&quot; above to begin your live AI mock interview.</p>
               </div>
             )}
           </div>

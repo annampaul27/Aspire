@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowLeft, Mic, Sparkles, Video, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Mic, Video, ShieldCheck } from "lucide-react";
 import LiveInterviewStage from "@/components/interview/LiveInterviewStage";
 
 export default function InterviewCoachPage() {

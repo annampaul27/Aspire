@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import GithubIcon from "@/components/icons/GithubIcon";
 import Link from "next/link";
+import RoleGuard from "@/components/auth/RoleGuard";
 
 export default function StudentPage() {
   const { currentStudent, activeJob } = useStore();
@@ -88,7 +89,8 @@ export default function StudentPage() {
   const isJobReady = currentStudent.readinessScore >= 85;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <RoleGuard allowedRoles={["student", "admin"]} portalName="Student Portal">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Profile Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-xl bg-gray-900 border border-gray-800">
         <div className="flex items-center gap-3.5">
@@ -505,6 +507,7 @@ export default function StudentPage() {
           candidateName={currentStudent.fullName}
         />
       )}
-    </div>
+      </div>
+    </RoleGuard>
   );
 }
