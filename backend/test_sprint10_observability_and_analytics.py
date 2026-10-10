@@ -45,3 +45,49 @@ def test_prometheus_metrics_endpoint():
     assert "http_requests_total" in metrics_res.text
     assert "http_request_duration_seconds" in metrics_res.text
 
+
+def test_hiring_funnel_analytics_endpoint():
+    from fastapi.testclient import TestClient
+    from app.main import app
+
+    client = TestClient(app)
+    res = client.get("/api/v1/analytics/hiring-funnel?org_id=org-acme")
+    assert res.status_code == 200
+    data = res.json()
+    assert "stages" in data
+    assert len(data["stages"]) == 5
+    assert "conversion_rates" in data
+    assert "dwell_times_hours" in data
+    assert "interviewer_consensus" in data
+    assert "top_deficit_skills" in data
+    assert data["total_candidates"] >= 0
+
+
+def test_system_telemetry_endpoint():
+    from fastapi.testclient import TestClient
+    from app.main import app
+
+    client = TestClient(app)
+    res = client.get("/api/v1/analytics/system-telemetry")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "healthy"
+    assert "p95_latency_ms" in data
+    assert "active_websocket_connections" in data
+    assert "uptime_seconds" in data
+
+
+def test_quota_burn_rate_endpoint():
+    from fastapi.testclient import TestClient
+    from app.main import app
+
+    client = TestClient(app)
+    res = client.get("/api/v1/analytics/quota-burn-rate?org_id=org-acme")
+    assert res.status_code == 200
+    data = res.json()
+    assert "plan" in data
+    assert "active_jobs_used" in data
+    assert "evaluations_used" in data
+    assert "projected_runway_days" in data
+
+
