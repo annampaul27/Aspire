@@ -260,4 +260,78 @@ export interface PipelineStageEvent {
   timestamp: string;
 }
 
+export interface FunnelStage {
+  id: string;
+  name: string;
+  count: number;
+  color: string;
+}
 
+export interface ConversionRates {
+  applied_to_screened: number;
+  screened_to_shortlisted: number;
+  shortlisted_to_interview: number;
+  interview_to_offer: number;
+  overall_pass_through: number;
+}
+
+export interface DwellTimesHours {
+  applied: number;
+  screened: number;
+  shortlisted: number;
+  interview: number;
+  offer: number;
+}
+
+export interface InterviewerConsensusMetric {
+  agreement_score: number;
+  consensus_status: string;
+  scorecard_count: number;
+  technical_rating_avg: number;
+  communication_rating_avg: number;
+  problem_solving_avg: number;
+  culture_add_avg: number;
+}
+
+export interface SkillDeficit {
+  skill: string;
+  deficit_rate: number;
+  candidates_affected: number;
+}
+
+export interface HiringFunnelData {
+  org_id: string;
+  total_candidates: number;
+  stages: FunnelStage[];
+  conversion_rates: ConversionRates;
+  dwell_times_hours: DwellTimesHours;
+  interviewer_consensus: InterviewerConsensusMetric;
+  top_deficit_skills: SkillDeficit[];
+}
+
+export interface SystemTelemetryData {
+  status: string;
+  uptime_seconds: number;
+  p50_latency_ms: number;
+  p95_latency_ms: number;
+  http_requests_total: number;
+  active_websocket_connections: number;
+  sandbox_executions_count: number;
+  billing_webhooks_count: number;
+  memory_rss_mb: number;
+  sla_target_ms: number;
+}
+
+export interface QuotaBurnRateData {
+  org_id: string;
+  plan: string;
+  active_jobs_used: number;
+  active_jobs_limit: number;
+  active_jobs_quota_pct: number;
+  evaluations_used: number;
+  evaluations_limit: number;
+  evaluations_quota_pct: number;
+  projected_runway_days: number;
+  renewal_cycle: string;
+  status: string;
+}

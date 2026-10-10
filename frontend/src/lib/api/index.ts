@@ -10,3 +10,6 @@ export * from "./careerCompass";
 export * from "./github";
 export * from "./security";
 export * from "./engine";
+export * from "./collaboration";
+export * from "./interviewCoach";
+export * from "./analytics";
