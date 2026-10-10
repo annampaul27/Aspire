@@ -9,6 +9,7 @@ import ProofOfWorkModal from "@/components/employer/ProofOfWorkModal";
 import CandidateDrawer from "@/components/employer/CandidateDrawer";
 import JobCreatorModal from "@/components/employer/JobCreatorModal";
 import UniversityCohortAnalytics from "@/components/employer/UniversityCohortAnalytics";
+import RecruitmentFunnelAnalytics from "@/components/employer/RecruitmentFunnelAnalytics";
 import Link from "next/link";
 import {
   Plus,
@@ -20,6 +21,7 @@ import {
   Share2,
   Check,
   Settings,
+  BarChart3,
 } from "lucide-react";
 import RoleGuard from "@/components/auth/RoleGuard";
 
@@ -34,7 +36,7 @@ export default function EmployerPage() {
     addToast,
   } = useStore();
 
-  const [activeTab, setActiveTab] = useState<"radar" | "pipeline" | "cohort">("radar");
+  const [activeTab, setActiveTab] = useState<"radar" | "pipeline" | "cohort" | "analytics">("radar");
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [auditCredential, setAuditCredential] = useState<{
     cred: ProofOfWorkCredential;
@@ -196,6 +198,18 @@ export default function EmployerPage() {
             <GraduationCap className="w-3.5 h-3.5" />
             <span>University Cohort</span>
           </button>
+
+          <button
+            onClick={() => setActiveTab("analytics")}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-medium transition-colors ${
+              activeTab === "analytics"
+                ? "bg-gray-800 text-white"
+                : "text-gray-400 hover:text-gray-200"
+            }`}
+          >
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span>Hiring Analytics & APM</span>
+          </button>
         </div>
 
         <div className="hidden sm:block text-xs text-gray-500">
@@ -220,6 +234,8 @@ export default function EmployerPage() {
       )}
 
       {activeTab === "cohort" && <UniversityCohortAnalytics />}
+
+      {activeTab === "analytics" && <RecruitmentFunnelAnalytics />}
 
       {/* Modals */}
       {selectedCandidate && (
