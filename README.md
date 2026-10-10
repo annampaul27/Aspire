@@ -7,7 +7,7 @@
 [![Alembic](https://img.shields.io/badge/Alembic-Migrations-orange.svg)](https://alembic.sqlalchemy.org)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-FF6B6B.svg)](https://trychroma.com)
 [![Groq](https://img.shields.io/badge/Groq-Llama3_Extraction-F55036.svg)](https://groq.com)
-[![Pytest](https://img.shields.io/badge/Pytest-142%20Passed-brightgreen.svg?logo=pytest&logoColor=white)](https://pytest.org)
+[![Pytest](https://img.shields.io/badge/Pytest-148%20Passed-brightgreen.svg?logo=pytest&logoColor=white)](https://pytest.org)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Aspire AI bridges the gap between talent supply (students) and employer demand (corporates, universities, staffing agencies). It combines an AI-powered Applicant Tracking System (ATS), cryptographic proof-of-work credentialing (SHA-256), a dual-tier isolated execution sandbox with AST security filtering, and deterministic deficit-resistance skill matching.
@@ -208,11 +208,45 @@ Following the [Full-Stack & SaaS Architectural Audit](SkillSetu_AI_SaaS_Architec
 
 ---
 
-### 🔮 Sprint 10: Advanced Telemetry, Observability & Analytics Dashboard (Future Roadmap)
+### ✅ Sprint 10: Observability, Prometheus Metrics & Recruitment Analytics Dashboards (Completed)
+- **Branch:** `feat/sprint-10-observability-prometheus-and-analytics-dashboards`
+- **7 Atomic Commits (`d2552f0` → `docs commit`)**:
+  1. `docs(plans): initialize sprint 10 observability, prometheus metrics and analytics plan`
+  2. `feat(telemetry): implement in-memory prometheus metrics collector and registry`
+  3. `feat(metrics): add asgi metrics middleware and root prometheus scrape endpoint`
+  4. `feat(analytics): implement recruitment funnel, telemetry, and quota burn-rate endpoints`
+  5. `feat(frontend): create analytics api client and typescript definitions`
+  6. `feat(employer): add interactive recruitment funnel and apm telemetry dashboard`
+  7. `docs(sprint10): document prometheus metrics, apm telemetry, and funnel analytics`
+- **Key Deliverables:**
+  - **In-Memory Prometheus & OpenMetrics Telemetry Engine (`backend/app/core/telemetry.py`)**: Zero-external-dependency, thread-safe metrics collector implementing standard OpenMetrics 0.0.4 text exposition format. Exposes counters (`http_requests_total`, `sandbox_executions_total`, `billing_webhooks_total`), gauges (`active_websocket_connections`), and quantile summaries (`http_request_duration_seconds` for P50, P90, P99 latency percentiles).
+  - **High-Resolution ASGI Metrics Middleware (`backend/app/middleware/metrics_middleware.py`)**: Intercepts all incoming HTTP transactions, measures sub-millisecond durations via `time.perf_counter()`, records status code labels, and directly serves the root scrape target:
+    ```
+    GET /metrics
+    ```
+  - **Recruitment Funnel Velocity, Dwell Times & Quota Burn-Rate REST Endpoints (`backend/app/api/v1/analytics.py`)**:
+    - `GET /api/v1/analytics/hiring-funnel`: Calculates multi-stage pipeline conversion rates across 5 stages (*Applied $\to$ Screened $\to$ Shortlisted $\to$ Interview $\to$ Offer Extended*), dwell times in hours per stage, interviewer consensus agreement scores, and candidate skill deficits.
+    - `GET /api/v1/analytics/system-telemetry`: Real-time APM telemetry HUD providing P50/P95 latencies, active WebSockets, sandbox runs, billing webhooks, uptime, and 3000ms SLA tracking.
+    - `GET /api/v1/analytics/quota-burn-rate`: Subscription utilization and runway consumption days for active job postings and candidate evaluations.
+  - **Interactive Employer Analytics Dashboard (`frontend/src/components/employer/RecruitmentFunnelAnalytics.tsx`)**:
+    - 4th tab in Employer Portal (`/employer`): "Hiring Analytics & APM" with BarChart3 icon.
+    - Interactive Conversion Waterfall with progress tracks, dwell times, and conversion matrix.
+    - Real-Time APM System Telemetry HUD and Quota Burn-Rate runway gauges.
+    - Multi-dimensional consensus radar display (Technical, Communication, Problem Solving, Culture Add).
+    - OpenMetrics modal viewer displaying raw Prometheus exposition stream directly from `/metrics`.
+  - **Full Regression Verification**:
+    - Expanded test suite: **148/148 Pytest tests passing (100% pass rate)**.
+    - 0 ESLint errors and warnings across the entire frontend.
+    - 0 Ruff lint errors across backend and services.
+    - Next.js 16 production build: **18/18 static and dynamic routes compiled and optimized cleanly**.
+
+---
+
+### 🔮 Sprint 11: Multi-Agent AI Interview Evaluation, Enterprise SSO & ATS Webhook Integrations (Future Roadmap)
 - **Target Deliverables:**
-  1. **Prometheus & OpenTelemetry Metrics**: Instrument request latencies, active WebSocket connections, AST sandbox execution times, and payment throughput.
-  2. **Recruitment Funnel Velocity & Analytics**: Automated conversion rate tracking, time-in-stage metrics, and recruiter response velocity dashboards.
-  3. **Enterprise Billing & Usage Analytics**: Real-time spending projections, quota consumption warnings, and historical invoice management.
+  1. **Multi-Agent Evaluation Panel**: Autonomous multi-agent panel (Technical Lead Agent, System Design Agent, Culture Alignment Agent) generating parallel candidate critiques with debate consensus.
+  2. **Enterprise SSO & SAML 2.0**: Integration with Okta, Azure AD, and Google Workspace for enterprise employer authentication.
+  3. **Outbound ATS Webhooks**: Real-time event webhooks pushing candidate scores and verification credentials directly into Greenhouse, Lever, and Workday.
 
 ---
 
