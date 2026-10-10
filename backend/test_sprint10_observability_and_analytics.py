@@ -27,3 +27,21 @@ def test_telemetry_registry_summary_quantiles():
     output = reg.generate_prometheus_format()
     assert 'http_request_duration_seconds{endpoint="/health",quantile="0.5"}' in output
     assert 'http_request_duration_seconds_count{endpoint="/health"} 7' in output
+
+
+def test_prometheus_metrics_endpoint():
+    from fastapi.testclient import TestClient
+    from app.main import app
+
+    client = TestClient(app)
+    # Trigger requests to generate metrics
+    health_res = client.get("/health")
+    assert health_res.status_code == 200
+
+    # Scrape /metrics endpoint
+    metrics_res = client.get("/metrics")
+    assert metrics_res.status_code == 200
+    assert "text/plain" in metrics_res.headers["content-type"]
+    assert "http_requests_total" in metrics_res.text
+    assert "http_request_duration_seconds" in metrics_res.text
+
