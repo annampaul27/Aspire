@@ -1,9 +1,12 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.responses import Response
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from app.core.config import settings
+from app.core.telemetry import telemetry_registry
+from app.middleware.metrics_middleware import MetricsMiddleware
 from app.db.database import init_db
 from app.db.seed import seed_database_defaults
 from app.workers.notification_worker import run_deadline_notifications_job
@@ -22,6 +25,7 @@ from app.api.v1.github import router as github_router
 from app.api.v1.billing import router as billing_router
 from app.api.v1.collaboration import router as collaboration_router
 from app.api.v1.interview_coach import router as interview_coach_router
+from app.api.v1.analytics import router as analytics_router
 
 scheduler = AsyncIOScheduler()
 
@@ -61,6 +65,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Configure Metrics Middleware for Prometheus APM Telemetry
+app.add_middleware(MetricsMiddleware)
+
 # Configure CORS Middleware for Next.js frontend
 app.add_middleware(
     CORSMiddleware,
@@ -97,6 +104,11 @@ app.include_router(
     prefix=f"{settings.API_V1_STR}/interview-coach",
     tags=["Multimodal AI Interview Coach"]
 )
+app.include_router(
+    analytics_router,
+    prefix=f"{settings.API_V1_STR}/analytics",
+    tags=["Observability & Recruitment Analytics"]
+)
 
 # -------------------------------------------------------------------------
 # Backward Compatibility Route Aliases (Frontend & Client SDK Compatibility)
@@ -108,6 +120,7 @@ app.include_router(github_router, prefix="/api/github", include_in_schema=False)
 app.include_router(billing_router, prefix="/api", include_in_schema=False)
 app.include_router(collaboration_router, prefix="/api", include_in_schema=False)
 app.include_router(interview_coach_router, prefix="/api/interview-coach", include_in_schema=False)
+app.include_router(analytics_router, prefix="/api/analytics", include_in_schema=False)
 
 @app.get("/health", tags=["System Telemetry"])
 async def health_check():
@@ -122,6 +135,16 @@ async def health_check():
         "offline_fallback_cache": "ready (NF2)",
         "cryptographic_engine": "SHA-256 / HS256 active (NF3)",
     }
+
+@app.get("/metrics", tags=["System Telemetry"])
+async def prometheus_metrics():
+    """
+    OpenMetrics / Prometheus exposition endpoint for APM scrapers.
+    """
+    return Response(
+        content=telemetry_registry.generate_prometheus_format(),
+        media_type="text/plain; version=0.0.4; charset=utf-8",
+    )
 
 @app.get("/", tags=["Root"])
 async def root():

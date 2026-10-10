@@ -547,10 +547,77 @@ TEST 10.5: Full Backend & Service Test Suite (Pytest)
 - Command:
   python -m pytest backend/ services/
 - Expected Result:
-  142 passed in ~60s (100% pass rate) with zero failures or unexpected errors.
+  148 passed (100% pass rate) with zero failures or unexpected errors.
 
 ===============================================================================
-13. QA ISSUE REPORTING TEMPLATE (FOR YOUR FRIEND TO SUBMIT BUGS)
+11. SPRINT 10: OBSERVABILITY, PROMETHEUS METRICS & RECRUITMENT ANALYTICS
+===============================================================================
+
+TEST 11.1: Root Prometheus OpenMetrics Exposition Endpoint
+- Prerequisites: Backend server running on port 8000.
+- Steps:
+  1. Open a browser or terminal and issue:
+     curl -i http://localhost:8000/metrics
+- Expected Result:
+  - HTTP 200 OK.
+  - Response Content-Type: "text/plain; version=0.0.4; charset=utf-8".
+  - Contains Prometheus metric exposition definitions:
+    # HELP http_requests_total Total HTTP requests handled
+    # TYPE http_requests_total counter
+    # HELP http_request_duration_seconds Latency summary
+    # TYPE http_request_duration_seconds summary
+    # HELP active_websocket_connections Active WebSocket connections
+    # TYPE active_websocket_connections gauge
+    # HELP sandbox_executions_total Sandbox code execution counter
+    # TYPE sandbox_executions_total counter
+
+TEST 11.2: Recruitment Funnel Conversion Velocity & Dwell Times
+- Steps:
+  1. Issue a GET request:
+     curl -i http://localhost:8000/api/v1/analytics/hiring-funnel?org_id=org-acme
+- Expected Result:
+  - HTTP 200 OK with JSON response.
+  - Returns total candidates, 5 stages (Applied, Screened, Shortlisted, Interview, Offer Extended).
+  - Returns calculated conversion rates, dwell times (hours), reviewer consensus agreement score, and top candidate skill deficits.
+
+TEST 11.3: Real-Time APM System Telemetry HUD
+- Steps:
+  1. Issue a GET request:
+     curl -i http://localhost:8000/api/v1/analytics/system-telemetry
+- Expected Result:
+  - HTTP 200 OK with JSON response.
+  - Returns `status: "healthy"`, `p50_latency_ms`, `p95_latency_ms`, `active_websocket_connections`, `sandbox_executions_count`, `billing_webhooks_count`, and `sla_target_ms: 3000.0`.
+
+TEST 11.4: Quota Burn-Rate & Runway Velocity
+- Steps:
+  1. Issue a GET request:
+     curl -i http://localhost:8000/api/v1/analytics/quota-burn-rate?org_id=org-acme
+- Expected Result:
+  - HTTP 200 OK.
+  - Returns `plan: "Growth"`, `active_jobs_used`, `active_jobs_limit`, `evaluations_used`, `evaluations_limit`, `evaluations_quota_pct`, and `projected_runway_days`.
+
+TEST 11.5: Frontend Employer Portal "Hiring Analytics & APM" Tab
+- Prerequisites: Frontend running on port 3000, backend running on port 8000.
+- Steps:
+  1. Navigate to: http://localhost:3000/employer
+  2. Click the 4th tab: "Hiring Analytics & APM" (BarChart3 icon).
+  3. Verify:
+     - Top KPI cards display Candidates in Funnel, Overall Conversion (12.5%), Reviewer Consensus (88.5%), and APM P95 Latency (~45.2 ms).
+     - Pipeline Conversion Waterfall renders all 5 stages with dwell times and progress tracks.
+     - System APM Telemetry HUD shows median P50 and P95 latency and SLA compliance.
+     - Quota Burn-Rate shows job slots and evaluations utilization with projected runway.
+     - Multi-dimensional consensus displays technical, communication, problem solving, and culture ratings.
+     - Click "OpenMetrics" button: Opens modal displaying raw Prometheus exposition stream.
+     - Click "Refresh" button: Synchronizes live metrics with toast notification.
+
+TEST 11.6: Automated Observability & Analytics Pytest Suite
+- Command:
+  python -m pytest backend/test_sprint10_observability_and_analytics.py -v
+- Expected Result:
+  6 passed in ~2.5s with 100% pass rate.
+
+===============================================================================
+12. QA ISSUE REPORTING TEMPLATE (FOR YOUR FRIEND TO SUBMIT BUGS)
 ===============================================================================
 
 If any issue, UI bug, or unexpected behavior is found, please copy and fill
